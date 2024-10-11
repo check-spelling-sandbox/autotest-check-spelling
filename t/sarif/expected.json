@@ -1,9 +1,4 @@
 {
-"properties": {
-"comment": "check-spelling test"
-},
-"version": "2.1.0",
-"$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
 "runs": [
 {
 "tool": {
@@ -46,54 +41,28 @@
 },
 "results": [
 {
-"message": {
-"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
-},
-"locations": [
-{
-"physicalLocation": {
-"region": {
-"endColumn": 28,
-"startColumn": 24,
-"startLine": 1
-},
-"artifactLocation": {
-"uri": "t/sarif/sample.txt",
-"uriBaseId": "%SRCROOT%"
-}
-}
-}
-],
 "ruleId": "unrecognized-spelling",
-"ruleIndex": 0
-},
-{
+"ruleIndex": 0,
 "message": {
 "text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
 },
 "locations": [
 {
 "physicalLocation": {
+"artifactLocation": {
+"uriBaseId": "%SRCROOT%",
+"uri": "t/sarif/sample.txt"
+},
 "region": {
 "startLine": 1,
-"startColumn": 30,
-"endColumn": 34
-},
-"artifactLocation": {
-"uri": "t/sarif/sample.txt",
-"uriBaseId": "%SRCROOT%"
+"endColumn": 28,
+"startColumn": 24
 }
 }
 }
-],
-"ruleId": "unrecognized-spelling",
-"ruleIndex": 0
+]
 },
 {
-"partialFingerprints": {
-"cs0": "SF7mUJynC9XdvAy9ZdVDsZH89zU"
-},
-"ruleIndex": 0,
 "ruleId": "unrecognized-spelling",
 "message": {
 "text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
@@ -106,15 +75,42 @@
 "uri": "t/sarif/sample.txt"
 },
 "region": {
-"endColumn": 5,
-"startColumn": 1,
-"startLine": 2
+"startColumn": 30,
+"startLine": 1,
+"endColumn": 34
 }
 }
 }
-]
+],
+"ruleIndex": 0
 },
 {
+"partialFingerprints": {
+"cs0": "SF7mUJynC9XdvAy9ZdVDsZH89zU"
+},
+"ruleId": "unrecognized-spelling",
+"ruleIndex": 0,
+"locations": [
+{
+"physicalLocation": {
+"region": {
+"startColumn": 1,
+"startLine": 2,
+"endColumn": 5
+},
+"artifactLocation": {
+"uriBaseId": "%SRCROOT%",
+"uri": "t/sarif/sample.txt"
+}
+}
+}
+],
+"message": {
+"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+}
+},
+{
+"ruleIndex": 0,
 "message": {
 "text": "[mibbit](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
 },
@@ -122,22 +118,21 @@
 {
 "physicalLocation": {
 "artifactLocation": {
-"uri": "t/sarif/sample.txt",
-"uriBaseId": "%SRCROOT%"
+"uriBaseId": "%SRCROOT%",
+"uri": "t/sarif/sample.txt"
 },
 "region": {
-"startColumn": 1,
 "startLine": 5,
-"endColumn": 7
+"endColumn": 7,
+"startColumn": 1
 }
 }
 }
 ],
-"ruleId": "unrecognized-spelling",
-"ruleIndex": 0,
 "partialFingerprints": {
 "cs0": "oRIug4rkTYu2hs0/P6FcQiHZiyg"
-}
+},
+"ruleId": "unrecognized-spelling"
 },
 {
 "partialFingerprints": {
@@ -151,20 +146,25 @@
 "locations": [
 {
 "physicalLocation": {
+"region": {
+"startColumn": 1,
+"startLine": 7,
+"endColumn": 7
+},
 "artifactLocation": {
 "uriBaseId": "%SRCROOT%",
 "uri": "t/sarif/sample.txt"
+}
+}
+}
+]
+}
+]
+}
+],
+"$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+"properties": {
+"comment": "check-spelling test"
 },
-"region": {
-"endColumn": 7,
-"startColumn": 1,
-"startLine": 7
-}
-}
-}
-]
-}
-]
-}
-]
+"version": "2.1.0"
 }
