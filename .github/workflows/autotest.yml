@@ -1,0 +1,31 @@
+name: Daily testing
+on:
+    push:
+    workflow_dispatch:
+    schedule:
+        - cron: "55 9 * * *"
+
+jobs:
+    trigger-test:
+        runs-on: ubuntu-latest
+        name: "Trigger tests"
+        steps:
+          - uses: actions/checkout@v4
+            with:
+                ssh-key: "${{ secrets.AUTO_TEST }}"
+          - name: Fetch upstream
+            shell: bash
+            env:
+                branches: main prerelease
+                origins: check-spelling check-spelling-sandbox
+            run: |
+                for origin in $origins; do
+                    git remote add upstream https://github.com/$origin/check-spelling.git --no-tags
+                    date=$(date +%s)
+                    for branch in $branches; do
+                        local=$origin/$branch/$date
+                        git fetch upstream $branch:$local
+                        git push origin $local -f
+                    done
+                    git remote rm upstream
+                done
