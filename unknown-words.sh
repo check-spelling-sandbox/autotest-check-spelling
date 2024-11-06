@@ -1333,12 +1333,15 @@ check_pattern_file() {
 
 check_for_newline_at_eof() {
   maybe_missing_eol="$1"
-  if [ -s "$maybe_missing_eol" ] && [ "$(tail -1 "$maybe_missing_eol" | line_count)" -eq 0 ]; then
-    line="$(( $(line_count < "$maybe_missing_eol") + 1 ))"
-    start="$(tail -1 "$maybe_missing_eol" | char_count)"
-    stop="$(( start + 1 ))"
-    echo "$maybe_missing_eol:$line:$start ... $stop, Warning - No newline at eof. (no-newline-at-eof)" >> "$early_warnings"
-    echo >> "$maybe_missing_eol"
+  update_file="$2"
+  if [ -s "$maybe_missing_eol" ]; then
+    if ! tail -1c "$maybe_missing_eol" | perl -ne 'exit 1 unless /\n|\r/;'; then
+      line="$(( $(line_count < "$maybe_missing_eol") + 1 ))"
+      start="$(tail -1 "$maybe_missing_eol" | char_count)"
+      stop="$(( start + 1 ))"
+      echo "$maybe_missing_eol:$line:$start ... $stop, Warning - No newline at eof. (no-newline-at-eof)" >> "$early_warnings"
+      echo >> "$update_file"
+    fi
   fi
 }
 
@@ -1350,6 +1353,7 @@ check_dictionary() {
 
 cleanup_file() {
   export maybe_bad="$1"
+  update_file="$3"
 
   result=0
   "$cleanup_file" || result=$?
@@ -1357,9 +1361,14 @@ cleanup_file() {
     quit "$result"
   fi
 
-  if [ -n "$3" ]; then
-    cp "$maybe_bad" "$3" 2>/dev/null || touch "$3"
-    maybe_bad="$3"
+  if [ -n "$update_file" ]; then
+    cp "$maybe_bad" "$update_file" 2>/dev/null || touch "$update_file"
+  fi
+
+  check_for_newline_at_eof "$maybe_bad" "${update_file:-$maybe_bad}"
+
+  if [ -n "$update_file" ]; then
+    maybe_bad="$update_file"
   fi
 
   type="$2"
@@ -1372,7 +1381,6 @@ cleanup_file() {
     ;;
     # reject isn't checked, it allows for regular expressions
   esac
-  check_for_newline_at_eof "$maybe_bad"
 }
 
 get_project_files() {
