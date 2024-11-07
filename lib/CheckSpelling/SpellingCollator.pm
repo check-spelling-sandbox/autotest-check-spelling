@@ -230,7 +230,7 @@ sub get_pattern_with_context {
 sub summarize_totals {
   my ($formatter, $path, $items, $totals, $file_counts) = @_;
   return unless @{$totals};
-  return unless open my $fh, '>:utf8', $path;
+  return unless open my $fh, '>:encoding(UTF-8)', $path;
   my $totals_count = scalar(@{$totals}) - 1;
   my @indices;
   if ($file_counts) {
@@ -281,12 +281,12 @@ sub main {
   my $timing_report = CheckSpelling::Util::get_file_from_env('timing_report', '');
   my ($start_time, $end_time);
 
-  open WARNING_OUTPUT, '>:utf8', $warning_output;
-  open MORE_WARNINGS, '>:utf8', $more_warnings;
-  open COUNTER_SUMMARY, '>:utf8', $counter_summary;
-  open SHOULD_EXCLUDE, '>:utf8', $should_exclude_file;
+  open WARNING_OUTPUT, '>:encoding(UTF-8)', $warning_output;
+  open MORE_WARNINGS, '>:encoding(UTF-8)', $more_warnings;
+  open COUNTER_SUMMARY, '>:encoding(UTF-8)', $counter_summary;
+  open SHOULD_EXCLUDE, '>:encoding(UTF-8)', $should_exclude_file;
   if ($timing_report) {
-    open TIMING_REPORT, '>:utf8', $timing_report;
+    open TIMING_REPORT, '>:encoding(UTF-8)', $timing_report;
     print TIMING_REPORT "file, start, finish\n";
   }
 

@@ -11,7 +11,7 @@ use CheckSpelling::UnknownWordSplitter;
 use CheckSpelling::Util;
 
 binmode STDIN;
-binmode STDOUT, ':utf8';
+binmode STDOUT, ':encoding(UTF-8)';
 
 $ENV{PATH} = '/usr/bin:/bin';
 

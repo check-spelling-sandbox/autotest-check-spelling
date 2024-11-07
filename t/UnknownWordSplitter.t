@@ -65,7 +65,7 @@ CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
 is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4);
 is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:\w){3,5}\b)');
 my $directory = tempdir();
-open $fh, '>:utf8', "$directory/words";
+open $fh, '>:encoding(UTF-8)', "$directory/words";
 print $fh 'bar
 foo
 ';
@@ -74,7 +74,7 @@ my $output_dir;
 my $dirname = tempdir();
 CheckSpelling::UnknownWordSplitter::init($dirname);
 
-open $fh, '>', "$dirname/forbidden.txt";
+open $fh, '>:encoding(UTF-8)', "$dirname/forbidden.txt";
 print $fh '# forbidden
 # donut
 \bdonut\b
@@ -98,13 +98,13 @@ check_output_file("$output_directory/unknown", 'Play
 ');
 check_output_file("$output_directory/warnings", ":3:8 ... 12: 'Play'
 ");
-open $fh, '>:utf8', $filename;
+open $fh, '>:encoding(UTF-8)', $filename;
 print $fh ("bar "x1000)."\n";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", 'average line width (4001) exceeds the threshold (1000). (minified-file)
 ');
-open $fh, '>:utf8', $filename;
+open $fh, '>:encoding(UTF-8)', $filename;
 print $fh "FooBar baz Bar elf baz bar supercalifragelisticexpialidocious
 FooBarBar
 ";
@@ -164,7 +164,7 @@ supercal
 $CheckSpelling::UnknownWordSplitter::patterns_re = '$^';
 
 close $fh;
-open $fh, '>', "$dirname/words";
+open $fh, '>:encoding(UTF-8)', "$dirname/words";
 print $fh 'apple
 banana
 cherry
@@ -193,7 +193,7 @@ check_output_file_sorted_lines("$output_dir/warnings", ":2:7 ... 20, Warning - `
 ");
 check_output_file("$output_dir/unknown", 'ham
 ');
-open $fh, '>', "$dirname/candidates.txt";
+open $fh, '>:encoding(UTF-8)', "$dirname/candidates.txt";
 print $fh '# grape
 grape
 
@@ -217,7 +217,7 @@ check_output_file_sorted_lines("$output_directory/warnings", ":4:6 ... 9: 'ham'
 check_output_file("$output_directory/unknown", 'ham
 ');
 
-open $fh, '>', "$dirname/block-delimiters.list";
+open $fh, '>:encoding(UTF-8)', "$dirname/block-delimiters.list";
 print $fh '# test
 fruit
 donut
@@ -238,7 +238,7 @@ check_output_file_sorted_lines("$output_directory/warnings", ":4:6 ... 9: 'ham'"
 check_output_file("$output_directory/unknown", 'ham
 ');
 
-open $fh, '>', "$dirname/block-delimiters.list";
+open $fh, '>:encoding(UTF-8)', "$dirname/block-delimiters.list";
 print $fh '# test
 fruit
 missing
@@ -259,7 +259,7 @@ check_output_file_sorted_lines("$output_directory/warnings", ":2:1 ... 1, Warnin
 :5:1 ... 1, Warning - expected to find end block marker `missing` (unclosed-block-ignore-end)");
 check_output_file("$output_directory/unknown", '');
 
-open $fh, '>', "$dirname/block-delimiters.list";
+open $fh, '>:encoding(UTF-8)', "$dirname/block-delimiters.list";
 print $fh '# test
 fruit
 ';
@@ -299,9 +299,9 @@ check_output_file("$output_dir/skipped", "appears to be a binary file ('applicat
 
 my $hunspell_dictionary_path = tempdir();
 $ENV{'hunspell_dictionary_path'} = $hunspell_dictionary_path;
-open $fh, '>', "$hunspell_dictionary_path/test.dic";
+open $fh, '>:encoding(UTF-8)', "$hunspell_dictionary_path/test.dic";
 close $fh;
-open $fh, '>', "$hunspell_dictionary_path/test.aff";
+open $fh, '>:encoding(UTF-8)', "$hunspell_dictionary_path/test.aff";
 close $fh;
 
 $dirname = tempdir();
@@ -325,14 +325,14 @@ sub test_invalid_quantifiers {
 ($stdout, $stderr, @result) = capture { test_invalid_quantifiers };
 is($stderr, "Nested quantifiers in regex; marked by <-- HERE in m/.{1,}* <-- HERE / at $filename line 1 (bad-regular-expression)
 ");
-open $fh, '>:utf8', $filename;
+open $fh, '>:encoding(UTF-8)', $filename;
 for (my $i = 0; $i < 1000; $i++) {
     print $fh "bar$i\r";
 }
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", undef);
-open $fh, '>:utf8', $filename;
+open $fh, '>:encoding(UTF-8)', $filename;
 my $long_line = 'bar 'x250;
 for (my $i = 0; $i < 10; $i++) {
     print $fh "$long_line$i\r";
@@ -341,4 +341,4 @@ close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", 'average line width (1002) exceeds the threshold (1000). (minified-file)
 ');
-open $fh, '>:utf8', $filename;
+open $fh, '>:encoding(UTF-8)', $filename;

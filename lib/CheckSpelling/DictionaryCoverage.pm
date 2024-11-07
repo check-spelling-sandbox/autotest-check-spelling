@@ -43,7 +43,7 @@ sub hunspell_entry {
   my $aff = $name;
   my $encoding;
   $aff =~ s/dic$/aff/;
-  if (open AFF, '<', $aff) {
+  if (open AFF, '<:encoding(UTF-8)', $aff) {
     while (<AFF>) {
       next unless /^SET\s+(\S+)/;
       $encoding = $1 if ($1 !~ /utf-8/i);
@@ -170,7 +170,7 @@ sub main {
     my $name = $current->{'name'};
     my $source_link;
     my ($source_link_dir, $source_link_name) = (dirname($name), basename($name));
-    if (open($source_link, '<', "$source_link_dir/.$source_link_name")) {
+    if (open($source_link, '<:encoding(UTF-8)', "$source_link_dir/.$source_link_name")) {
       $name = <$source_link>;
       chomp $name;
       close $source_link;

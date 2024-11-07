@@ -180,7 +180,7 @@ sub score_patterns {
 
 sub main {
   my ($file_list, $should_exclude_file, $current_exclude_patterns) = @_;
-  open FILES, '<', $file_list;
+  open FILES, '<:encoding(UTF-8)', $file_list;
   our @patterns = ();
   our $baseline = {};
   set_up_counters($baseline);
@@ -198,7 +198,7 @@ sub main {
   $baseline = {};
   set_up_counters($baseline);
 
-  open EXCLUDES, '<', $should_exclude_file;
+  open EXCLUDES, '<:encoding(UTF-8)', $should_exclude_file;
   while (<EXCLUDES>) {
     chomp;
     push @excluded, $_;
@@ -207,7 +207,7 @@ sub main {
   close EXCLUDES;
 
   my @current_patterns;
-  open CURRENT_EXCLUDES, '<', $current_exclude_patterns;
+  open CURRENT_EXCLUDES, '<:encoding(UTF-8)', $current_exclude_patterns;
   while (<CURRENT_EXCLUDES>) {
     chomp;
     next unless /./;

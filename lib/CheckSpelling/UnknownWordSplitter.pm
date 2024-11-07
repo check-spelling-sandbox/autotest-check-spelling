@@ -208,7 +208,7 @@ sub hunspell_dictionary {
   my $aff = $dict;
   my $encoding;
   $aff =~ s/\.dic$/.aff/;
-  if (open AFF, '<', $aff) {
+  if (open AFF, '<:encoding(UTF-8)', $aff) {
     while (<AFF>) {
       next unless /^SET\s+(\S+)/;
       $encoding = $1 if ($1 !~ /utf-8/i);
@@ -364,7 +364,7 @@ sub split_line {
 
 sub skip_file {
   my ($temp_dir, $reason) = @_;
-  open(SKIPPED, '>:utf8', "$temp_dir/skipped");
+  open(SKIPPED, '>:encoding(UTF-8)', "$temp_dir/skipped");
   print SKIPPED $reason;
   close SKIPPED;
 }
@@ -390,7 +390,7 @@ sub split_file {
   my @forbidden_re_lines = (0) x scalar @forbidden_re_list;
   my $temp_dir = tempdir(DIR=>$sandbox);
   print STDERR "checking file: $file\n" if defined $ENV{'DEBUG'};
-  open(NAME, '>:utf8', "$temp_dir/name");
+  open(NAME, '>:encoding(UTF-8)', "$temp_dir/name");
     print NAME $file;
   close NAME;
   if (defined $largest_file) {
@@ -422,7 +422,7 @@ sub split_file {
       }
     }
   }
-  open FILE, '<', $file;
+  open FILE, '<:encoding(UTF-8)', $file;
   binmode FILE;
   my $head;
   read(FILE, $head, 4096);
@@ -449,7 +449,7 @@ sub split_file {
     print STDERR "$message\n";
   };
 
-  open(WARNINGS, '>:utf8', "$temp_dir/warnings");
+  open(WARNINGS, '>:encoding(UTF-8)', "$temp_dir/warnings");
   our $timeout;
   eval {
     local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
@@ -613,7 +613,7 @@ sub split_file {
   close WARNINGS;
 
   if ($unrecognized || @candidates_re_hits || @forbidden_re_hits) {
-    open(STATS, '>:utf8', "$temp_dir/stats");
+    open(STATS, '>:encoding(UTF-8)', "$temp_dir/stats");
       print STATS "{words: $words, unrecognized: $unrecognized, unknown: ".(keys %unique_unrecognized).
       ", unique: ".(keys %unique).
       (@candidates_re_hits ? ", candidates: [".(join ',', @candidates_re_hits)."]" : "").
@@ -622,7 +622,7 @@ sub split_file {
       (@forbidden_re_lines ? ", forbidden_lines: [".(join ',', @forbidden_re_lines)."]" : "").
       "}";
     close STATS;
-    open(UNKNOWN, '>:utf8', "$temp_dir/unknown");
+    open(UNKNOWN, '>:encoding(UTF-8)', "$temp_dir/unknown");
       print UNKNOWN map { "$_\n" } sort CheckSpelling::Util::case_biased keys %unique_unrecognized;
     close UNKNOWN;
   }

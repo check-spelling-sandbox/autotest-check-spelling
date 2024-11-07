@@ -442,7 +442,7 @@ get_action_repo_info() {
     my @parts = split m{/}, $1;
     exit unless scalar @parts == 3;
     my $action = "$parts[0]/$parts[1]\@$parts[2]";
-    exit unless open WORKFLOW, "<", $ENV{workflow };
+    exit unless open WORKFLOW, "<:encoding(UTF-8)", $ENV{workflow };
     while (<WORKFLOW>) {
       next unless /^\s*uses:\s*\Q$action\E/;
       print $action;
@@ -1309,7 +1309,7 @@ project_file_path() {
 }
 
 check_pattern_file() {
-  perl -i -e 'open WARNINGS, ">>", $ENV{early_warnings};
+  perl -i -e 'open WARNINGS, ">>:encoding(UTF-8)", $ENV{early_warnings};
   while (<>) {
     next if /^#/;
     my $line = $_;
@@ -3272,7 +3272,7 @@ add_talk_to_bot_message() {
       echo "To have the bot accept them for you, comment in the PR quoting the following line:"
       echo "@check-spelling-bot apply [updates]($jobs_summary_link$jobs_summary_link_suffix)$apply_changes_suffix."
     )> "$quote_reply_insertion"
-    perl -e '$/=undef; my ($insertion, $body) = @ARGV; open INSERTION, "<", $insertion; my $text = <INSERTION>; close INSERTION; open BODY, "<", $body; my $content=<BODY>; close BODY; $content =~ s/<!--QUOTE_REPLY-->/$text/; open BODY, ">", $body; print BODY $content; close BODY;' "$quote_reply_insertion" "$1"
+    perl -e '$/=undef; my ($insertion, $body) = @ARGV; open INSERTION, "<:encoding(UTF-8)", $insertion; my $text = <INSERTION>; close INSERTION; open BODY, "<:encoding(UTF-8)", $body; my $content=<BODY>; close BODY; $content =~ s/<!--QUOTE_REPLY-->/$text/; open BODY, ">:encoding(UTF-8)", $body; print BODY $content; close BODY;' "$quote_reply_insertion" "$1"
   fi
 }
 
@@ -3384,12 +3384,12 @@ post_summary() {
   if [ -s "$sample_commit" ]; then
     draft_with_commit="$(mktemp)"
     base="$step_summary_draft" insert="$sample_commit" perl -e '
-      open BASE, "<", $ENV{base};
+      open BASE, "<:encoding(UTF-8)", $ENV{base};
       while (<BASE>){
         if (!$found && $_=~/To accept /){
           $found=1;
           $/=undef;
-          open INSERT, "<", $ENV{insert};
+          open INSERT, "<:encoding(UTF-8)", $ENV{insert};
           print <INSERT>;
         }
         print;

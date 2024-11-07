@@ -36,7 +36,7 @@ for my $key (keys %inputs) {
 my $action_json_path = $ENV{action_yml_json};
 exit unless defined $action_json_path && -f $action_json_path;
 my $action_json;
-open my $action_json_file, '<', $action_json_path;
+open my $action_json_file, '<:encoding(UTF-8)', $action_json_path;
 {
     local $/ = undef;
     $action_json = <$action_json_file>;

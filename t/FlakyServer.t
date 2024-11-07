@@ -109,7 +109,7 @@ sub read_file {
   my ($file, $working_directory, $sandbox, $github_repository, $internal_state_directory) = @_;
   return unless $file;
   local $/ = undef;
-  open my $fh, '<', $file || return;
+  open my $fh, '<:encoding(UTF-8)', $file || return;
   my $content = <$fh>;
   close $fh;
   return cleanup($content, $working_directory, $sandbox, $github_repository, $internal_state_directory);
@@ -117,7 +117,7 @@ sub read_file {
 
 sub write_file {
   my ($file, $content) = @_;
-  open my $fd, '>', $file;
+  open my $fd, '>:encoding(UTF-8)', $file;
   print $fd $content if defined $content;
   close $fd;
 }

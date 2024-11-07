@@ -12,7 +12,7 @@ plan tests => 34;
 sub fill_file {
   my ($file, $content) = @_;
   return unless $content;
-  open FILE, '>:utf8', $file;
+  open FILE, '>:encoding(UTF-8)', $file;
   print FILE $content;
   close FILE;
 }
@@ -36,7 +36,7 @@ sub run_test {
   my ($directories) = @_;
   my $output = '';
   my ($stdout, $stderr, @result) = capture {
-    open my $fh, "<", \$directories;
+    open my $fh, "<:encoding(UTF-8)", \$directories;
     local *ARGV = $fh;
     CheckSpelling::SpellingCollator::main();
   };

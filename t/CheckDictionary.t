@@ -39,7 +39,7 @@ is($warning, "$filepath:10:6 ... 10, Warning - Ignoring entry because it contain
 ", 'invalid entry (warning)');
 is($line, '', 'invalid entry (result)');
 
-open $fh, '>', $filepath;
+open $fh, '>:encoding(UTF-8)', $filepath;
 print $fh $multiline_text;
 close $fh;
 my $spellchecker = abs_path(dirname(dirname(__FILE__)));
@@ -60,7 +60,7 @@ $filename:3:0 ... 7, Warning - Entry has inconsistent line ending. (unexpected-l
 my $result = $results[0] >> 8;
 is($result, '0', 'wrappers/check-dictionary (exit code)');
 
-open $fh, '<', $filepath;
+open $fh, '<:encoding(UTF-8)', $filepath;
 $/ = undef;
 $result = <$fh>;
 close $fh;
@@ -78,7 +78,7 @@ SKIP: {
   my $symlink_exists = eval { symlink($filepath, $link); };
   skip 'could not create symlink', 3 unless $symlink_exists;
 
-  open $fh, '>', $filepath;
+  open $fh, '>:encoding(UTF-8)', $filepath;
   print $fh $multiline_text;
   close $fh;
 

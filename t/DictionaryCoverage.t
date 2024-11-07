@@ -66,13 +66,13 @@ $ignore
 my $one_match_name = basename $one_match;
 my $dict_name = basename $dict;
 my $no_name = basename $no_match;
-open my $suggest_link_fh, '>', "$dictionary_dir/.$dict_name";
+open my $suggest_link_fh, '>:encoding(UTF-8)', "$dictionary_dir/.$dict_name";
 print $suggest_link_fh "suggest:$dict_name";
 close $suggest_link_fh;
-open my $one_link_fh, '>', "$dictionary_dir/.$one_match_name";
+open my $one_link_fh, '>:encoding(UTF-8)', "$dictionary_dir/.$one_match_name";
 print $one_link_fh "other:$one_match_name";
 close $one_link_fh;
-open my $no_link_fh, '>', "$dictionary_dir/.$no_name";
+open my $no_link_fh, '>:encoding(UTF-8)', "$dictionary_dir/.$no_name";
 print $no_link_fh "no:$no_name";
 close $no_link_fh;
 

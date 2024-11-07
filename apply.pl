@@ -76,7 +76,7 @@ sub tempfile_name {
 sub strip_comments {
     my ($file) = @_;
     my ($fh, $filename) = tempfile();
-    open INPUT, '<', $file;
+    open INPUT, '<:encoding(UTF-8)', $file;
     while (<INPUT>) {
         next if /^\s*(?:#.*)/;
         print $fh $_;
@@ -291,7 +291,7 @@ sub add_to_excludes {
     my $need_to_add_excludes;
     my %excludes;
     if (-f $excludes) {
-        open EXCLUDES, '<', $excludes;
+        open EXCLUDES, '<:encoding(UTF-8)', $excludes;
         while (<EXCLUDES>) {
             chomp;
             next unless /./;
@@ -305,7 +305,7 @@ sub add_to_excludes {
         next unless $pattern =~ /./;
         $excludes{$pattern."\n"} = 1;
     }
-    open EXCLUDES, '>', $excludes;
+    open EXCLUDES, '>:encoding(UTF-8)', $excludes;
     print EXCLUDES join "", sort case_biased keys %excludes;
     close EXCLUDES;
     system('git', 'add', '--', $excludes) if $need_to_add_excludes;
@@ -327,7 +327,7 @@ sub remove_stale {
 
     my $re = join "|", @stale;
     for my $file (@expect_files) {
-        open INPUT, '<', $file;
+        open INPUT, '<:encoding(UTF-8)', $file;
         my @keep;
         while (<INPUT>) {
             next if /^(?:$re)(?:(?:\r|\n)*$|[# ].*)/;
@@ -335,7 +335,7 @@ sub remove_stale {
         }
         close INPUT;
 
-        open OUTPUT, '>', $file;
+        open OUTPUT, '>:encoding(UTF-8)', $file;
         print OUTPUT join '', @keep;
         close OUTPUT;
     };
@@ -350,7 +350,7 @@ sub add_expect {
     my @words;
     make_path (dirname($new_expect_file));
     if (-s $new_expect_file) {
-        open FILE, q{<}, $new_expect_file;
+        open FILE, q{<:encoding(UTF-8)}, $new_expect_file;
         local $/ = undef;
         @words = split /\s+/, <FILE>;
         close FILE;
@@ -359,7 +359,7 @@ sub add_expect {
     @items{@words} = @words x (1);
     @items{@add} = @add x (1);
     @words = sort case_biased keys %items;
-    open FILE, q{>}, $new_expect_file;
+    open FILE, q{>:encoding(UTF-8)}, $new_expect_file;
     for my $word (@words) {
         print FILE "$word\n" if $word =~ /\S/;
     };

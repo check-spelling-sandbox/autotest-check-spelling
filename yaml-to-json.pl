@@ -6,7 +6,7 @@ use YAML::PP qw/Load/;
 use JSON::PP;
 
 binmode STDIN;
-binmode STDOUT, ':utf8';
+binmode STDOUT, ':encoding(UTF-8)';
 
 $/ = undef;
 my $content = <>;

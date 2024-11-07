@@ -22,7 +22,7 @@ is(CheckSpelling::Exclude::file_to_re("nonexistent", "fallback"), "fallback");
 {
 my $oldIn = *ARGV;
 my $text = 'hello world';
-open my $input, '<', \$text;
+open my $input, '<:encoding(UTF-8)', \$text;
 *ARGV = $input;
 my $output;
 open(my $outputFH, '>', \$output) or die; # This shouldn't fail
@@ -56,7 +56,7 @@ included.txt
 ignored.md
 ';
 $text =~ s/\n/\0/g;
-open my $input, '<', \$text;
+open my $input, '<:encoding(UTF-8)', \$text;
 *ARGV = $input;
 my $output;
 open(my $outputFH, '>', \$output) or die; # This shouldn't fail

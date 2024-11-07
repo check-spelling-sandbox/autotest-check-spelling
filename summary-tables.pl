@@ -27,7 +27,7 @@ while (<>) {
     my ($file, $line, $column, $endColumn, $severity, $message, $code) = ($1, $2, $3, $4, $5, $6, $7);
     my $table_file = "$summary_tables/$code";
     push @tables, $code unless -e $table_file;
-    open $table, ">>", $table_file;
+    open $table, ">>:encoding(UTF-8)", $table_file;
     $message =~ s/\|/\\|/g;
     if ($file =~ m{^https://}) {
         $file =~ s/ /%20/g;
@@ -61,7 +61,7 @@ for $table_file (sort @tables) {
         print STDERR "::warning title=summary-table::Details for '$table_file' too big to include in Step Summary. (summary-table-skipped)\n";
         next;
     }
-    open $table, "<", $file_path;
+    open $table, "<:encoding(UTF-8)", $file_path;
     my @entries;
     my $real_cost = $header_length + $footer_length;
     foreach my $line (<$table>) {

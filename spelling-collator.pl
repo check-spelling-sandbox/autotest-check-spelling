@@ -3,6 +3,6 @@
 use warnings;
 use CheckSpelling::SpellingCollator;
 
-binmode STDOUT, ':utf8';
+binmode STDOUT, ':encoding(UTF-8)';
 
 CheckSpelling::SpellingCollator::main();

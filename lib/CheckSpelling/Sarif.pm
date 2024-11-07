@@ -27,7 +27,7 @@ sub double_slash_escape {
 sub parse_warnings {
     my ($warnings) = @_;
     my @results;
-    open WARNINGS, '<', $warnings || print STDERR "Could not open $warnings\n";
+    open WARNINGS, '<:encoding(UTF-8)', $warnings || print STDERR "Could not open $warnings\n";
     while (<WARNINGS>) {
         next if m{^https://};
         next unless m{^(.+):(\d+):(\d+) \.\.\. (\d+),\s(Error|Warning|Notice)\s-\s(.+\s\((.+)\))$};
@@ -54,7 +54,7 @@ sub parse_warnings {
 sub read_sarif_file {
     my ($file) = @_;
     my $template;
-    open TEMPLATE, '<', $file || print STDERR "Could not open sarif template ($file)\n";
+    open TEMPLATE, '<:encoding(UTF-8)', $file || print STDERR "Could not open sarif template ($file)\n";
     {
         local $/ = undef;
         $template = <TEMPLATE>;

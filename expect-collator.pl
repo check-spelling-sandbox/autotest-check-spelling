@@ -4,7 +4,7 @@ use warnings;
 
 my ($collated, $notes) = @ARGV;
 my @words;
-open EXPECT, '<', $collated;
+open EXPECT, '<:encoding(UTF-8)', $collated;
 while (<EXPECT>) {
   chomp;
   next unless /(.*) \((.*)\)/;
@@ -15,7 +15,7 @@ while (<EXPECT>) {
 }
 close EXPECT;
 my $pattern = '\`(?:'.join('|', map { quotemeta($_) } @words).')`';
-open SOURCES, '<', $notes;
+open SOURCES, '<:encoding(UTF-8)', $notes;
 while (<SOURCES>) {
   if ($_ =~ /$pattern/) {
     $print = 0;
