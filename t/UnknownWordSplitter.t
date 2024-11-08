@@ -58,12 +58,12 @@ CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
 is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4);
 is($CheckSpelling::UnknownWordSplitter::shortest, 3);
 is($CheckSpelling::UnknownWordSplitter::longest, 13);
-is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:\w){3,13}\b)');
+is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:[A-Z]|[a-z]|\'){3,13}\b)');
 $ENV{'INPUT_LONGEST_WORD'} = 5;
 $ENV{'INPUT_SHORTEST_WORD'} = '';
 CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
 is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4);
-is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:\w){3,5}\b)');
+is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:[A-Z]|[a-z]|\'){3,5}\b)');
 my $directory = tempdir();
 open $fh, '>:encoding(UTF-8)', "$directory/words";
 print $fh 'bar

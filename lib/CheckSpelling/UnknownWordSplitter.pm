@@ -158,7 +158,7 @@ sub valid_word {
   }
   our ($upper_pattern, $lower_pattern, $punctuation_pattern);
   my $word_pattern = join '|', (grep { defined $_ && /./ } ($upper_pattern, $lower_pattern, $punctuation_pattern));
-  $word_pattern = '(?:\\w)' unless $word_pattern;
+  $word_pattern = '\\w' unless $word_pattern;
   if ((defined $shortest && not_empty($longest)) &&
       ($shortest > $longest)) {
     $word_pattern = "(?:$word_pattern){3}";
@@ -166,7 +166,7 @@ sub valid_word {
   }
   $shortest = 3 unless defined $shortest;
   $longest = '' unless defined $longest;
-  $word_match = "(?:\\w){$shortest,$longest}";
+  $word_match = "(?:$word_pattern){$shortest,$longest}";
   return qr/\b$word_match\b/;
 }
 
