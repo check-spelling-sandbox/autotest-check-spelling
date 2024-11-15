@@ -63,7 +63,7 @@ inputs:
   dictionary_source_prefixes:
     description: "JSON map of prefixes for dictionary urls"
     required: false
-    default: '{"cspell": "https://raw.githubusercontent.com/check-spelling/cspell-dicts/v20230509/dictionaries/"}'
+    default: '{"cspell": "https://raw.githubusercontent.com/check-spelling/cspell-dicts/v20241114/dictionaries/"}'
   extra_dictionaries:
     description: "Space delimited list of URLs (or `prefix:`+path) to additional word lists"
     required: false
@@ -72,71 +72,70 @@ inputs:
     description: "Compare unknown tokens against these dictionaries and suggest if applicable"
     required: false
     default: |
-      cspell:ada/dict/ada.txt
+      cspell:ada/ada.txt
       cspell:aws/aws.txt
-      cspell:clojure/src/clojure.txt
-      cspell:companies/src/companies.txt
-      cspell:cpp/src/compiler-clang-attributes.txt
-      cspell:cpp/src/compiler-gcc.txt
-      cspell:cpp/src/compiler-msvc.txt
-      cspell:cpp/src/ecosystem.txt
-      cspell:cpp/src/lang-jargon.txt
-      cspell:cpp/src/lang-keywords.txt
-      cspell:cpp/src/people.txt
-      cspell:cpp/src/stdlib-c.txt
-      cspell:cpp/src/stdlib-cerrno.txt
-      cspell:cpp/src/stdlib-cmath.txt
-      cspell:cpp/src/stdlib-cpp.txt
-      cspell:cpp/src/template-strings.txt
+      cspell:clojure/clojure.txt
+      cspell:companies/companies.txt
+      cspell:cpp/compiler-clang-attributes.txt
+      cspell:cpp/compiler-gcc.txt
+      cspell:cpp/compiler-msvc.txt
+      cspell:cpp/ecosystem.txt
+      cspell:cpp/lang-jargon.txt
+      cspell:cpp/lang-keywords.txt
+      cspell:cpp/people.txt
+      cspell:cpp/stdlib-c.txt
+      cspell:cpp/stdlib-cerrno.txt
+      cspell:cpp/stdlib-cmath.txt
+      cspell:cpp/stdlib-cpp.txt
+      cspell:cpp/template-strings.txt
       cspell:cryptocurrencies/cryptocurrencies.txt
       cspell:csharp/csharp.txt
-      cspell:css/dict/css.txt
-      cspell:dart/src/dart.txt
-      cspell:django/dict/django.txt
+      cspell:css/css.txt
+      cspell:dart/dart.txt
+      cspell:django/django.txt
       cspell:django/requirements.txt
-      cspell:docker/src/docker-words.txt
-      cspell:dotnet/dict/dotnet.txt
-      cspell:elixir/dict/elixir.txt
+      cspell:docker/docker-words.txt
+      cspell:dotnet/dotnet.txt
+      cspell:elixir/elixir.txt
       cspell:filetypes/filetypes.txt
       cspell:fonts/fonts.txt
-      cspell:fullstack/dict/fullstack.txt
-      cspell:gaming-terms/dict/gaming-terms.txt
-      cspell:golang/dict/go.txt
-      cspell:haskell/dict/haskell.txt
-      cspell:html/dict/html.txt
-      cspell:java/src/java-terms.txt
-      cspell:java/src/java.txt
-      cspell:k8s/dict/k8s.txt
-      cspell:latex/dict/latex.txt
+      cspell:fullstack/fullstack.txt
+      cspell:gaming-terms/gaming-terms.txt
+      cspell:golang/go.txt
+      cspell:haskell/haskell.txt
+      cspell:html/html.txt
+      cspell:java/java-terms.txt
+      cspell:java/java.txt
+      cspell:k8s/k8s.txt
+      cspell:latex/latex.txt
       cspell:latex/samples/sample-words.txt
       cspell:lisp/lisp.txt
       cspell:lorem-ipsum/dictionary.txt
-      cspell:lua/dict/lua.txt
-      cspell:mnemonics/src/mnemonics.txt
-      cspell:monkeyc/src/monkeyc_keywords.txt
-      cspell:node/dict/node.txt
-      cspell:npm/dict/npm.txt
-      cspell:php/dict/php.txt
-      cspell:powershell/dict/powershell.txt
-      cspell:public-licenses/src/additional-licenses.txt
-      cspell:public-licenses/src/generated/public-licenses.txt
-      cspell:python/src/additional_words.txt
-      cspell:python/src/common/extra.txt
-      cspell:python/src/python/python-lib.txt
-      cspell:python/src/python/python.txt
-      cspell:r/src/r.txt
-      cspell:redis/dict/redis.txt
-      cspell:ruby/dict/ruby.txt
-      cspell:rust/dict/rust.txt
-      cspell:scala/dict/scala.txt
-      cspell:shell/dict/shell-all-words.txt
-      cspell:software-terms/dict/softwareTerms.txt
-      cspell:software-terms/dict/webServices.txt
-      cspell:sql/src/sql.txt
-      cspell:sql/src/tsql.txt
-      cspell:svelte/dict/svelte.txt
-      cspell:swift/src/swift.txt
-      cspell:typescript/dict/typescript.txt
+      cspell:lua/lua.txt
+      cspell:mnemonics/mnemonics.txt
+      cspell:monkeyc/monkeyc_keywords.txt
+      cspell:node/node.txt
+      cspell:npm/npm.txt
+      cspell:php/php.txt
+      cspell:powershell/powershell.txt
+      cspell:public-licenses/generated/public-licenses.txt
+      cspell:python/additional_words.txt
+      cspell:python/common/extra.txt
+      cspell:python/python/python-lib.txt
+      cspell:python/python/python.txt
+      cspell:r/r.txt
+      cspell:redis/redis.txt
+      cspell:ruby/ruby.txt
+      cspell:rust/rust.txt
+      cspell:scala/scala.txt
+      cspell:shell/shell-all-words.txt
+      cspell:software-terms/software-terms.txt
+      cspell:software-terms/webServices.txt
+      cspell:sql/sql.txt
+      cspell:sql/tsql.txt
+      cspell:svelte/svelte.txt
+      cspell:swift/swift.txt
+      cspell:typescript/typescript.txt
   extra_dictionary_limit:
     description: "Limit the number of suggested extra dictionaries."
     required: false
