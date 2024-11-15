@@ -1,5 +1,4 @@
 apps
-codeql
 cpanm
 cpanminus
 excludelist
@@ -10,12 +9,8 @@ gpg
 GRAPHQL
 gsutil
 keyring
-maxdepth
-mindepth
 nektos
-noreply
 notest
-nproc
 physicalcpu
 rawfile
 sarifs
