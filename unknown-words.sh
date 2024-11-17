@@ -2146,6 +2146,7 @@ set_up_files() {
               uniq -u
             )"
             if [ -n "$check_extra_dictionaries" ]; then
+              ORIG_INPUT_DICTIONARY_SOURCE_PREFIXES="$INPUT_DICTIONARY_SOURCE_PREFIXES"
               INPUT_DICTIONARY_SOURCE_PREFIXES=$(
               "$get_yaml_value" "$GITHUB_ACTION_PATH/action.yml" inputs.dictionary_source_prefixes.default)
               dictionary_alias_pattern=
@@ -2165,6 +2166,7 @@ set_up_files() {
                 fi
                 extra_dictionary_limit=100
               fi
+              INPUT_DICTIONARY_SOURCE_PREFIXES="$ORIG_INPUT_DICTIONARY_SOURCE_PREFIXES"
             fi
           fi
         fi
