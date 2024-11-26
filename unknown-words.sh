@@ -2340,6 +2340,10 @@ build_file_list() {
 }
 
 run_spell_check() {
+  echo "started-at=$(perl -e 'use POSIX qw(strftime);
+my $now = time();
+print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
+')" >> "$GITHUB_OUTPUT"
   set_output_variable internal_state_directory "$data_dir"
 
   synthetic_base="/tmp/check-spelling/$GITHUB_REPOSITORY"
