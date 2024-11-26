@@ -714,6 +714,9 @@
 "version": "0.0.0",
 "name": "check-spelling"
 }
+},
+"automationDetails": {
+"id": "check-spelling/test"
 }
 }
 ]

@@ -25,7 +25,7 @@ https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is no
 close $fh;
 $ENV{'warning_output'} = $warnings;
 ($fh, $sarif_merged) = tempfile();
-print $fh CheckSpelling::Sarif::main("$base/sarif.json","$tests/sarif.json");
+print $fh CheckSpelling::Sarif::main("$base/sarif.json","$tests/sarif.json", 'check-spelling/test');
 close $fh;
 my $formated_sarif;
 ($fh, $formated_sarif) = tempfile();

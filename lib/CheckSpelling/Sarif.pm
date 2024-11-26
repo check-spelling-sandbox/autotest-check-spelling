@@ -24,6 +24,7 @@ sub double_slash_escape {
     s/(["()\]\\])/\\\\$1/g;
     return $_;
 }
+
 sub parse_warnings {
     my ($warnings) = @_;
     my @results;
@@ -92,7 +93,7 @@ sub get_runs_from_sarif {
 }
 
 sub main {
-    my ($sarif_template_file, $sarif_template_overlay_file) = @_;
+    my ($sarif_template_file, $sarif_template_overlay_file, $category) = @_;
     unless (-f $sarif_template_file) {
         warn "Could not find sarif template";
         return '';
@@ -139,6 +140,10 @@ sub main {
             foreach my $sarif_json_run (@sarif_json_runs) {
                 my %sarif_json_run_hash=%{$sarif_json_run};
                 next unless defined $sarif_json_run_hash{'tool'};
+
+                my %sarif_json_run_automationDetails;
+                $sarif_json_run_automationDetails{id} = $category;
+                $sarif_json_run->{'automationDetails'} = \%sarif_json_run_automationDetails;
 
                 my %sarif_json_run_tool_hash = %{$sarif_json_run_hash{'tool'}};
                 next unless defined $sarif_json_run_tool_hash{'driver'};
