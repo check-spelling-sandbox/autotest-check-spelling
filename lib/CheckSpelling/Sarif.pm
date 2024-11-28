@@ -29,6 +29,7 @@ sub parse_warnings {
     my ($warnings) = @_;
     my @results;
     open WARNINGS, '<', $warnings || print STDERR "Could not open $warnings\n";
+    my $rules = ();
     while (<WARNINGS>) {
         next if m{^https://};
         next unless m{^(.+):(\d+):(\d+) \.\.\. (\d+),\s(Error|Warning|Notice)\s-\s(.+\s\((.+)\))$};
@@ -44,12 +45,43 @@ sub parse_warnings {
         $message =~ s/(^|[^\\])\`([^`]+[^`\\])\`/${1}[${2}](#security-tab)/;
         # replace '`' with `\`+`"` because GitHub's SARIF parser doesn't like them
         $message =~ s/\`/\\"/g;
-        my $result_json = qq<{"ruleId": "$code", "ruleIndex": 0,"message": { "text": "$message" }, "locations": [ { "physicalLocation": { "artifactLocation": { "uri": "$file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line, "startColumn": $column, "endColumn": $endColumn } } } ] }>;
-        my $result = decode_json $result_json;
-        push @results, $result;
+        unless (defined $rules->{$code}) {
+            $rules->{$code} = {};
+        }
+        my $rule = $rules->{$code};
+        unless (defined $rule->{$message}) {
+            $rule->{$message} = [];
+        }
+        my $locations = $rule->{$message};
+        my $physicalLocation = {
+            'uri' => $file,
+            'startLine' => $line,
+            'startColumn' => $column,
+            'endColumn' => $endColumn,
+        };
+        push @$locations, $physicalLocation;
+        $rule->{$message} = $locations;
+    }
+    for my $code (keys %{$rules}) {
+        my $rule = $rules->{$code};
+        for my $message (keys %{$rule}) {
+            my $locations = $rule->{$message};
+            my @locations_json = ();
+            for my $location (@$locations) {
+                my $file = $location->{uri};
+                my $line = $location->{startLine};
+                my $column = $location->{startColumn};
+                my $endColumn = $location->{endColumn};
+                push @locations_json, qq<{ "physicalLocation": { "artifactLocation": { "uri": "$file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line, "startColumn": $column, "endColumn": $endColumn } } }>;
+            }
+            my $locations_json_flat = join ',', @locations_json;
+            my $result_json = qq<{"ruleId": "$code", "ruleIndex": 0,"message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
+            my $result = decode_json $result_json;
+            push @results, $result;
+        }
     }
     close WARNINGS;
-    return @results;
+    return \@results;
 }
 
 sub read_sarif_file {
@@ -174,9 +206,9 @@ sub main {
 
     $sarif{'runs'}[0]{'tool'}{'driver'}{'version'} = $ENV{CHECK_SPELLING_VERSION};
 
-    my @results = parse_warnings $ENV{warning_output};
-    if (@results) {
-        $sarif{'runs'}[0]{'results'} = \@results;
+    my $results = parse_warnings $ENV{warning_output};
+    if ($results) {
+        $sarif{'runs'}[0]{'results'} = $results;
     }
 
     return encode_json \%sarif;

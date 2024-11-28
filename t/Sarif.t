@@ -19,6 +19,7 @@ $ENV{'CHECK_SPELLING_VERSION'} = '0.0.0';
 my ($fh, $sarif_merged, $warnings);
 ($fh, $warnings) = tempfile();
 print $fh 'lib/CheckSpelling/Sarif.pm:3:24 ... 29, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
+lib/CheckSpelling/Sarif.pm:4:24 ... 29, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word. (unrecognized-spelling)
 
 ';
