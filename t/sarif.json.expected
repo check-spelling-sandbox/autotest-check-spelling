@@ -25,6 +25,26 @@
 }
 }
 }
+]
+},
+{
+"message": {
+"text": "[Sarif](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+},
+"locations": [
+{
+"physicalLocation": {
+"artifactLocation": {
+"uriBaseId": "%SRCROOT%",
+"uri": "lib/CheckSpelling/Sarif.pm"
+},
+"region": {
+"startLine": 4,
+"startColumn": 24,
+"endColumn": 29
+}
+}
+}
 ],
 "ruleId": "unrecognized-spelling",
 "ruleIndex": 0
