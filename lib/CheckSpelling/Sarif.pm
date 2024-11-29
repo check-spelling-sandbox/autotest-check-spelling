@@ -49,7 +49,7 @@ sub parse_warnings {
         push @results, $result;
     }
     close WARNINGS;
-    return @results;
+    return \@results;
 }
 
 sub read_sarif_file {
@@ -174,9 +174,9 @@ sub main {
 
     $sarif{'runs'}[0]{'tool'}{'driver'}{'version'} = $ENV{CHECK_SPELLING_VERSION};
 
-    my @results = parse_warnings $ENV{warning_output};
-    if (@results) {
-        $sarif{'runs'}[0]{'results'} = \@results;
+    my $results = parse_warnings $ENV{warning_output};
+    if ($results) {
+        $sarif{'runs'}[0]{'results'} = $results;
     }
 
     return encode_json \%sarif;
