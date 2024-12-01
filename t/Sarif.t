@@ -18,8 +18,9 @@ my $base = dirname($tests);
 $ENV{'CHECK_SPELLING_VERSION'} = '0.0.0';
 my ($fh, $sarif_merged, $warnings);
 ($fh, $warnings) = tempfile();
-print $fh 'lib/CheckSpelling/Sarif.pm:3:24 ... 29, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
-lib/CheckSpelling/Sarif.pm:4:24 ... 29, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
+print $fh 't/Sarif.t:11:24 ... 29, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
+t/Sarif.t:21:14 ... 19, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
+t/Sarif.t:21:45 ... 50, Error - `Sarif` is not a recognized word. (unrecognized-spelling)
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word. (unrecognized-spelling)
 
 ';
@@ -36,5 +37,5 @@ close $fh;
 $ENV{'HOME'} =~ /^(.*)$/;
 my $home = $1;
 $ENV{'PATH'} = "/bin:$home/.extra-bin";
-my $jd_output = `jd -set -setkeys startLine '$formated_sarif' '$tests/sarif.json.expected'`;
+my $jd_output = `jd -set -setkeys uri,startLine,startColumn,endColumn '$tests/sarif.json.expected' '$formated_sarif'`;
 is($jd_output, '');
