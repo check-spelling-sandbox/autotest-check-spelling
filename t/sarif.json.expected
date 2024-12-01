@@ -8,6 +8,9 @@
 {
 "results": [
 {
+"partialFingerprints": {
+"cs0": "BlaxaXMb9pCd+oACM2ICSXYW100"
+},
 "message": {
 "text": "[Sarif](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
 },
@@ -28,6 +31,9 @@
 ]
 },
 {
+"partialFingerprints": {
+"cs0": "x9YvSq1v3PNuU4tE5HVmy+DU9cI"
+},
 "message": {
 "text": "[Sarif](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
 },
@@ -52,6 +58,9 @@
 {
 "message": {
 "text": "[Sarif](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+},
+"partialFingerprints": {
+"cs0": "OF2/2ux4lceQNSjW0xwaMiaymF0"
 },
 "locations": [
 {
