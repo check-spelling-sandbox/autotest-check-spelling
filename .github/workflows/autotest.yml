@@ -10,22 +10,27 @@ jobs:
         runs-on: ubuntu-latest
         name: "Trigger tests"
         steps:
-          - uses: actions/checkout@v4
+          - name: Configure git
+            shell: bash
+            run: |
+                git config --global init.defaultBranch ignored
+                git config --global user.email "check-spelling-autotest@check-spelling.dev"
+                git config --global user.name "check-spelling autotest"
+          - name: Set up git for publishing
+            uses: actions/checkout@v4
             with:
                 ssh-key: "${{ secrets.AUTO_TEST }}"
+          - name: Generate consumer workflows
+            shell: bash
+            env:
+                projects: microsoft/terminal microsoft/powertoys nasa/fprime
+                GH_TOKEN: ${{ github.token }}
+            run: |
+                ./generate-workflows.sh
           - name: Fetch upstream
             shell: bash
             env:
                 branches: main prerelease
                 origins: check-spelling check-spelling-sandbox
             run: |
-                for origin in $origins; do
-                    git remote add upstream https://github.com/$origin/check-spelling.git --no-tags
-                    date=$(date +%s)
-                    for branch in $branches; do
-                        local=$origin/$branch/$date
-                        git fetch upstream $branch:$local
-                        git push origin $local -f
-                    done
-                    git remote rm upstream
-                done
+                ./fetch-upstreams.sh
