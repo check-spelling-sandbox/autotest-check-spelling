@@ -1,3 +1,3 @@
 # autotest-check-spelling
 
-This repository is designed to enable autoamtic testing of check-spelling.
+This repository is designed to enable automatic testing of check-spelling.
