@@ -289,6 +289,7 @@ sub init {
   my $disable_flags = CheckSpelling::Util::get_file_from_env('INPUT_DISABLE_CHECKS', '');
   our $disable_word_collating = $disable_flags =~ /(?:^|,|\s)word-collating(?:,|\s|$)/;
   our $disable_minified_file = $disable_flags =~ /(?:^|,|\s)minified-file(?:,|\s|$)/;
+  our $disable_single_line_file = $disable_flags =~ /(?:^|,|\s)single-line-file(?:,|\s|$)/;
 
   our $check_file_names = CheckSpelling::Util::get_file_from_env('check_file_names', '');
 
@@ -382,6 +383,7 @@ sub split_file {
     @forbidden_re_list, $patterns_re, %dictionary,
     $begin_block_re, @begin_block_list, @end_block_list,
     $candidates_re, @candidates_re_list, $check_file_names, $use_magic_file, $disable_minified_file,
+    $disable_single_line_file,
     $sandbox,
   );
   our ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
@@ -398,9 +400,9 @@ sub split_file {
   open(NAME, '>:utf8', "$temp_dir/name");
     print NAME $file;
   close NAME;
+  my $file_size = -s $file;
   if (defined $largest_file) {
     unless ($check_file_names eq $file) {
-      my $file_size = -s $file;
       if ($file_size > $largest_file) {
         skip_file($temp_dir, "size `$file_size` exceeds limit `$largest_file`. (large-file)\n");
         return $temp_dir;
@@ -466,6 +468,14 @@ sub split_file {
     my ($current_begin_marker, $next_end_marker, $start_marker_line) = ('', '', '');
     my $offset = 0;
     LINE: while (<FILE>) {
+      if ($. == 1) {
+        unless ($disable_minified_file) {
+          if ($file_size >= 512 && length($_) == $file_size) {
+            skip_file($temp_dir, "file is a single line file. (single-line-file)\n");
+            last;
+          }
+        }
+      }
       $_ = decode_utf8($_, FB_DEFAULT);
       if (/[\x{D800}-\x{DFFF}]/) {
         skip_file($temp_dir, "file contains a UTF-16 surrogate. This is not supported. (utf16-surrogate-file)\n");
