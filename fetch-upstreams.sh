@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 git_remote=$(git config --get remote.origin.url)
 extra_workflows=$(cd ../workflows; pwd)
+git fetch origin autodetect-expired-artifact:autodetect-expired-artifact
 for origin in $origins; do
   export origin
   git remote add upstream https://github.com/$origin/check-spelling.git --no-tags
@@ -9,6 +10,13 @@ for origin in $origins; do
     export branch
     export local=$origin/$branch/$date
     git fetch upstream $branch:$local
+    if [ "$branch" = main ]; then
+      git checkout $local
+      if ! git cherry-pick autodetect-expired-artifact; then
+        git cherry-pick --abort
+        git clean -x
+      fi
+    fi
     git push origin $local -f
 
     pushd $(mktemp -d)
