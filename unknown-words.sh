@@ -2510,7 +2510,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     KEY=check_file_names \
     VALUE="$INPUT_CHECK_FILE_NAMES" \
     MESSAGE="$check_file_names_warning" \
-    check_yaml_key_value "$workflow_path" >> "$more_warnings"
+    check_yaml_key_value "$workflow_path" | tee /dev/stderr >> "$more_warnings"
   fi
   warning_output_sorted="$(mktemp)"
   sort-file < "$warning_output" > "$warning_output_sorted"
