@@ -48,8 +48,7 @@ sub process_path {
 
 sub quote_regex {
   my ($pattern) = @_;
-  $pattern =~ s/([\\\[{(.?+*])/\\$1/g;
-  return $pattern;
+  return quotemeta($pattern);
 }
 
 sub maybe_quote_regex {
