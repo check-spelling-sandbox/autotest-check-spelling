@@ -48,13 +48,14 @@ sub process_path {
 
 sub quote_regex {
   my ($pattern) = @_;
-  $pattern =~ s/([\\\[{(.?+*])/\\$1/g;
-  return $pattern;
+  return quotemeta($pattern);
 }
 
 sub maybe_quote_regex {
   my ($i) = @_;
-  return ($i eq quote_regex($i)) ? $i : "\\Q$i\\E";
+  my $quoted = quote_regex($i);
+  $quoted =~ s<\\/></>g;
+  return ($i eq $quoted) ? $i : "\\Q$i\\E";
 }
 
 sub build_patterns {

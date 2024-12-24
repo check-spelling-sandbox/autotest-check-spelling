@@ -74,9 +74,10 @@ close $fh;
 
 my $old_excludes_file;
 ($fh, $old_excludes_file) = tempfile();
-my @old_excludes = qw (
+my @old_excludes = qw <
   ^test\.keep$
-);
+  ^\Qtest(0)a\E$
+>;
 print $fh CheckSpelling::Util::list_with_terminator "\n", @old_excludes;
 close $fh;
 
@@ -91,12 +92,13 @@ push @expected_results, '(?:|$^ 88.89% - excluded 8/9)^flour/';
 
 my @expect_drop_patterns = qw(
 ^test\.keep$
+^\Qtest(0)a\E$
 );
 @expect_drop_patterns = sort CheckSpelling::Util::case_biased @expect_drop_patterns;
 
 my ($results_ref, $drop_ref) = CheckSpelling::SuggestExcludes::main($list, $excludes_file, $old_excludes_file);
 my @results = @{$results_ref};
-my @drop_patterns = @{$drop_ref};
+my @drop_patterns = sort CheckSpelling::Util::case_biased @{$drop_ref};
 @results = sort CheckSpelling::Util::case_biased @results;
 is(CheckSpelling::Util::list_with_terminator("\n", @results),
 CheckSpelling::Util::list_with_terminator("\n", @expected_results));
