@@ -13,6 +13,7 @@ use CheckSpelling::Util;
 my %letter_map;
 my %ignored_event_map;
 my $disable_word_collating;
+my $shortest_word;
 
 my %last_seen;
 
@@ -117,14 +118,17 @@ sub stem_word {
   my ($key) = @_;
   our $disable_word_collating;
   return $key if $disable_word_collating;
+  our $shortest_word;
+  $shortest_word = 2 unless defined $shortest_word;
+  my $key_length = length $key;
 
   if ($key =~ /.s$/) {
-    if ($key =~ /ies$/) {
+    if ($key_length > ($shortest_word + 1) && $key =~ /ies$/) {
       $key =~ s/ies$/y/;
-    } else {
+    } elsif ($key_length > $shortest_word && $key !~ /ies$/) {
       $key =~ s/s$//;
     }
-  } elsif ($key =~ /.[^aeiou]ed$/) {
+  } elsif ($key_length > ($shortest_word + 1) && $key =~ /.[^aeiou]ed$/) {
     $key =~ s/ed$//;
   }
   return $key;
@@ -317,6 +321,7 @@ sub main {
   my $only_check_changed_files = CheckSpelling::Util::get_file_from_env('INPUT_ONLY_CHECK_CHANGED_FILES', '');
   my $disable_noisy_file = $disable_flags =~ /(?:^|,|\s)noisy-file(?:,|\s|$)/;
   our $disable_word_collating = $only_check_changed_files || $disable_flags =~ /(?:^|,|\s)word-collating(?:,|\s|$)/;
+  our $shortest_word = CheckSpelling::Util::get_val_from_env('INPUT_SHORTEST_WORD', undef);
   my $file_list = CheckSpelling::Util::get_file_from_env('check_file_names', '');
   my $pr_title_file = CheckSpelling::Util::get_file_from_env('pr_title_file', '');
   my $pr_description_file = CheckSpelling::Util::get_file_from_env('pr_description_file', '');

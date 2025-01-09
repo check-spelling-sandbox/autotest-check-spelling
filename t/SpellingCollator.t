@@ -8,7 +8,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 43;
+plan tests => 49;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -374,3 +374,11 @@ check_output_file($warning_output, "$file_names
 ", 'warning_output');
 check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-commit-message)
 ", 'more_warnings');
+
+$CheckSpelling::SpellingCollator::shortest_word = 3;
+is(CheckSpelling::SpellingCollator::stem_word('zeeps'), 'zeep', 'plural');
+is(CheckSpelling::SpellingCollator::stem_word('zecked'), 'zeck', 'past tense');
+is(CheckSpelling::SpellingCollator::stem_word('zeep'), 'zeep', 'singular');
+is(CheckSpelling::SpellingCollator::stem_word('zies'), 'zies', 'shortish stem limit');
+is(CheckSpelling::SpellingCollator::stem_word('zy'), 'zy', 'shortest stem limit');
+is(CheckSpelling::SpellingCollator::stem_word('ked'), 'ked', 'past tense');
