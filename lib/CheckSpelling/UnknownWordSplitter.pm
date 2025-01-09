@@ -281,6 +281,7 @@ sub split_line {
   our ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
   our @hunspell_dictionaries;
   our $shortest;
+  my $shortest_threshold = $shortest + 2;
   my $pattern = '.';
   # $pattern = "(?:$upper_pattern){$shortest,}|$upper_pattern(?:$lower_pattern){2,}\n";
 
@@ -328,7 +329,7 @@ sub split_line {
       }
       unless ($disable_word_collating) {
         $key =~ s/''+/'/g;
-        $key =~ s/'[sd]$//;
+        $key =~ s/'[sd]$// unless length $key >= $shortest_threshold;
       }
       if (defined $dictionary{$key}) {
         ++$words;
