@@ -39,6 +39,9 @@ jobs:
         (
           echo "perl-modules=$perl_modules"
         ) >> "$GITHUB_OUTPUT"
+    - name: gh-program-downloader
+      if: false
+      uses: check-spelling/gh-program-downloader@main
     - name: dependencies
       id: depedencies
       shell: bash
@@ -89,19 +92,10 @@ jobs:
 
               if apt-cache policy gh | grep -q 'Candidate: 2.4.0'; then
               (
-                gh_os=$(uname | tr A-Z a-z)
-                gh_arch=$(uname -m | tr A-Z a-z)
-                case "$gh_arch" in
-                  x86_64)
-                    go_arch=amd64;;
-                  aarch64)
-                    go_arch=arm64;;
-                esac
-                case "gh_os" in
-                  darwin)
-                    gh_os=macOS;;
-                esac
-                ./gh-release-downloader cli/cli "$extra_bin/gh" "$gh_os" "$gh_arch" bin/
+                repo=cli/cli \
+                destination="$extra_bin/gh" \
+                file_re=bin/ \
+                ../../_actions/check-spelling/gh-program-downloader/gh-program-downloader
                 echo "$extra_bin" >> "$GITHUB_PATH"
               ) &
               fi
