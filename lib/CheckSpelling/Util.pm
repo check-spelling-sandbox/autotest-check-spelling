@@ -30,6 +30,18 @@ sub get_val_from_env {
   return $1 || $fallback;
 }
 
+sub read_file {
+    my ($file) = @_;
+    my $template;
+    open TEMPLATE, '<', $file || print STDERR "Could not open template ($file)\n";
+    {
+        local $/ = undef;
+        $template = <TEMPLATE>;
+    }
+    close TEMPLATE;
+    return $template;
+}
+
 sub case_biased :prototype($$) ($a, $b) {
   lc($a) cmp lc($b) || $a cmp $b;
 }
