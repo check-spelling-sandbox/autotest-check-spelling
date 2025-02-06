@@ -11,7 +11,10 @@ for repo in $projects; do
       xargs -0 grep -E -l --null 'uses:.*check-spelling/check-spelling' |
       xargs -0 grep -l 'checkout: true'); do
       workflow="$extra_workflows/$repo_with_dashes-$(basename $file)"
-      "$GITHUB_WORKSPACE/rewrite-workflow.pl" $file > "$workflow"
+      (
+        echo "# $repo $(git rev-parse --abbrev-ref HEAD)=$(git rev-parse HEAD)"
+        "$GITHUB_WORKSPACE/rewrite-workflow.pl" $file
+      ) > "$workflow"
     done
   )
   rm -rf sandbox
