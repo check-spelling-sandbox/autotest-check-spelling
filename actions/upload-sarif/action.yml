@@ -80,21 +80,26 @@ runs:
       rm -f "$sarif_gz_file"
 
       result=$(mktemp)
+      github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs"
       curl -s -L \
         -X POST \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $GH_TOKEN" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs" \
+        "$github_api_url" \
         -d @"$sarif_payload" \
         -o "$result"
       rm -f "$sarif_payload"
-      sarif_id=$(jq -r '.id // empty' "$result")
-      sarif_url=$(jq -r '.url // empty' "$result")
+      sarif_id=$(jq -r '.id // empty' "$result" || true)
+      sarif_url=$(jq -r '.url // empty' "$result" || true)
       (
         echo "id=$sarif_id"
         echo "url=$sarif_url"
       ) > "$GITHUB_OUTPUT"
+      if [ -z "$sarif_id" ] || [ -z "$sarif_url" ]; then
+        echo "jq was unhappy about $github_api_url's result:"
+        cat "$result"
+      fi
     working-directory: ${{ inputs.checkout_path }}
     env:
       GH_TOKEN: ${{ inputs.token }}
@@ -124,13 +129,17 @@ runs:
           echo 'An error occurred checking the status of the sarif delivery. It should still be processed in the background, but errors that occur during processing may not be reported.' >&2
           break
         fi
-        processing_status=$(jq -r '.processing_status // empty' "$result")
+        processing_status=$(jq -r '.processing_status // empty' "$result" || true)
         case "$processing_status" in
           complete)
             break
             ;;
           failed)
-            echo "Code Scanning could not process the submitted SARIF file:\n$(jq -r '.errors // empty' "$result")" >&2
+            errors="$(
+              jq -r '.errors // empty' "$result" ||
+              cat "$result"
+            )"
+            echo "Code Scanning could not process the submitted SARIF file:\n$errors" >&2
             break
             ;;
           pending)
