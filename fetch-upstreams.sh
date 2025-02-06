@@ -12,7 +12,9 @@ for origin in $origins; do
     git fetch upstream $branch:$local
     if [ "$branch" = main ]; then
       git checkout $local
-      if ! git cherry-pick autodetect-expired-artifact; then
+      if git cherry-pick autodetect-expired-artifact; then
+        echo "::notice title=Backported autodetect-expired-artifact::To $local"
+      else
         git cherry-pick --abort
         git clean -x
       fi
