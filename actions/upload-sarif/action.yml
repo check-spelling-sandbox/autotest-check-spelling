@@ -44,7 +44,37 @@ outputs:
 runs:
   using: "composite"
   steps:
+  - name: Confirm commit is in GitHub Repository
+    id: check-commit
+    shell: bash
+    run: |
+      : Confirm commit is in GitHub Repository
+      github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA"
+      http_code=$(
+        curl -s -L \
+          -X HEAD \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -w "%{http_code}" \
+          "$github_api_url" ||
+        true
+      )
+      if [ "$http_code" = 422 ]; then
+        echo "::notice title=Skipping SARIF Upload::GitHub does not think $GITHUB_REPOSITORY has commit $GITHUB_SHA"
+        echo "missing=1" >> "$GITHUB_OUTPUT"
+      fi
+    working-directory: ${{ inputs.checkout_path }}
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+      category: ${{ inputs.category }}
+      matrix: ${{ inputs.matrix }}
+      ref: ${{ inputs.ref }}
+      sarif_file: ${{ inputs.sarif_file }}
+      sha: ${{ inputs.sha }}
+      started_at: ${{ inputs.started-at }}
   - name: Upload SARIF
+    if: ${{ ! steps.check-commit.outputs.missing }}
     id: action
     continue-on-error: true
     shell: bash
