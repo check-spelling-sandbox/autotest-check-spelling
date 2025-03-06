@@ -3050,6 +3050,12 @@ spelling_body() {
         output_quote_reply_placeholder="$n<!--QUOTE_REPLY-->$n"
       fi
     fi
+    if [ -n "$INPUT_ONLY_CHECK_CHANGED_FILES" ] && [ -n "$err" ]; then
+      # this code should also apply to $INPUT_CHECK_COMMIT_MESSAGES
+      output_allow_hint="$(echo "Using ${b}only_check_changed_files${b} is incompatible with ${b}expect.txt${b}.
+      To accept the items listed, you should add them to ${b}allow.txt${b}.
+      "| strip_lead)"
+    fi
     if [ "$INPUT_INCLUDE_ADVICE" = 'always' ] || [ -n "$has_errors" ]; then
       include_advice=true
     fi
@@ -3061,7 +3067,7 @@ spelling_body() {
     else
       details_heading=""
     fi
-    OUTPUT=$(echo "$n$report_header$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
+    OUTPUT=$(echo "$n$report_header$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_allow_hint$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
       " | perl -pe 's/^\s+$/\n/;'| uniq)
 }
 
