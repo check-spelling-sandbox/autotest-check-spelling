@@ -3050,10 +3050,10 @@ spelling_body() {
         output_quote_reply_placeholder="$n<!--QUOTE_REPLY-->$n"
       fi
     fi
-    if [ -n "$INPUT_ONLY_CHECK_CHANGED_FILES" ] && [ -n "$err" ]; then
+    if [ -n "$INPUT_ONLY_CHECK_CHANGED_FILES" ] && [ "$unknown_count" -gt 0 ]; then
       # this code should also apply to $INPUT_CHECK_COMMIT_MESSAGES
       output_allow_hint="$(echo "Using ${b}only_check_changed_files${b} is incompatible with ${b}expect.txt${b}.
-      To accept the items listed, you should add them to ${b}allow.txt${b}.
+      To accept the items listed (assuming they aren't actually typos!), you could add them to ${b}allow.txt${b}.
       "| strip_lead)"
     fi
     if [ "$INPUT_INCLUDE_ADVICE" = 'always' ] || [ -n "$has_errors" ]; then
@@ -3315,7 +3315,7 @@ generate_merge_instructions() {
 }
 
 generate_sample_commit_help() {
-  if [ ! -s "$tokens_file" ]; then
+  if [ ! -s "$tokens_file" ] || to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
     return
   fi
   git remote set-url --push origin .
