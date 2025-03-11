@@ -3315,7 +3315,7 @@ generate_merge_instructions() {
 }
 
 generate_sample_commit_help() {
-  if [ ! -s "$tokens_file" ]; then
+  if [ ! -s "$tokens_file" ] && ! to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
     return
   fi
   git remote set-url --push origin .
