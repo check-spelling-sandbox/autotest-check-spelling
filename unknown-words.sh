@@ -2631,7 +2631,9 @@ get_job_info_and_step_info() {
         jobs_info=$(mktemp)
         if call_curl "$jobs_url" > "$jobs_info" 2>/dev/null; then
           job=$(mktemp)
-          jq -r '.jobs[] | select(.status=="in_progress" and .runner_name=="'"$RUNNER_NAME"'" and .run_attempt=='"${GITHUB_RUN_ATTEMPT:-1}"')' "$jobs_info" > "$job" 2>/dev/null
+          runner_name_re=$(perl -e 'my $name = $ENV{RUNNER_NAME}; $name =~ s/-\d+$//; $name=~ s/-/[- ]/g; print $name')
+          runner_id=$(perl -e 'my $id = $ENV{RUNNER_NAME}; $id =~ s/^.*-(\d+)$/$1/; print $id')
+          jq -r '.jobs[] | select(.status=="in_progress" and .run_attempt=='"${GITHUB_RUN_ATTEMPT:-1}"' and (.runner_name=="'"$RUNNER_NAME"'" or (.runner_id=='"$runner_id"' and (.runner_name | test("'"$runner_name_re"'")))))' "$jobs_info" > "$job" 2>/dev/null
           job_log=$(jq -r .html_url "$job")
           job_name=$(jq -r .name "$job")
           if [ -n "$job_log" ]; then
