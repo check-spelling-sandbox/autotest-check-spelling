@@ -2321,6 +2321,7 @@ build_file_list() {
   (
     if to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
       get_before
+      INPUT_DISABLE_CHECKS="$INPUT_DISABLE_CHECKS,word-collating"
     fi
     if [ -n "$BEFORE" ]; then
       echo "Only checking files changed from $BEFORE" >&2
