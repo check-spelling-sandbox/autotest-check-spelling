@@ -1171,7 +1171,11 @@ define_variables() {
   word_splitter="$spellchecker/wrappers/spelling-unknown-word-splitter"
   word_collator="$spellchecker/wrappers/spelling-collator"
   expect_collator="$spellchecker/expect-collator.pl"
-  strip_word_collator_suffix="$spellchecker/strip-word-collator-suffix.pl"
+  if to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES" ]; then
+    strip_word_collator_suffix=cat
+  else
+    strip_word_collator_suffix="$spellchecker/strip-word-collator-suffix.pl"
+  fi
   adjust_severities="$spellchecker/wrappers/adjust-severities"
   find_token="$spellchecker/find-token.pl"
   output_covers="$spellchecker/output-covers.pl"
@@ -2485,6 +2489,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     should_exclude_file="$should_exclude_file" \
     counter_summary="$counter_summary_file" \
     unknown_word_limit="$INPUT_UNKNOWN_WORD_LIMIT" \
+    INPUT_ONLY_CHECK_CHANGED_FILES="$INPUT_ONLY_CHECK_CHANGED_FILES" \
     candidates_path="$candidates_path" \
     candidate_summary="$candidate_summary" \
     forbidden_path="$forbidden_path" \
