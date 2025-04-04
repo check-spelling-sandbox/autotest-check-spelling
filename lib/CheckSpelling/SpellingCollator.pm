@@ -383,7 +383,8 @@ sub main {
                 my $pattern = (split /\n/,$candidates[$i])[-1];
                 my $position = $lines[$i];
                 $position =~ s/:(\d+)$/ ... $1/;
-                push @delayed_warnings, "$file:$position, Notice - `Line` matches candidate pattern `$pattern` (candidate-pattern)\n";
+                my $wrapped = CheckSpelling::Util::wrap_in_backticks($pattern);
+                push @delayed_warnings, "$file:$position, Notice - `Line` matches candidate pattern $wrapped (candidate-pattern)\n";
               }
             }
           }
@@ -503,7 +504,7 @@ sub main {
     if (!$is_file_list) {
       for $warning (<WARNINGS>) {
         chomp $warning;
-        if ($warning =~ s/:(\d+):(\d+ \.\.\. \d+): '(.*)'/:$1:$2, Warning - `$3` is not a recognized word\. \(unrecognized-spelling\)/) {
+        if ($warning =~ s/:(\d+):(\d+ \.\.\. \d+): `(.*)`/:$1:$2, Warning - `$3` is not a recognized word\. \(unrecognized-spelling\)/) {
           my ($line, $range, $item) = ($1, $2, $3);
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
         } else {
