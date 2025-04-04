@@ -35,7 +35,7 @@ sub get_yaml_value {
       }
       if (@result && $level < scalar @path_split) {
         $last = 1;
-        break;
+        last;
       }
       last if $last;
       if (!$level || length $prefix > length $prefixes[$level - 1]) {
@@ -74,7 +74,7 @@ sub get_yaml_value {
     $suffix = "\n";
   }
   unless ($newlines eq '+') {
-    pop @result while (@result[$#result] eq '');
+    pop @result while ($result[$#result] eq '');
   }
   if ($mode eq '') {
     return (join ' ', @result).$suffix;
