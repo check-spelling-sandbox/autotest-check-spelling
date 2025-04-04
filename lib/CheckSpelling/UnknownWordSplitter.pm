@@ -318,6 +318,17 @@ sub skip_file {
   close SKIPPED;
 }
 
+sub wrap_in_backticks {
+  my ($a) = @_;
+  my $longest = 0;
+  while ($a =~ /(`+)/g) {
+    my $length = length $1;
+    $longest = $length if $length > $longest;
+  }
+  my $q = '`'x ($longest + 1);
+  return "$q$a$q";
+}
+
 sub split_file {
   my ($file) = @_;
   our (
@@ -454,11 +465,13 @@ sub split_file {
               last;
             }
           }
+          my $wrapped = wrap_in_backticks($match);
           if ($found_trigger_re) {
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
-            print WARNINGS ":$.:$begin ... $end, Warning - `$match` matches a line_forbidden.patterns entry: `$found_trigger_re`. (forbidden-pattern)\n";
+            my $quoted_trigger_re = wrap_in_backticks($found_trigger_re);
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re. (forbidden-pattern)\n";
           } else {
-            print WARNINGS ":$.:$begin ... $end, Warning - `$match` matches a line_forbidden.patterns entry. (forbidden-pattern)\n";
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry. (forbidden-pattern)\n";
           }
           $previous_line_state = $_;
         }
