@@ -383,7 +383,8 @@ sub main {
                 my $pattern = (split /\n/,$candidates[$i])[-1];
                 my $position = $lines[$i];
                 $position =~ s/:(\d+)$/ ... $1/;
-                push @delayed_warnings, "$file:$position, Notice - `Line` matches candidate pattern `$pattern` (candidate-pattern)\n";
+                my $wrapped = CheckSpelling::Util::wrap_in_backticks($pattern);
+                push @delayed_warnings, "$file:$position, Notice - `Line` matches candidate pattern $wrapped (candidate-pattern)\n";
               }
             }
           }
