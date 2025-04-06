@@ -20,7 +20,7 @@ sub get_yaml_value {
   my @path_split = split /\./, $path;
   my $level = 0;
   my @prefixes;
-  open $yaml, '<', $file || return '';
+  open($yaml, '<', $file) || return '';
   my @result;
   my $line_result;
   my $mode;
