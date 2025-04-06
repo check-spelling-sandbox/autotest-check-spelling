@@ -101,12 +101,15 @@ sub get_yaml_value {
 }
 
 sub check_yaml_key_value {
-  my ($key, $value, $message, $report_match) = @_;
+  my ($key, $value, $message, $report_match, $file, $content) = @_;
   my ($state, $gh_yaml_mode) = (0, '');
   my @nests;
   my ($start_line, $start_pod, $end);
+  my @lines = split /\n/, $content;
+  my $line = 0;
 
-  while (<>) {
+  for (@lines) {
+    ++$line;
     if (/^(\s*)#/) {
       $end += length $_ if ($state == 3);
       next;
@@ -121,8 +124,8 @@ sub check_yaml_key_value {
       push @nests, $len if (! scalar @nests || $len > $nests[$#nests]);
       if (/^\s*(($key)\s*:\s*([|>][-+]?|\$\{\{.*|(?:"\s*|)$value))\s*$/) {
         $gh_yaml_mode = $3;
-        ($start_line, $start_pos, $end, $match) = ($., $-[2] + 1, $+[3] + 1, $1);
-        report($ARGV, $start_line, $start_pos, $end, $message, $match, $report_match) if ($gh_yaml_mode =~ /$value|\$\{\{/);
+        ($start_line, $start_pos, $end, $match) = ($line, $-[2] + 1, $+[3] + 1, $1);
+        report($file, $start_line, $start_pos, $end, $message, $match, $report_match) if ($gh_yaml_mode =~ /$value|\$\{\{/);
         $state = 1;
       }
     } elsif ($state == 1) {
@@ -135,7 +138,7 @@ sub check_yaml_key_value {
       $len = length $spaces;
       if (scalar @nests && $len > $nests[$#nests] && $v =~ /$value/) {
         $end += $len + length $v;
-        report($ARGV, $start_line, $start_pos, $end, $message, $report_match);
+        report($file, $start_line, $start_pos, $end, $message, $report_match);
       }
       pop @nests;
       $state = 0;
