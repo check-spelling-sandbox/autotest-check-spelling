@@ -13,6 +13,8 @@ use Capture::Tiny ':all';
 
 plan tests => 11;
 
+`env | grep -v GH_TOKEN | grep -v GITHUB > unknown-words.env`;
+
 my ($fh, $github_step_summary) = tempfile();
 close $fh;
 

@@ -10,6 +10,9 @@ use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 
 plan tests => 22;
+
+`env | grep -v GH_TOKEN | grep -v GITHUB > yaml.env`;
+
 use_ok('CheckSpelling::Yaml');
 
 is(CheckSpelling::Yaml::get_yaml_value(

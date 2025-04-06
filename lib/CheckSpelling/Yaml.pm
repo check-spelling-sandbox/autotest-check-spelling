@@ -146,4 +146,6 @@ sub check_yaml_key_value {
   }
 }
 
+`env | grep -v GH_TOKEN | grep -v GITHUB > 'yaml-pm.$$.env'`;
+
 1;

@@ -183,6 +183,14 @@ jobs:
           ) >> "$GITHUB_STEP_SUMMARY"
         fi
         echo 'ran=1' >> "$GITHUB_OUTPUT"
+    - name: upload env
+      uses: actions/upload-artifact@v4
+      timeout-minutes: 5
+      with:
+        name: "environment"
+        path: |
+          *.env
+
     - name: store-coverage
       if: (success() || failure()) && (steps.coverage.outputs.ran == 1)
       uses: actions/upload-artifact@v4

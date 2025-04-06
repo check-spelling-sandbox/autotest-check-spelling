@@ -12,6 +12,8 @@ use Capture::Tiny ':all';
 
 plan tests => 8;
 
+`env | grep -v GH_TOKEN | grep -v GITHUB > cleanup-file.env`;
+
 my $spellchecker = dirname(dirname(abs_path(__FILE__)));
 
 my $sandbox = tempdir();
