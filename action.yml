@@ -452,6 +452,7 @@ runs:
         ssh-key: ${{ inputs.ssh_key }}
         fetch-depth: ${{ !contains(inputs.check_commit_messages, 'commits') && '1' || '0' }}
         filter: ${{ contains(inputs.check_commit_messages, 'commits') && 'tree:0' || '' }}
+        persist-credentials: ${{ toJSON(inputs.experimental_apply_changes_via_bot || 'false') && github.event_name == 'issue_comment' }}
         token: ${{ inputs.checkout-token || inputs.GITHUB_TOKEN }}
         submodules: ${{ inputs.submodules }}
         ref:
