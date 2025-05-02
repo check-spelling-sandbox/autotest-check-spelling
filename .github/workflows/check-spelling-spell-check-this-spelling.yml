@@ -98,8 +98,6 @@ jobs:
         : Rewrite spelling metadata
         perl -pi -e 's,\Q^\.github/actions/spelling/\E,,' .github/actions/spelling/excludes.txt
         perl -pi -e '$_ = "#\n" unless /^$|^# /' .github/actions/spelling/*patterns*
-        curl -fsSL https://raw.githubusercontent.com/check-spelling-sandbox/autotest-check-spelling/refs/heads/spell-check-this/shims/check-spelling/spell-check-this/.github/actions/spelling/allow.txt |
-          tee -a .github/actions/spelling/allow.txt > /dev/null || true
         git diff || true
     - name: check-spelling
       id: spelling
