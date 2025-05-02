@@ -15,6 +15,7 @@ for repo in $projects; do
         echo "# $repo $(git rev-parse --abbrev-ref HEAD)=$(git rev-parse HEAD)"
         "$GITHUB_WORKSPACE/rewrite-workflow.pl" "$file"
       ) > "$workflow"
+      diff -u "$file" "$workflow" || true
     done
   )
   rm -rf sandbox
