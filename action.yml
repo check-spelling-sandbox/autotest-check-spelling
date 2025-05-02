@@ -589,6 +589,8 @@ runs:
         token: ${{ inputs.sarif-token || inputs.GITHUB_TOKEN }}
         check-spelling-working-directory: ${{ inputs.experimental_path }}
         started-at: ${{ steps.spelling.outputs.started-at }}
+      env:
+        GH_ACTION_REF: ${{ github.action_ref || github.ref_name }}
     - name: dump-sarif
       continue-on-error: true
       if: (success() || (failure() && env.MERGE_FAILED != '1')) && (github.run_attempt > 1 || env.ACT) && env.UPLOAD_SARIF_LIMITED != ''

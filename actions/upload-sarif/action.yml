@@ -49,6 +49,10 @@ runs:
     shell: bash
     run: |
       : Confirm commit is in GitHub Repository
+      if [ "$GH_ACTION_REF" = prerelease ] &&
+         [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then
+        set -x
+      fi
       github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA"
       http_code=$(
         curl -s -L \
@@ -80,6 +84,10 @@ runs:
     shell: bash
     run: |
       : Upload SARIF
+      if [ "$GH_ACTION_REF" = prerelease ] &&
+         [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then
+        set -x
+      fi
       export sarif_gz_file=$(mktemp)
       cat "$sarif_file" | gzip -c | base64 -w0 > "$sarif_gz_file"
 
@@ -146,6 +154,10 @@ runs:
     if: ${{ fromJSON(inputs.wait-for-processing) && steps.action.outputs.url }}
     run: |
       : Wait for SARIF processing
+      if [ "$GH_ACTION_REF" = prerelease ] &&
+         [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then
+        set -x
+      fi
       deadline=$(( $(date +%s) + $(( ${STATUS_CHECK_TIMEOUT_MILLISECONDS:-$(( 2 * 60 * 1000 ))} / 1000 )) ))
       check_interval=$(( ${STATUS_CHECK_FREQUENCY_MILLISECONDS:-$(( 5 * 1000 ))} / 1000 ))
       result=$(mktemp)
