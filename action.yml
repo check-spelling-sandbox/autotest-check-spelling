@@ -588,6 +588,8 @@ runs:
         sha: ${{ env.PRIVATE_MERGE_SHA }}
         token: ${{ inputs.sarif-token || inputs.GITHUB_TOKEN }}
         started-at: ${{ steps.spelling.outputs.started-at }}
+      env:
+        trace: ${{ (inputs.debug || github.run_attempt > 1) && '1' || '' }}
     - name: dump-sarif
       continue-on-error: true
       if: (success() || (failure() && env.MERGE_FAILED != '1')) && (github.run_attempt > 1 || env.ACT) && env.UPLOAD_SARIF_LIMITED != ''
