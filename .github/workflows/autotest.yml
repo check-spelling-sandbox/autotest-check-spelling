@@ -23,14 +23,23 @@ jobs:
           - name: Generate consumer workflows
             shell: bash
             env:
-                projects: microsoft/terminal microsoft/powertoys nasa/fprime
+                projects:
+                    check-spelling/spell-check-this
+                    jsoref/spell-check-this
+                    microsoft/terminal
+                    microsoft/powertoys
+                    nasa/fprime
                 GH_TOKEN: ${{ github.token }}
             run: |
                 ./generate-workflows.sh
           - name: Fetch upstream
             shell: bash
             env:
-                branches: main prerelease
-                origins: check-spelling check-spelling-sandbox
+                branches:
+                    main
+                    prerelease
+                origins:
+                    check-spelling
+                    check-spelling-sandbox
             run: |
                 ./fetch-upstreams.sh
