@@ -412,7 +412,7 @@ sub main {
         # || ($unrecognized > $words / 2)
     ) {
       unless ($disable_noisy_file) {
-        push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because there seems to be more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-file)\n";
+        push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because there it to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-file)\n";
         if ($file ne $file_list) {
           print SHOULD_EXCLUDE "$file\n";
         }
