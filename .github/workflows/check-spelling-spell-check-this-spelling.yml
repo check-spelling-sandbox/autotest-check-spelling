@@ -90,7 +90,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: check-spelling/spell-check-this
-        ref: prerelease
+        ref: c8b2bb255dc5664ce4b22be9f672a5ae0538939b
     - name: enable checking spelling metadata
       shell: bash
       run: |
