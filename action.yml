@@ -588,6 +588,7 @@ runs:
         sha: ${{ env.PRIVATE_MERGE_SHA }}
         token: ${{ inputs.sarif-token || inputs.GITHUB_TOKEN }}
         started-at: ${{ steps.spelling.outputs.started-at }}
+        analysis-key: ${{ steps.spelling.outputs.workflow-path }}:check-spelling
       env:
         trace: ${{ (inputs.debug || github.run_attempt > 1) && '1' || '' }}
     - name: dump-sarif

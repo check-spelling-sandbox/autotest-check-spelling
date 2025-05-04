@@ -33,6 +33,18 @@ inputs:
     description:
     required: false
     default: ''
+  tool-names:
+    description:
+    required: false
+    default: check-spelling
+  analysis-key:
+    description:
+    required: false
+    default: ''
+  analysis-name:
+    description:
+    required: false
+    default: check-spelling
 outputs:
   sarif-id:
     description:
@@ -100,13 +112,53 @@ runs:
           open my $input, "<", $ENV{"sarif_gz_file"};
           $sarif = <$input>;
         }
-        $data{"commit_sha"}=$ENV{sha};
-        $data{"ref"}=$ENV{ref};
+        my $sha=$ENV{"sha"};
+        my $commit_oid="";
+        my $base_oid="";
+        my $head_oid="";
+        print STDERR qq<git show -s --format=raw '$sha'\n>;
+        my @lines=split /\n/, `git show -s --format=raw '$sha'`;
+        for (@lines) {
+          chomp;
+          print STDERR "... $_";
+          if (/^commit (.*)/ && $commit_oid == "") {
+            print STDERR " -> commit_oid ($1)";
+            $commit_oid=$1;
+          } elsif (/^parent (.*)/) {
+            if ($base_oid == "") {
+              print STDERR " -> base_oid ($1)";
+              $base_oid=$1;
+            } elsif ($head_oid == "") {
+              print STDERR " -> head_oid ($1)";
+              $head_oid=$1;
+            } else {
+              print STDERR " -> unhandled [parent]";
+            }
+          } else {
+            print STDERR " -> unhandled line";
+          }
+          print STDERR "\n";
+          last if /^\s*$/;
+        }
+        if ($commit_oid == $sha && length($base_oid) == 40 && length($head_oid) == 40) {
+          $data{"commit_oid"}=$base_oid;
+        } else {
+          $data{"commit_oid"}=$sha;
+        }
+        $data{"commit_sha"}=$sha;
+        $data{"ref"}=$ENV{"ref"};
+        $data{"analysis_key"}=$ENV{"analysis_key"};
+        $data{"analysis_name"}=$ENV{"analysis_name"};
         $data{"checkout_uri"}="file://$dir";
-        $data{"tool_name"}="check-spelling";
+        my @tool_names=split /\s+/, $ENV{"tool_names"};
+        $data{"tool_names"}=\@tool_names;
         $data{"sarif"}=$sarif;
-        my $started_at = $ENV{started_at};
-        $data{"started_at"} = $started_at if defined $started_at;
+        my $run_id=$ENV{"GITHUB_RUN_ID"}+0;
+        $data{"workflow_run_id"}=$run_id;
+        my $run_attempt=$ENV{"GITHUB_RUN_ATTEMPT"}+0;
+        $data{"workflow_run_attempt"}=$run_attempt;
+        my $started_at=$ENV{"started_at"};
+        $data{"started_at"}=$started_at if defined $started_at;
         print encode_json \%data;
       ' > "$sarif_payload" || result=$?
       if [ -n "$result" ]; then
@@ -117,9 +169,9 @@ runs:
 
       result=$(mktemp)
       headers_file=$(mktemp)
-      github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs"
+      github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/analysis"
       curl -s -L \
-        -X POST \
+        -X PUT \
         -D "$headers_file" \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $GH_TOKEN" \
@@ -147,12 +199,12 @@ runs:
       rm -f "$sarif_payload"
 
       sarif_id=$(jq -r '.id // empty' "$result" || true)
-      sarif_url=$(jq -r '.url // empty' "$result" || true)
+      sarif_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/sarifs/$sarif_id"
       (
         echo "id=$sarif_id"
         echo "url=$sarif_url"
       ) > "$GITHUB_OUTPUT"
-      if [ -z "$sarif_id" ] || [ -z "$sarif_url" ]; then
+      if [ -z "$sarif_id" ]; then
         echo "jq was unhappy about $github_api_url's result:"
         cat "$result"
       fi
@@ -165,6 +217,9 @@ runs:
       sarif_file: ${{ inputs.sarif_file }}
       sha: ${{ inputs.sha }}
       started_at: ${{ inputs.started-at }}
+      tool_names: ${{ inputs.tool-names }}
+      analysis_key: ${{ inputs.analysis-key }}
+      analysis_name: ${{ inputs.analysis-name }}
   - name: Wait for SARIF processing
     id: wait-for-processing
     continue-on-error: true
