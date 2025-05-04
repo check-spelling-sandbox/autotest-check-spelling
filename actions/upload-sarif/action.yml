@@ -116,16 +116,36 @@ runs:
       rm -f "$sarif_gz_file"
 
       result=$(mktemp)
+      headers_file=$(mktemp)
       github_api_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs"
       curl -s -L \
         -X POST \
+        -D "$headers_file" \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer $GH_TOKEN" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
         "$github_api_url" \
         -d @"$sarif_payload" \
         -o "$result"
+
+      get_response_code() {
+        perl -e '$/="\r\n\r\n"; my $code = -1; while (<>) { $_ =~ s/\n.*/\n/s; next unless m!HTTP/\S+\s+(\d+)!; $code=$1;} print $code;' "$headers_file"
+      }
+      response_code=$(get_response_code)
+      case "$response_code" in
+      2*)
+        ;;
+      *)
+        b='`' echo "$github_api_url returned $b$response_code$b"
+        echo "Request payload:"
+        cat "$sarif_payload"
+        echo
+        echo "Response:"
+        cat "$result"
+        exit
+      esac
       rm -f "$sarif_payload"
+
       sarif_id=$(jq -r '.id // empty' "$result" || true)
       sarif_url=$(jq -r '.url // empty' "$result" || true)
       (
