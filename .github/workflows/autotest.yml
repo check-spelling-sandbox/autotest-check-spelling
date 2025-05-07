@@ -29,6 +29,7 @@ jobs:
                     microsoft/terminal
                     microsoft/powertoys
                     nasa/fprime
+                    powerdns/pdns
                 GH_TOKEN: ${{ github.token }}
             run: |
                 ./generate-workflows.sh
