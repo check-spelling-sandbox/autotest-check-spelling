@@ -1484,6 +1484,22 @@ github_step_summary_likely_fatal_event() {
   github_step_summary_likely_fatal "$1" "$2" ":warning: For more information, see [$category](https://docs.check-spelling.dev/Event-descriptions#$category)."
 }
 
+github_step_summary_likely_fatal_event_dictionaries() {
+  message="Problems were encountered retrieving $1 dictionaries ($(echo "$2"|xargs))."
+
+  if [ "$1" = extra ] && [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
+    message=$(echo "
+    $message
+
+    This workflow is running from a ${b}pull_request_target${b} event. In order to test changes to
+    dictionaries, you will need to use a workflow that is **not** associated with a ${b}pull_request${b} as
+    pull_request_target relies on the configuration of the destination branch, not the branch which
+    you are changing.
+    " | strip_lead)
+  fi
+  github_step_summary_likely_fatal_event 'Dictionary not found' "$message" "$1-dictionary-not-found"
+}
+
 download_or_quit_with_error() {
   exit_code="$(mktemp)"
   download "$1" "$2" || (
@@ -2134,25 +2150,9 @@ set_up_files() {
       extra_dictionaries_dir="$(get_extra_dictionaries extra "$INPUT_EXTRA_DICTIONARIES" "$extra_dictionaries_canary")"
       if [ -n "$extra_dictionaries_dir" ]; then
         if [ ! -e "$extra_dictionaries_canary" ]; then
-          message="Problems were encountered retrieving extra dictionaries ($INPUT_EXTRA_DICTIONARIES)."
-          if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
-            message=$(echo "
-            $message
-
-            This workflow is running from a ${b}pull_request_target${b} event. In order to test changes to
-            dictionaries, you will need to use a workflow that is **not** associated with a ${b}pull_request${b} as
-            pull_request_target relies on the configuration of the destination branch, not the branch which
-            you are changing.
-            " | strip_lead)
-          fi
-          github_step_summary_likely_fatal_event \
-            'Dictionary not found' \
-            "$message" \
-            'extra-dictionary-not-found'
-          github_step_summary_likely_fatal_event \
-            'Dictionary not found' \
-            "$message" \
-            'fallback-dictionary-not-found'
+          github_step_summary_likely_fatal_event_dictionaries \
+            'extra' \
+            "$INPUT_EXTRA_DICTIONARIES"
           if [ -n "$INPUT_CHECK_EXTRA_DICTIONARIES" ]; then
             end_group
             begin_group 'Check default extra dictionaries'
@@ -2172,11 +2172,14 @@ set_up_files() {
               fallback_extra_dictionaries_dir="$(get_extra_dictionaries fallback "$check_extra_dictionaries" "$fallback_extra_dictionaries_canary")"
               if [ ! -e "$fallback_extra_dictionaries_canary" ]; then
                 fallback_extra_dictionaries_dir=
+                github_step_summary_likely_fatal_event_dictionaries \
+                  'fallback' \
+                  "$check_extra_dictionaries"
               fi
               if [ -d "$fallback_extra_dictionaries_dir" ]; then
                 # should handle hunspell
                 if [ -n "$check_extra_dictionaries_dir" ] && [ -d "$check_extra_dictionaries_dir" ]; then
-                  (cd "$fallback_extra_dictionaries_dir"; mv ./* "$check_extra_dictionaries_dir")
+                  (cd "$fallback_extra_dictionaries_dir"; for a in ./*; do mv "$a" ".$(basename "$a")" "$check_extra_dictionaries_dir" & done)
                 else
                   check_extra_dictionaries_dir="$fallback_extra_dictionaries_dir"
                   fallback_extra_dictionaries_dir=
