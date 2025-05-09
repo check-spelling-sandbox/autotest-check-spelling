@@ -11,7 +11,7 @@ thiss
 youu
 
 <details><summary>These words are not needed and should be removed
-</summary>unexpectedlylong=
+</summary>invalid unexpectedlylong word=
 </details><p></p>
 
 <details><summary>To accept these unrecognized words as correct, you could apply this commit</summary>
@@ -40,11 +40,13 @@ diff --git a/t/unknown-words/config/expect.txt b/t/unknown-words/config/expect.t
 index GIT_DIFF_CHANGED_FILE
 --- a/t/unknown-words/config/expect.txt
 +++ b/t/unknown-words/config/expect.txt
-@@ -1 +1,4 @@
--unexpectedlylong
+@@ -1,3 +1,6 @@
 +diid
 +fixx
+ invalid+word
 +thiss
+ Unexpectedlylong
+-unexpectedlylong
 +youu
 --=
 GIT_VERSION
@@ -85,11 +87,13 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors :x: (1)</summary>
+<details><summary>Errors and Warnings :x: (3)</summary>
 
-[:x: Errors](https://docs.check-spelling.dev/Event-descriptions) | Count
+[:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
-[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 1
+[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
+[:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
+[:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 2
 
 See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
@@ -100,7 +104,15 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 note|path
 -|-
+`+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).`. | https://github.com/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect.txt#L1
 `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. | https://github.com/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L1
+</details>
+
+<details><summary>:open_file_folder: ignored-expect-variant</summary>
+
+note|path
+-|-
+`Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. | https://github.com/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect.txt#L2
 </details>
 
 <details><summary>:open_file_folder: unrecognized-spelling</summary>
@@ -113,6 +125,12 @@ note|path
 `youu` is not a recognized word. | https://github.com/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
 </details>
 
+<details><summary>:open_file_folder: non-alpha-in-dictionary</summary>
+
+note|path
+-|-
+Ignoring entry because it contains non-alpha characters. | https://github.com/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/../../../../../tmp/tmp.hHfhjGzrau/expect.words.txt#L1
+</details>
 
 </details>
 
