@@ -156,15 +156,16 @@ sub main {
     my $github_repository = CheckSpelling::Util::get_file_from_env('GITHUB_REPOSITORY', "");
     my $event_file_path = CheckSpelling::Util::get_file_from_env('GITHUB_EVENT_PATH', "");
     if ($head_ref && $github_url && $github_repository && $event_file_path) {
-        open $event_file_handle, '<', $event_file_path;
-        local $/;
-        my $json = <$event_file_handle>;
-        close $event_file_handle;
-        my $data = decode_json($json);
-        our $pull_base = "$github_url/$github_repository";
-        our $pull_head = "$github_url/".$data->{'pull_request'}->{'head'}->{'repo'}->{'full_name'};
-        unless ($pull_head && $pull_base && ($pull_base ne $pull_head)) {
-            $pull_base = $pull_head = '';
+        if (open $event_file_handle, '<', $event_file_path) {
+            local $/;
+            my $json = <$event_file_handle>;
+            close $event_file_handle;
+            my $data = decode_json($json);
+            our $pull_base = "$github_url/$github_repository";
+            our $pull_head = "$github_url/".$data->{'pull_request'}->{'head'}->{'repo'}->{'full_name'};
+            unless ($pull_head && $pull_base && ($pull_base ne $pull_head)) {
+                $pull_base = $pull_head = '';
+            }
         }
     }
 
@@ -188,7 +189,7 @@ sub main {
     );
     my $footer_length = length $footer;
     if ($budget) {
-        $budget -= length $details_prefix + length $suffix;
+        $budget -= (length $details_prefix) + (length $suffix);
         print STDERR "Summary Tables budget reduced to: $budget\n";
     }
     for $table_file (sort @tables) {
