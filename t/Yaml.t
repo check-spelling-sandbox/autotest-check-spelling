@@ -33,7 +33,8 @@ parent:
 fruit: apple
 berry: blue
 wine: white
-fruit: salad
+fruit: >
+  salad
 tree: pear
 ';
 
@@ -62,7 +63,7 @@ $triggered = 0;
     is($file, '-');
     is($start_line, 10);
     is($start_pos, 1);
-    is($end, 13);
+    is($end, 16);
     is($message, 'Good night');
     is($match, 'fruit: salad');
     is($report_match, 1);
