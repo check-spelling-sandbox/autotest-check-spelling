@@ -2540,7 +2540,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   sort -u "$warning_output" > "$warning_output.0"; mv "$warning_output.0" "$warning_output"
   check_file_names_warning="$(check_file_names="$check_file_names" perl -i -e '
     while (<>) {
-      if (s/^$ENV{check_file_names}:\d+:\d+ \.\.\. \d+, (Warning - Skipping) `$ENV{check_file_names}`(.*)(\))/$1 file names$2-list$3/) {
+      if (s/^$ENV{check_file_names}:\d+:\d+ \.\.\. \d+, (Warning - Skipping .*?\([^)]+-list\))/$1/ ||
+          s/^$ENV{check_file_names}:\d+:\d+ \.\.\. \d+, (Warning - Skipping) `$ENV{check_file_names}`(.*)(\))/$1 file names$2-list$3/
+        ) {
         print STDERR;
       } else {
         print;
@@ -2548,15 +2550,17 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     }' "$warning_output" 2>&1
   )"
   if [ -n "$check_file_names_warning" ]; then
+    echo 'debugging check_file_names_warning...' >&2
+    output="$more_warnings" \
     KEY=check_file_names \
     VALUE="$INPUT_CHECK_FILE_NAMES" \
     MESSAGE="$check_file_names_warning" \
-    check_yaml_key_value "$workflow_path" >> "$more_warnings"
+    check_yaml_key_value "$workflow_path" >&2
   fi
   warning_output_sorted="$(mktemp)"
   sort-file < "$warning_output" > "$warning_output_sorted"
   mv "$warning_output_sorted" "$warning_output"
-  cat "$more_warnings" >> "$warning_output"
+  cat "$more_warnings" | tee -a "$warning_output" >&2
   rm "$more_warnings"
   commit_messages="$commit_messages" \
   pr_details_path="$pr_details_path" \
