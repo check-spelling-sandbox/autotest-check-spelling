@@ -20,7 +20,12 @@ my $working_directory = getcwd();
 my $sandbox = $working_directory;
 my $config = "$sandbox/t/unknown-words/config";
 
+my $repository_owner = 'GITHUB_REPOSITORY_OWNER';
+my $github_repository_name = 'GITHUB_REPOSITORY_NAME';
 my $github_repository = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
+
+system(qw(git remote rename origin origin.real));
+system(qq(git remote add origin https://github.com/$repository_owner/$github_repository_name --no-tags));
 
 my @environment_variables_to_drop = split /\n/, `git ls-files -z |
   xargs -0 grep GITHUB_ 2>/dev/null |
@@ -37,6 +42,8 @@ $ENV{GITHUB_STEP_SUMMARY} = $github_step_summary;
 $ENV{GITHUB_SERVER_URL} = 'https://github.com';
 $ENV{GITHUB_RUN_ID} = 7515;
 $ENV{GITHUB_REPOSITORY} = $github_repository;
+$ENV{GITHUB_REPOSITORY_OWNER} = $repository_owner;
+$ENV{GITHUB_REPOSITORY_NAME} = $github_repository_name;
 
 my $github_output;
 ($fh, $github_output) = tempfile();
@@ -228,3 +235,5 @@ is($stale, $expected_stale_words, 'stale_words');
 
 system(qw(git config --unset user.email));
 system(qw(git config --unset user.name));
+system(qw(git remote remove origin));
+system(qw(git remote rename origin.real origin));
