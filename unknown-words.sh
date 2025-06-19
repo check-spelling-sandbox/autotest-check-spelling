@@ -1502,17 +1502,6 @@ github_step_summary_likely_fatal_event() {
 github_step_summary_dictionaries_failed() {
   message="Problems were encountered retrieving $1 dictionaries ($(echo "$2"|xargs))."
 
-  if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
-    message=$(echo "
-    $message
-
-    This workflow is running from a ${b}pull_request_target${b} event. In order to test changes to
-    dictionaries, you will need to use a workflow that is **not** associated with a ${b}pull_request${b} as
-    pull_request_target relies on the configuration of the destination branch, not the branch which
-    you are changing.
-    " | strip_lead)
-  fi
-
   dictionary_not_found="$1-dictionary-not-found"
   echo -n '#' >> "$delay_step_summary_warnings"
   if [ "$1" = extra ]; then
@@ -2906,6 +2895,9 @@ spelling_body() {
               with:
                 extra_dictionaries: |'
       fi
+      if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
+        warn_about_pull_request_target=":information_source: Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
+      fi
       output_dictionaries="$(echo "
         <details><summary>Available :books: dictionaries could cover words$expect_head not in the :blue_book: dictionary</summary>
 
@@ -2920,6 +2912,7 @@ spelling_body() {
           perl -pe 's/\s.*//;s/^/                  /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
         )
         $B
+        ${warn_about_pull_request_target:+"$warn_about_pull_request_target"}
         To stop checking additional dictionaries, add$workflow_path_hint$action_ref_hint$inline_with_hint:
         $B yml
         check_extra_dictionaries: $Q$Q
