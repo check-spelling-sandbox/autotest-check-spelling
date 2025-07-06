@@ -1278,7 +1278,7 @@ check_input() {
 check_inputs() {
   check_input \
     use_sarif \
-    "$WARN_USE_SARIF_NEED_SECURITY_EVENTS_WRITE" \
+    "$WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE" \
     'Warning - Unsupported configuration: use_sarif needs security-events: write. Alternatively, consider removing use_sarif. (unsupported-configuration)'
   check_input \
     use_sarif \
@@ -1296,7 +1296,7 @@ check_inputs() {
     if to_boolean "$INPUT_USE_SARIF" &&
       [ "$GITHUB_REPOSITORY" = '.' ]; then
       INPUT_USE_SARIF=
-      echo '::warning ::Disabling sarif under act without repository'
+      echo '::warning ::Disabling SARIF under act without repository'
     fi
   fi
   if [ -n "$INPUT_SPELL_CHECK_THIS" ] &&
@@ -1905,12 +1905,13 @@ set_up_reporter() {
           echo
         fi
         WARN_USE_SARIF_NEED_SECURITY_EVENTS_WRITE="$INPUT_USE_SARIF"
+        WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE="$INPUT_USE_SARIF"
       fi
     fi
     if to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
       WARN_USE_SARIF_ONLY_CHANGED_FILES="$INPUT_USE_SARIF"
     fi
-    if to_boolean "$WARN_USE_SARIF_NEED_SECURITY_EVENTS_WRITE" || to_boolean "$WARN_USE_SARIF_ONLY_CHANGED_FILES" || to_boolean "$WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY"; then
+    if to_boolean "$WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE" || to_boolean "$WARN_USE_SARIF_ONLY_CHANGED_FILES" || to_boolean "$WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY"; then
       INPUT_USE_SARIF=
     fi
   fi

@@ -39,8 +39,8 @@ jobs:
         (
           echo "perl-modules=$perl_modules"
         ) >> "$GITHUB_OUTPUT"
-    - name: dependencies
-      id: depedencies
+    - name: Dependencies
+      id: dependencies
       shell: bash
       env:
         required_perl_modules: ${{ steps.perl-config.outputs.perl-modules }}
@@ -58,7 +58,7 @@ jobs:
             APT_PACKAGES="cpanminus $APT_PACKAGES"
           fi
           if [ -n "$APT_PACKAGES" ]; then
-            # Skip installing pacakge docs to make the man-db trigger much faster
+            # Skip installing package docs to make the man-db trigger much faster
             (for exclude in doc man info; do echo "path-exclude /usr/share/$exclude/*"; done) |
               sudo tee /etc/dpkg/dpkg.cfg.d/01_nodoc > /dev/null
             if ! sudo apt-get install -y -q $APT_PACKAGES 2>/dev/null; then
@@ -110,11 +110,11 @@ jobs:
         )
 
     - name: gh-program-downloader
-      if: steps.depedencies.outputs.gh-location
+      if: steps.dependencies.outputs.gh-location
       uses: ./actions/gh-program-downloader
       with:
         repository: cli/cli
-        destination: ${{ steps.depedencies.outputs.gh-location }}
+        destination: ${{ steps.dependencies.outputs.gh-location }}
         file-re: bin/
         trace: 1
 
