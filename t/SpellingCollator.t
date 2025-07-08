@@ -263,9 +263,11 @@ close $fh;
 fill_file($forbidden_patterns, '# please avoid starting lines with "pe" followed by a letter.
 ^pe.
 ');
+$ENV{ignored_events} = 'ignored-warning';
 $directory = stage_test($file_names, '{forbidden: [1], forbidden_lines: [2:1:3]}}', '', ":1:1 ... 5: `apple`
 :2:1 ... 4: `pear`
 :2:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
+:2:1 ... 3, Warning - `something`. (ignored-warning)
 :3:3 ... 6: `pear`
 :4:3 ... 6: `pear`
 ", 'apple
