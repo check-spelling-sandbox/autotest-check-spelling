@@ -4,8 +4,10 @@
 ## :red_circle: Please review
 ### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
-### Unrecognized words (4)
+### Unrecognized words (6)
 
+Aiglos
+Alqua
 diid
 fixx
 thiss
@@ -38,14 +40,16 @@ check-spelling run (push) for some-base
 Signed-off-by: check-spelling-bot <check-spelling-bot@users.noreply.github.com>
 on-behalf-of: @check-spelling <check-spelling-bot@check-spelling.dev>
 ---
- t/unknown-words.pr/config/expect.txt | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ t/unknown-words.pr/config/expect.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/t/unknown-words.pr/config/expect.txt b/t/unknown-words.pr/config/expect.txt
 index GIT_DIFF_CHANGED_FILE
 --- a/t/unknown-words.pr/config/expect.txt
 +++ b/t/unknown-words.pr/config/expect.txt
-@@ -1,3 +1,6 @@
+@@ -1,3 +1,8 @@
++Aiglos
++Alqua
 +diid
 +fixx
  invalid+
@@ -83,6 +87,27 @@ git commit -m 'Update check-spelling metadata'
 ```
 </details>
 
+<details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
+
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (6)
+
+Dictionary | Entries | Covers | Uniquely
+-|-|-|-
+[extra:elvish.txt](EXTRA_DICTIONARIES_PROTO/elvish.txt)|6|2|2|
+
+Consider adding them (in `.github/workflows/spelling.yml`):
+``` yml
+      with:
+        extra_dictionaries: |
+          extra:elvish.txt
+```
+
+To stop checking additional dictionaries, add (in `.github/workflows/spelling.yml`):
+``` yml
+check_extra_dictionaries: ""
+```
+
+</details>
 <details><summary>Forbidden patterns :no_good: (1)</summary>
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
@@ -137,6 +162,8 @@ Ignoring entry because it contains non-alpha characters. | EXPECT_SANDBOX/expect
 
 note|path
 -|-
+`Aiglos` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L3
+`Alqua` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L3
 `diid` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
 `fixx` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
 `thiss` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
