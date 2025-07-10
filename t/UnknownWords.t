@@ -47,11 +47,10 @@ system(qw(git config user.name check-spelling-bot));
 $ENV{PERL5OPT} = '-MDevel::Cover' unless $?;
 
 sub cleanup {
-  my ($text, $working_directory, $sandbox, $github_repository, $internal_state_directory) = @_;
+  my ($text, $internal_state_directory, $cleanup_quoted) = @_;
   if (defined $internal_state_directory) {
     $text =~ s/ $/=/gm;
     $text =~ s!'/[^']*?/artifact.zip!'ARTIFACT_DIRECTORY/artifact.zip!g;
-    $text =~ s/\Q$internal_state_directory\E/INTERNAL_STATE_DIRECTORY/g;
     if ($text =~ m{git am <<'\@\@\@\@([0-9a-f]{40}--\d+)'}) {
       my $am_marker = $1;
       $text =~ s/\Q$am_marker\E/AM_MARKER/g;
@@ -74,34 +73,29 @@ sub cleanup {
     $text =~ s/^index 0+\.\.[0-9a-f]{6,}$/index GIT_DIFF_NEW_FILE/gm;
     $text =~ s/^index [0-9a-f]{6,}\.\.[0-9a-f]{6,} 100644$/index GIT_DIFF_CHANGED_FILE/gm;
   }
-  $text =~ s!\Qraw.githubusercontent.com/check-spelling/check-spelling\E!raw.githubusercontent.com/CHECK-SPELLING/CHECK-SPELLING!g;
-  $text =~ s!$ENV{GITHUB_SERVER_URL}!GITHUB_SERVER_URL!g;
-  $text =~ s!$ENV{GITHUB_RUN_ID}!GITHUB_RUN_ID!g;
   $text =~ s!in a clone of the \[.*?\]\(.*?\) repository!in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository!g;
   $text =~ s!^Devel::Cover: Deleting old coverage for changed file .*$!!m;
   $text =~ s!(locally downloaded to )\`.*?\`!$1...!;
   $text =~ s/^Installed: .*\n//g;
-  $text =~ s/\Q$sandbox\E/WORKSPACE/g;
-  $text =~ s!/tmp/check-spelling!TEMP_DIRECTORY!g;
-  my $github_sha = $ENV{GITHUB_SHA} || `git rev-parse HEAD`;
-  $github_sha =~ s/\n|\r//g;
-  $text =~ s/$github_sha/GITHUB_SHA/g;
-  $text =~ s/\Q$working_directory\E/ENGINE/g;
-  $text =~ s!\Q$github_repository\E!GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME!g if $github_repository !~ /^\.?$/;
-  $text =~ s!\QTEMP_DIRECTORY/./\E!TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/!g if $github_repository eq '.';
   $text =~ s/on the \`[^`]+?\` branch/on the \`GITHUB_BRANCH\` branch/g;
   $text =~ s!\S*(\Q/expect.words.txt\E)!EXPECT_SANDBOX$1!gm;
+  for my $k (sort {
+    length($b) <=> length($a) ||
+    $a cmp $b
+  } keys %{$cleanup_quoted}) {
+      $text =~ s/\Q$k\E/$cleanup_quoted->{$k}/g;
+  }
   return $text;
 }
 
 sub read_file {
-  my ($file, $working_directory, $sandbox, $github_repository, $internal_state_directory) = @_;
+  my ($file, $internal_state_directory, $cleanup_quoted) = @_;
   return unless $file;
   local $/ = undef;
   open my $fh, '<', $file || return;
   my $content = <$fh>;
   close $fh;
-  return cleanup($content, $working_directory, $sandbox, $github_repository, $internal_state_directory);
+  return cleanup($content, $internal_state_directory, $cleanup_quoted);
 }
 
 sub write_file {
@@ -137,10 +131,22 @@ my ($sandbox, $instance) = @_;
 
 my $config = "$sandbox/t/$instance/config";
 
+my $extra_dictionaries_dir = tempdir();
+open my $elvish, '>', "$extra_dictionaries_dir/elvish.txt";
+print $elvish 'Aiglos
+Alqua
+Amandil
+Anarya
+Certar
+Duin
+';
+close $elvish;
+
 $ENV{INPUTS} = qq<{
   "check_file_names" : 1,
   "config": "$config",
-  "check_extra_dictionaries": " ",
+  "dictionary_source_prefixes": "{\\"extra\\":\\"file://$extra_dictionaries_dir/\\"}",
+  "check_extra_dictionaries": " extra:elvish.txt",
   "extra_dictionaries": " ",
   "": "ignored-empty",
   "ignoredEmpty": "",
@@ -166,7 +172,25 @@ my ($stdout, $stderr, @results);
   system("$working_directory/unknown-words.sh")
 };
 
-my @cleanup_arguments = ($working_directory, $sandbox, $github_repository);
+my $github_sha = $ENV{GITHUB_SHA} || `git rev-parse HEAD`;
+$github_sha =~ s/\n|\r//g;
+
+my %cleanup_quoted = (
+  $working_directory => 'ENGINE',
+  $github_repository => 'GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME',
+  $github_sha => 'GITHUB_SHA',
+  "/tmp/check-spelling/$github_repository" => 'TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME',
+  '/tmp/check-spelling' => 'TEMP_DIRECTORY',
+  "file://$extra_dictionaries_dir" => 'EXTRA_DICTIONARIES_PROTO',
+  $sandbox => 'WORKSPACE',
+  $ENV{GITHUB_SERVER_URL} => 'GITHUB_SERVER_URL',
+  $ENV{GITHUB_RUN_ID} => 'GITHUB_RUN_ID',
+  'raw.githubusercontent.com/check-spelling/check-spelling' => 'raw.githubusercontent.com/CHECK-SPELLING/CHECK-SPELLING',
+);
+$cleanup_quoted{$github_repository} = 'GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME' if $github_repository !~ /^\.?$/;
+$cleanup_quoted{'TEMP_DIRECTORY/./'} = 'TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/' if $github_repository eq '.';
+
+my @cleanup_arguments = ($working_directory, \%cleanup_quoted);
 my $outputs = "$working_directory/t/$instance/output";
 my $run = "$sandbox/t/$instance/run";
 my $expected_stdout = read_file("$outputs/output.txt", @cleanup_arguments);
