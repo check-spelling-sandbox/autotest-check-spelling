@@ -1802,17 +1802,19 @@ get_extra_dictionary() {
   keep_headers=1 call_curl \
     "$url" \
     > "$dest"
-  if { [ -z "$response_code" ] || [ "$response_code" -ge 400 ] || [ "$response_code" -eq 000 ] ; } 2> /dev/null; then
-    echo "::error ::Failed to retrieve $extra_dictionary_url -- HTTP $response_code for $url ($dictionary_class-dictionary-not-found)" >> "$early_warnings"
-    (
-      echo "Failed to retrieve $extra_dictionary_url ($url)"
-      cat "$response_headers"
-    ) >&2
-    rm -f "$dictionaries_canary"
-    return
-  fi
-  if [ "$response_code" -eq 304 ]; then
-    return
+  if echo "$url"|grep -q -E '^https?://'; then
+    if { [ -z "$response_code" ] || [ "$response_code" -ge 400 ] || [ "$response_code" -eq 000 ] ; } 2> /dev/null; then
+      echo "::error ::Failed to retrieve $extra_dictionary_url -- HTTP $response_code for $url ($dictionary_class-dictionary-not-found)" >> "$early_warnings"
+      (
+        echo "Failed to retrieve $extra_dictionary_url ($url)"
+        cat "$response_headers"
+      ) >&2
+      rm -f "$dictionaries_canary"
+      return
+    fi
+    if [ "$response_code" -eq 304 ]; then
+      return
+    fi
   fi
   echo "Retrieved $extra_dictionary_url" >&2
   if [ -n "$real_dest" ]; then
