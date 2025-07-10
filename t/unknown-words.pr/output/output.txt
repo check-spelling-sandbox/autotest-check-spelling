@@ -19,12 +19,16 @@ t/unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized
 t/unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word. (unrecognized-spelling)
 t/unknown-words/input/sample.file:2:17 ... 21, Error - `fixx` is not a recognized word. (unrecognized-spelling)
 t/unknown-words/input/sample.file:2:22 ... 27, Error - `thiss` is not a recognized word. (unrecognized-spelling)
+t/unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word. (unrecognized-spelling)
+t/unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word. (unrecognized-spelling)
 ::endgroup::
 ::group::Compare expect with new output
 ::endgroup::
 ::group::New output
 ::endgroup::
-::group::Unrecognized (4)
+::group::Check for extra dictionaries
+::endgroup::
+::group::Unrecognized (6)
 ::group::Building summary table
 ::endgroup::
 Preparing a comment for push
@@ -34,8 +38,10 @@ Preparing a comment for push
 ## :red_circle: Please review
 ### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
-### Unrecognized words (4)
+### Unrecognized words (6)
 
+Aiglos
+Alqua
 diid
 fixx
 thiss
@@ -62,6 +68,27 @@ git commit -m 'Update check-spelling metadata'
 ```
 </details>
 
+<details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
+
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (6)
+
+Dictionary | Entries | Covers | Uniquely
+-|-|-|-
+[extra:elvish.txt](EXTRA_DICTIONARIES_PROTO/elvish.txt)|6|2|2|
+
+Consider adding them (in `.github/workflows/spelling.yml`):
+``` yml
+      with:
+        extra_dictionaries: |
+          extra:elvish.txt
+```
+
+To stop checking additional dictionaries, add (in `.github/workflows/spelling.yml`):
+``` yml
+check_extra_dictionaries: ""
+```
+
+</details>
 <details><summary>Forbidden patterns :no_good: (1)</summary>
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
