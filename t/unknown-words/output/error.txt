@@ -1,6 +1,7 @@
 
 
 Downloaded https://raw.githubusercontent.com/CHECK-SPELLING/CHECK-SPELLING/dictionary-20200211/dict.txt (to ...)
+Retrieved extra:elvish.txt
 Summary Tables budget: INITIAL_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
