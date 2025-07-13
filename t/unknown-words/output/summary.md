@@ -89,9 +89,9 @@ Dictionary | Entries | Covers | Uniquely
 
 Consider adding them (in `.github/workflows/spelling.yml`):
 ``` yml
-      with:
-        extra_dictionaries: |
-          extra:elvish.txt
+        with:
+          extra_dictionaries: |
+            extra:elvish.txt
 ```
 
 To stop checking additional dictionaries, add (in `.github/workflows/spelling.yml`):
