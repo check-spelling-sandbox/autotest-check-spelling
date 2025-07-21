@@ -191,7 +191,7 @@
               },
               "help": {
                 "text": "?",
-                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Add the pattern to [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n- Remove the pattern from candidates.patterns\n\n\n"
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Update/merge the pattern in [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n- Add the pattern to [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n- Remove/comment out the pattern from candidates.patterns\n\n\n"
               },
               "defaultConfiguration": {
                 "level": "warning"
