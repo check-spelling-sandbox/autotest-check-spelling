@@ -5,15 +5,17 @@ Retrieving excludes from WORKSPACE/t/unknown-words.pr/config/excludes.txt
 ::endgroup::
 Retrieving only from WORKSPACE/t/unknown-words.pr/config/only.txt
 Retrieving line_forbidden from WORKSPACE/t/unknown-words.pr/config/line_forbidden.patterns
+Retrieving patterns from WORKSPACE/t/unknown-words.pr/config/patterns.txt
 Checking spelling...
 ::group::Spell checking (2) files
 TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/paths-of-checked-files.txt
 t/unknown-words/input/sample.file
 ::endgroup::
 ::group::Spell check
-EXPECT_SANDBOX/expect.words.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
 WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).`. (forbidden-pattern)
+WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
 WORKSPACE/t/unknown-words.pr/config/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. (ignored-expect-variant)
+WORKSPACE/t/unknown-words.pr/config/patterns.txt:1:1 ... 2, Warning - Bad regex: Quantifier follows nothing in regex; marked by <-- HERE in m/+ <-- HERE foo/ at -e line 8, <> line 1. (bad-regex)
 t/unknown-words/input/sample.file:1:23 ... 34, Error - `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. (forbidden-pattern)
 t/unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word. (unrecognized-spelling)
 t/unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word. (unrecognized-spelling)
@@ -102,12 +104,13 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors and Warnings :x: (3)</summary>
+<details><summary>Errors and Warnings :x: (4)</summary>
 
 #### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
 [:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
+[:warning: bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
 [:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
