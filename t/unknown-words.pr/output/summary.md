@@ -121,12 +121,13 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors and Warnings :x: (3)</summary>
+<details><summary>Errors and Warnings :x: (4)</summary>
 
 #### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
 [:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
+[:warning: bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
 [:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
@@ -135,6 +136,13 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 </details>
 <details><summary>Details :mag_right:</summary>
+
+<details><summary>:open_file_folder: bad-regex</summary>
+
+note|path
+-|-
+Bad regex: Quantifier follows nothing in regex; marked by <-- HERE in m/+ <-- HERE foo/ at -e line 8, <> line 1. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
+</details>
 
 <details><summary>:open_file_folder: forbidden-pattern</summary>
 
@@ -155,7 +163,7 @@ note|path
 
 note|path
 -|-
-Ignoring entry because it contains non-alpha characters. | EXPECT_SANDBOX/expect.words.txt#L1
+Ignoring entry because it contains non-alpha characters. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/expect.txt#L1
 </details>
 
 <details><summary>:open_file_folder: unrecognized-spelling</summary>

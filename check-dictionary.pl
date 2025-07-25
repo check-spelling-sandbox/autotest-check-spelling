@@ -16,6 +16,8 @@ open FILE, ">:encoding(UTF-8)", $file;
 
 $file = File::Spec->abs2rel(realpath($file));
 
+my $name = CheckSpelling::Util::get_file_from_env('file', $file);
+
 $ENV{comment_char} = '$^' unless $ENV{comment_char} =~ /\S/;
 
 my $first_end = undef;
@@ -32,9 +34,9 @@ while ($content =~ s/([^\r\n\x0b\f\x85\x{2028}\x{2029}]*)(\r\n|\n|\r|\x0b|\f|\x8
     unless (defined $first_end) {
         $first_end = $end;
     } elsif ($end ne $first_end) {
-        print WARNINGS "$file:$.:$-[0] ... $+[0], Warning - Entry has inconsistent line endings. (unexpected-line-ending)\n";
+        print WARNINGS "$name:$.:$-[0] ... $+[0], Warning - Entry has inconsistent line endings. (unexpected-line-ending)\n";
     }
-    my ($line, $warning) = CheckSpelling::CheckDictionary::process_line($file, $line);
+    my ($line, $warning) = CheckSpelling::CheckDictionary::process_line($name, $line);
     if ($warning ne '') {
         print WARNINGS $warning;
     } elsif ($line ne '') {
@@ -42,7 +44,7 @@ while ($content =~ s/([^\r\n\x0b\f\x85\x{2028}\x{2029}]*)(\r\n|\n|\r|\x0b|\f|\x8
     }
 }
 if ($remainder ne '') {
-    $remainder = CheckSpelling::CheckDictionary::process_line($file, $remainder);
+    $remainder = CheckSpelling::CheckDictionary::process_line($name, $remainder);
     print FILE $remainder;
 }
 close WARNINGS;
