@@ -1329,6 +1329,7 @@ project_file_path() {
 
 check_pattern_file() {
   perl -i -e 'open WARNINGS, ">>:encoding(UTF-8)", $ENV{early_warnings};
+  my $file = $ENV{file};
   while (<>) {
     next if /^#/;
     my $line = $_;
@@ -1342,7 +1343,7 @@ check_pattern_file() {
       $err =~ s{^.*? in regex; marked by <-- HERE in m/(.*) <-- HERE.*$}{$1};
       my $start = $+[1] - $-[1];
       my $end = $start + 1;
-      print WARNINGS "$ARGV:$.:$start ... $end, Warning - Bad regex: $@ (bad-regex)\n";
+      print WARNINGS "$file:$.:$start ... $end, Warning - Bad regex: $@ (bad-regex)\n";
       print "^\$\n";
     }
   }
@@ -1365,9 +1366,8 @@ check_for_newline_at_eof() {
 }
 
 check_dictionary() {
-  file="$1"
   comment_char="\s*#" \
-  "$check_dictionary" "$file"
+  "$check_dictionary" "$1"
 }
 
 cleanup_file() {
@@ -1393,10 +1393,10 @@ cleanup_file() {
   type="$2"
   case "$type" in
     patterns|excludes|only)
-      check_pattern_file "$maybe_bad"
+      file="$1" check_pattern_file "$maybe_bad"
     ;;
     dictionary|expect|allow)
-      check_dictionary "$maybe_bad"
+      file="$1" check_dictionary "$maybe_bad"
     ;;
     # reject isn't checked, it allows for regular expressions
   esac
@@ -1423,10 +1423,11 @@ get_project_files() {
         append_to="$from"/"$(git rev-parse --revs-only HEAD || date '+%Y%M%d%H%m%S')"."$ext"
         touch "$dest"
         echo "Retrieving $file from $from_expanded"
+        temp_file=$(mktemp)
         while IFS= read -r item; do
           if [ -s "$item" ]; then
-            cleanup_file "$item" "$type"
-            cat "$item" >> "$dest"
+            cleanup_file "$item" "$type" "$temp_file"
+            cat "$temp_file" >> "$dest"
           fi
         done <<< "$from_expanded"
         from="$from"/"$(basename "$from")"."$ext"
