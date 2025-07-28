@@ -1438,6 +1438,7 @@ get_project_files() {
     else
       from_expanded="$from"."$ext"
       from="$from_expanded"
+      cleanup_file "$from" "$type" "$dest"
     fi
   fi
 }
