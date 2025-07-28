@@ -1430,8 +1430,8 @@ get_project_files() {
       echo "Retrieving $file from $from_expanded"
       temp_file=$(mktemp)
       while IFS= read -r item; do
+        cleanup_file "$item" "$type" "$temp_file"
         if [ -s "$item" ]; then
-          cleanup_file "$item" "$type" "$temp_file"
           cat "$temp_file" >> "$dest"
         fi
       done <<< "$from_expanded"
@@ -1439,6 +1439,9 @@ get_project_files() {
     else
       from_expanded="$from"."$ext"
       from="$from_expanded"
+      if [ -f "$from" ]; then
+        cleanup_file "$from" "$type" "$dest"
+      fi
     fi
   fi
 }
