@@ -1407,34 +1407,38 @@ get_project_files() {
   file="$(echo "$1" | sed -e "s/\.$ext$//")"
   dest="$2"
   type="$file"
-  if [ ! -e "$dest" ] && [ -n "$bucket" ] && [ -n "$project" ]; then
-    from="$(project_file_path "$file"."$ext")"
-    append_to="$from"
-    if [ -f "$from" ]; then
-      echo "Retrieving $file from $from"
-      cleanup_file "$from" "$type" "$dest"
-      from_expanded="$from"
+  if [ -e "$dest" ]; then
+    return
+  fi
+  if [ -z "$bucket" ] || [ -z "$project" ]; then
+    return
+  fi
+  from="$(project_file_path "$file"."$ext")"
+  append_to="$from"
+  if [ -f "$from" ]; then
+    echo "Retrieving $file from $from"
+    cleanup_file "$from" "$type" "$dest"
+    from_expanded="$from"
+  else
+    if [ ! -e "$from" ]; then
+      from="$(echo "$from" | sed -e "s/\.$ext$//")"
+    fi
+    if [ -d "$from" ]; then
+      from_expanded="$(find "$from" -mindepth 1 -maxdepth 1 -name "*$ext" ! -name "*$n*" |sort)"
+      append_to="$from"/"$(git rev-parse --revs-only HEAD || date '+%Y%M%d%H%m%S')"."$ext"
+      touch "$dest"
+      echo "Retrieving $file from $from_expanded"
+      temp_file=$(mktemp)
+      while IFS= read -r item; do
+        if [ -s "$item" ]; then
+          cleanup_file "$item" "$type" "$temp_file"
+          cat "$temp_file" >> "$dest"
+        fi
+      done <<< "$from_expanded"
+      from="$from"/"$(basename "$from")"."$ext"
     else
-      if [ ! -e "$from" ]; then
-        from="$(echo "$from" | sed -e "s/\.$ext$//")"
-      fi
-      if [ -d "$from" ]; then
-        from_expanded="$(find "$from" -mindepth 1 -maxdepth 1 -name "*$ext" ! -name "*$n*" |sort)"
-        append_to="$from"/"$(git rev-parse --revs-only HEAD || date '+%Y%M%d%H%m%S')"."$ext"
-        touch "$dest"
-        echo "Retrieving $file from $from_expanded"
-        temp_file=$(mktemp)
-        while IFS= read -r item; do
-          if [ -s "$item" ]; then
-            cleanup_file "$item" "$type" "$temp_file"
-            cat "$temp_file" >> "$dest"
-          fi
-        done <<< "$from_expanded"
-        from="$from"/"$(basename "$from")"."$ext"
-      else
-        from_expanded="$from"."$ext"
-        from="$from_expanded"
-      fi
+      from_expanded="$from"."$ext"
+      from="$from_expanded"
     fi
   fi
 }
