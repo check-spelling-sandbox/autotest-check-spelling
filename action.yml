@@ -220,7 +220,7 @@ inputs:
   notices:
     description: "List of events to treat as notices"
     required: false
-    default: candidate-pattern
+    default: candidate-pattern,unused-config-file
   ignored:
     description: "List of events to ignore"
     required: false

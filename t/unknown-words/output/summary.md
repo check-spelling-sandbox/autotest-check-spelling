@@ -113,15 +113,16 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors and Warnings :x: (3)</summary>
+<details><summary>Errors, Warnings, and Notices :x: (4)</summary>
 
 #### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
-[:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
+[:x: Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
 [:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
+[:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
 
 See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
@@ -160,6 +161,13 @@ note|path
 `fixx` is not a recognized word. | unknown-words/input/sample.file:2
 `thiss` is not a recognized word. | unknown-words/input/sample.file:2
 `youu` is not a recognized word. | unknown-words/input/sample.file:2
+</details>
+
+<details><summary>:open_file_folder: unused-config-file</summary>
+
+note|path
+-|-
+Config file not used | unknown-words/config/unsupported.file:1
 </details>
 
 
