@@ -688,6 +688,24 @@
               }
             },
             {
+              "id": "unused-config-file",
+              "name": "UnusedConfigFile",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unused-config-file",
+              "shortDescription": {
+                "text": "Unused Config File"
+              },
+              "fullDescription": {
+                "text": "A file was found in the configuration directory and wasn't used. No action will be taken by check-spelling because of this file."
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\nThis could be because:\n- Support was dropped\n- It's from a future version\n- Multiple supported files for the same feature were present. Only one will be used (newer file names are favored over deprecated/soon to be deprecated names/formats)\n- Both a single file and a directory for the same feature (only one of the two will be used)\n- The filename is misspelled\n- A random file was placed in the configuration directory -- there's nothing wrong with this, the message should not be a warning/error, it's just informative.\n\n"
+              }
+            },
+            {
               "id": "single-line-file",
               "name": "SingleLineFile",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#single-line-file",
