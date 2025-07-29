@@ -95,14 +95,14 @@ Dictionary | Entries | Covers | Uniquely
 -|-|-|-
 [extra:elvish.txt](EXTRA_DICTIONARIES_PROTO/elvish.txt)|6|2|2|
 
-Consider adding them (in `.github/workflows/spelling.yml`):
+Consider creating a workflow (e.g. from GITHUB_SERVER_URL/check-spelling/spell-check-this/blob/main/.github/workflows/spelling.yml (`https://raw.githubusercontent.com/check-spelling/spell-check-this/main/.github/workflows/spelling.yml`)) and adding them:
 ``` yml
         with:
           extra_dictionaries: |
             extra:elvish.txt
 ```
 
-To stop checking additional dictionaries, add (in `.github/workflows/spelling.yml`):
+To stop checking additional dictionaries, add:
 ``` yml
 check_extra_dictionaries: ""
 ```
@@ -149,7 +149,7 @@ Bad regex: Quantifier follows nothing in regex; marked by <-- HERE in m/+ <-- HE
 note|path
 -|-
 `+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/expect.txt#L1
-`sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L1
+`sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. | unknown-words/input/sample.file:1
 </details>
 
 <details><summary>:open_file_folder: ignored-expect-variant</summary>
@@ -170,12 +170,12 @@ Ignoring entry because it contains non-alpha characters. | GITHUB_SERVER_URL/GIT
 
 note|path
 -|-
-`Aiglos` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L3
-`Alqua` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L3
-`diid` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
-`fixx` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
-`thiss` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
-`youu` is not a recognized word. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/input/sample.file#L2
+`Aiglos` is not a recognized word. | unknown-words/input/sample.file:3
+`Alqua` is not a recognized word. | unknown-words/input/sample.file:3
+`diid` is not a recognized word. | unknown-words/input/sample.file:2
+`fixx` is not a recognized word. | unknown-words/input/sample.file:2
+`thiss` is not a recognized word. | unknown-words/input/sample.file:2
+`youu` is not a recognized word. | unknown-words/input/sample.file:2
 </details>
 
 
