@@ -14,6 +14,7 @@ use Capture::Tiny ':all';
 plan tests => 22;
 
 my $working_directory = getcwd();
+$ENV{'spellchecker'} = $working_directory;
 my $sandbox = $working_directory;
 
 my $repository_owner = 'GITHUB_REPOSITORY_OWNER';
@@ -167,10 +168,12 @@ my $github_output;
 ($fh, $github_output) = tempfile();
 $ENV{GITHUB_OUTPUT} = $github_output;
 
+chdir("$sandbox/t");
 my ($stdout, $stderr, @results);
 ($stdout, $stderr, @results) = capture {
-  system("$working_directory/unknown-words.sh")
+  system("$ENV{spellchecker}/unknown-words.sh");
 };
+chdir($working_directory);
 
 my $github_sha = $ENV{GITHUB_SHA} || `git rev-parse HEAD`;
 $github_sha =~ s/\n|\r//g;
