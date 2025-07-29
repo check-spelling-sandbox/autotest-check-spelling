@@ -1,1 +1,1 @@
-^t/unknown-words/input/
+^unknown-words/input/
