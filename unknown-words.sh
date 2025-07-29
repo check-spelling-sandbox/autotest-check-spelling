@@ -1199,6 +1199,7 @@ define_variables() {
   suggest_excludes="$spellchecker/wrappers/suggest-excludes"
   run_output="$temp_sandbox/unknown.words.txt"
   diff_output="$temp_sandbox/output.diff"
+  used_config_files="$temp_sandbox/used-config-files.list"
   tokens_file="$data_dir/tokens.txt"
   remove_words="$data_dir/remove_words.txt"
   action_log_ref="$data_dir/action_log_ref.txt"
@@ -1385,6 +1386,7 @@ cleanup_file() {
   fi
 
   check_for_newline_at_eof "$maybe_bad" "${update_file:-$maybe_bad}"
+  printf "$(realpath --relative-to=${INPUT_EXPERIMENTAL_PATH:-.} "$maybe_bad")\0" >> "$used_config_files"
 
   if [ -n "$update_file" ]; then
     maybe_bad="$update_file"
@@ -2274,6 +2276,28 @@ set_up_files() {
     echo "Clean up from previous run"
   fi
   rm -f "$run_output"
+  if [ -d "$bucket/$project/" ] ; then
+    (find "$bucket/$project/" -type f -print0 ) |
+    used_config_files="$used_config_files" perl -e '
+      use File::Spec;
+      my $base = $ENV{INPUT_EXPERIMENTAL_PATH} || "";
+      $/="\0";
+      my %used_files;
+      open my $used, "<", $ENV{used_config_files};
+      for my $file (<$used>) {
+        $file =~ s/\0//;
+        $used_files{$file} = 1;
+      }
+      close $used;
+      for my $file (<>) {
+        $file =~ s/\0//;
+        $file = File::Spec->abs2rel($file, $base);
+        next if defined $used_files{$file};
+        my $len = length $file;
+        print "$file:1:1 ... $len, Notice - Config file not used (unused-config-file)\n";
+      }
+    ' >> "$early_warnings"
+  fi
 }
 
 welcome() {
