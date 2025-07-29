@@ -27,6 +27,7 @@ cp(qw(
 ));
 
 my $github_repository = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
+my $github_sha = $ENV{GITHUB_SHA};
 
 my @environment_variables_to_drop = split /\n/, `git ls-files -z |
   xargs -0 grep GITHUB_ |
@@ -78,6 +79,8 @@ sub cleanup {
   $text =~ s/\Q$sandbox\E/WORKSPACE/g;
   $text =~ s/\Q$working_directory\E/ENGINE/g;
   $text =~ s!\Q$github_repository\E!GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME!g if $github_repository !~ /^\.?$/;
+  $text =~ s/Summary Tables budget reduced to: \d+/Summary Tables budget reduced to: REDUCED_BUDGET/g;
+  $text =~ s/\Q$github_sha\E/GITHUB_SHA/ if $github_sha ne '';
   if (defined $internal_state_directory) {
     $text =~ s/ $/=/gm;
     $text =~ s!'/[^']*?/artifact\.zip!'ARTIFACT_DIRECTORY/artifact.zip!g;
