@@ -9,7 +9,7 @@ Checking spelling...
 t/with-dictionaries/config/test.txt
 ::endgroup::
 ::group::Spell check
-
+t/with-dictionaries/config/test.txt:1:1 ... 35, Notice - config file not used (unused-config-file)
 ::endgroup::
 ::group::No misspellings
 ::group::Building summary table
@@ -20,6 +20,15 @@ t/with-dictionaries/config/test.txt
 No new misspelled words found
 
 There are currently no expected items.
+<details><summary>Notices :information_source: (1)</summary>
+
+[:information_source: Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
+-|-
+[:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
+
+See [:information_source: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
+
+</details>
 ::endgroup::
 ::remove-matcher owner=check-spelling::
 ::remove-matcher owner=check-spelling-https::

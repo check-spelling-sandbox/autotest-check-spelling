@@ -14,6 +14,7 @@ unknown-words/input/sample.file
 WORKSPACE/t/unknown-words/config/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).`. (forbidden-pattern)
 WORKSPACE/t/unknown-words/config/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
 WORKSPACE/t/unknown-words/config/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. (ignored-expect-variant)
+unknown-words/config/unsupported.file:1:1 ... 37, Notice - config file not used (unused-config-file)
 unknown-words/input/sample.file:1:21 ... 32, Error - `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. (forbidden-pattern)
 unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word. (unrecognized-spelling)
 unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word. (unrecognized-spelling)
@@ -98,15 +99,16 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors and Warnings :x: (3)</summary>
+<details><summary>Errors, Warnings, and Notices :x: (4)</summary>
 
 #### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
 
-[:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
+[:x: Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
 [:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
+[:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
 
 See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
