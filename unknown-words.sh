@@ -1046,7 +1046,7 @@ handle_comment() {
   ### Metadata updates
 
   $B
-  $(git diff HEAD~..HEAD --stat)
+  $(git diff HEAD~..HEAD --stat=2000)
   $B
   " | strip_lead >> "$GITHUB_STEP_SUMMARY"
   echo "# end"
@@ -3480,7 +3480,7 @@ generate_sample_commit_help() {
     git_commit_status=$?
   if [ -z "$git_commit_status" ]; then
     git_apply_commit="$(mktemp)"
-    git format-patch HEAD~..HEAD --stdout > "$git_apply_commit"
+    git format-patch HEAD~..HEAD --stat=2000 --stdout > "$git_apply_commit"
     delim="@@@@$(shasum "$git_apply_commit" |perl -pe 's/\s.*//')--$(date +%s)"
     echo "<details><summary>To accept these unrecognized words as correct, you could apply this commit</summary>$N$(repo_clone_note | strip_lead)$n${B}sh"
     generate_merge_instructions "" " &&"
