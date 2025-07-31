@@ -1,5 +1,6 @@
 ::add-matcher::WORKSPACE/reporter.json
-Retrieving expect from WORKSPACE/t/unknown-words/config/expect.txt
+Retrieving expect from WORKSPACE/t/unknown-words/config/expect/expect.txt
+WORKSPACE/t/unknown-words/config/expect/other.txt
 Retrieving excludes from WORKSPACE/t/unknown-words/config/excludes.txt
 ::group::Retrieving check extra dictionaries
 ::endgroup::
@@ -11,9 +12,9 @@ TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/paths-of-checked-f
 unknown-words/input/sample.file
 ::endgroup::
 ::group::Spell check
-WORKSPACE/t/unknown-words/config/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).`. (forbidden-pattern)
-WORKSPACE/t/unknown-words/config/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
-WORKSPACE/t/unknown-words/config/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. (ignored-expect-variant)
+WORKSPACE/t/unknown-words/config/expect/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).`. (forbidden-pattern)
+WORKSPACE/t/unknown-words/config/expect/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
+WORKSPACE/t/unknown-words/config/expect/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. (ignored-expect-variant)
 unknown-words/config/unsupported.file:1:1 ... 37, Notice - config file not used (unused-config-file)
 unknown-words/input/sample.file:1:21 ... 32, Error - `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. (forbidden-pattern)
 unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word. (unrecognized-spelling)
@@ -67,7 +68,8 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect.txt and **unrecognized words** (6)
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt
+WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (6)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
