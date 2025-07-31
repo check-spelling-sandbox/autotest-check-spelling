@@ -36,23 +36,28 @@ check-spelling run (push) for HEAD
 Signed-off-by: check-spelling-bot <check-spelling-bot@users.noreply.github.com>
 on-behalf-of: @check-spelling <check-spelling-bot@check-spelling.dev>
 ---
- t/unknown-words/config/expect.txt | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ t/unknown-words/config/expect/GITHUB_SHA.txt | 6 ++++++
+ t/unknown-words/config/expect/other.txt                                    | 1 -
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/t/unknown-words/config/expect.txt b/t/unknown-words/config/expect.txt
-index GIT_DIFF_CHANGED_FILE
---- a/t/unknown-words/config/expect.txt
-+++ b/t/unknown-words/config/expect.txt
-@@ -1,3 +1,8 @@
+diff --git a/t/unknown-words/config/expect/GITHUB_SHA.txt b/t/unknown-words/config/expect/GITHUB_SHA.txt
+new file mode 100644
+index GIT_DIFF_NEW_FILE
+--- /dev/null
++++ b/t/unknown-words/config/expect/GITHUB_SHA.txt
+@@ -0,0 +1,6 @@
 +Aiglos
 +Alqua
 +diid
 +fixx
- invalid+
 +thiss
- Unexpectedlylong
--unexpectedlylong
 +youu
+diff --git a/t/unknown-words/config/expect/other.txt b/t/unknown-words/config/expect/other.txt
+index GIT_DIFF_CHANGED_FILE
+--- a/t/unknown-words/config/expect/other.txt
++++ b/t/unknown-words/config/expect/other.txt
+@@ -1 +0,0 @@
+-unexpectedlylong
 --=
 GIT_VERSION
 
@@ -81,7 +86,8 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect.txt and **unrecognized words** (6)
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt
+WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (6)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
@@ -133,7 +139,7 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 note|path
 -|-
-`+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect.txt#L1
+`+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
 `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. | unknown-words/input/sample.file:1
 </details>
 
@@ -141,14 +147,14 @@ note|path
 
 note|path
 -|-
-`Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect.txt#L2
+`Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L2
 </details>
 
 <details><summary>:open_file_folder: non-alpha-in-dictionary</summary>
 
 note|path
 -|-
-Ignoring entry because it contains non-alpha characters. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect.txt#L1
+Ignoring entry because it contains non-alpha characters. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
 </details>
 
 <details><summary>:open_file_folder: unrecognized-spelling</summary>
