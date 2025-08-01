@@ -12,10 +12,17 @@ export spellchecker="${spellchecker:-$THIS_ACTION_PATH}"
 
 basic_setup() {
   if [ -z "$GITHUB_ENV" ]; then
-    export GITHUB_EVENT_NAME=push
     export GITHUB_EVENT_PATH=$(mktemp)
     echo '{}' > "$GITHUB_EVENT_PATH"
-    export GITHUB_ENV=/dev/stderr
+
+    maybe_set_env() {
+      if [ -z "$(eval echo '$'"$1")" ]; then
+        eval $1="$2"
+      fi
+    }
+    maybe_set_env GITHUB_EVENT_NAME push
+    maybe_set_env GITHUB_ENV /dev/stderr
+    maybe_set_env GITHUB_STEP_SUMMARY /dev/stderr
   fi
 
   if ! command -v act-summary > /dev/null; then
