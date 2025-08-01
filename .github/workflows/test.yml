@@ -224,6 +224,7 @@ jobs:
         EOF
         step_summary="$GITHUB_STEP_SUMMARY"
         output="$GITHUB_OUTPUT"
+        workflow_ref=$(echo "$GITHUB_WORKFLOW_REF" | perl -pe 's</[^@]+></spelling.yml>')
         for github_var in $(
           git ls-files -z |
           xargs -0 grep GITHUB_ |
@@ -236,6 +237,7 @@ jobs:
         unset ACT
         export GITHUB_STEP_SUMMARY="$step_summary"
         export GITHUB_OUTPUT="$output"
+        export GITHUB_WORKFLOW_REF="$workflow_ref"
         ./unknown-words.sh || true
         grep -q '@check-spelling-bot Report' "$GITHUB_STEP_SUMMARY"
     - name: upload artifact
