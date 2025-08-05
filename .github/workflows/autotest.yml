@@ -44,3 +44,52 @@ jobs:
                     check-spelling-sandbox
             run: |
                 ./fetch-upstreams.sh
+    check-branches:
+        runs-on: ubuntu-latest
+        name: "Check test branches"
+        steps:
+          - name: Compare branches
+            env:
+                branches:
+                    main
+                    prerelease
+                q: '`'
+            run: |
+                : Compare branches
+                git config --global init.defaultBranch silence_warning_about_default_branch
+                git init
+                git remote add origin https://github.com/check-spelling/check-spelling --no-tags
+                git remote add sandbox https://github.com/check-spelling-sandbox/check-spelling --no-tags
+                sandbox_base=$(git remote get-url sandbox)
+                origin_base=$(git remote get-url origin)
+                for branch in $branches; do
+                    for remote in origin sandbox; do
+                        git fetch $remote $branch:$remote-$branch
+                    done
+                    origin_rev=$(git rev-parse origin-$branch)
+                    shared_rev=$(git merge-base origin-$branch sandbox-$branch)
+                    if [ "$origin_rev" != "$shared_rev" ]; then
+                        sandbox_rev=$(git rev-parse sandbox-$branch)
+                        echo "* [check-spelling-sandbox/$branch]($sandbox_base/tree/$branch)@[$q$sandbox_rev$q]($sandbox_base/commit/$sandbox_rev) is behind [check-spelling/$branch]($origin_base/tree/$branch)@[$q$origin_rev$q]($origin_base/commit/$origin_rev)"
+                        echo
+                        (
+                            echo '```'
+                            git log --decorate --graph --oneline $shared_rev~..$sandbox_rev $shared_rev~..$origin_rev |
+                                branch="$branch" perl -pe '
+                                    my $branch=$ENV{branch};
+                                    s<sandbox/$branch, sandbox-$branch><check-spelling-sandbox/$branch>;
+                                    s<origin/$branch, origin-$branch><check-spelling/$branch>;
+                                '
+                            echo '```'
+                        ) | perl -pe 's/^/  /'
+                        echo
+                    fi
+                done > /tmp/notes
+                if [ -s /tmp/notes ]; then
+                    (
+                        echo "# sandbox branches are behind/have diverged"
+                        echo
+                        cat /tmp/notes
+                    ) >> "$GITHUB_STEP_SUMMARY"
+                    exit 1
+                fi
