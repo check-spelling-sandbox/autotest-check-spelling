@@ -49,9 +49,17 @@ sub parse_warnings {
         my $encoded_file = url_encode $file;
         $encoded_files{$encoded_file} = $file;
         # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's sarif view
-        $message =~ s/(^|[^\\])\`([^`]+[^`\\])\`/${1}[${2}](#security-tab)/;
-        # replace '`' with `\`+`"` because GitHub's SARIF parser doesn't like them
-        $message =~ s/\`/\\"/g;
+        if ($message =~ /(`{2,})/) {
+            my $backticks = $1;
+            while ($message =~ /($backticks`+)(?=[`].*?\g{-1})/gs) {
+                $backticks = $1 if length($1) > length($backticks);
+            }
+            $message =~ s/(^|[^\\])$backticks(.+?)$backticks/${1}[${2}](#security-tab)/;
+        } else {
+            $message =~ s/(^|[^\\])\`([^`]+[^`\\])\`/${1}[${2}](#security-tab)/;
+        }
+        # replace '`' with `\`+`'` because GitHub's SARIF parser doesn't like them
+        $message =~ s/\`/'/g;
         unless (defined $rules->{$code}) {
             $rules->{$code} = {};
         }
