@@ -58,6 +58,30 @@
 },
 "results": [
 {
+"partialFingerprints":{
+"cs0":"1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
+},
+"message":{
+"text":"[je'ep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+},
+"ruleId":"unrecognized-spelling",
+"locations":[
+{
+"physicalLocation":{
+"artifactLocation":{
+"uriBaseId":"%SRCROOT%",
+"uri":"t/sarif/sample.txt"
+},
+"region":{
+"endColumn":11,
+"startLine":8,
+"startColumn":6
+}
+}
+}
+]
+},
+{
 "message": {
 "text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
 },

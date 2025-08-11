@@ -24,6 +24,7 @@ t/sarif/sample.txt:1:30 ... 34, Error - `meep` is not a recognized word. (unreco
 t/sarif/sample.txt:2:1 ... 5, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:5:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:7:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
+t/sarif/sample.txt:8:6 ... 11, Error - ``je`ep`` is not a recognized word. (unrecognized-spelling)
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word. (unrecognized-spelling)
 
 ';
