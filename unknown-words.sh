@@ -1401,7 +1401,7 @@ cleanup_file() {
 
   type="$2"
   case "$type" in
-    patterns|excludes|only)
+    line_forbidden|patterns|excludes|only)
       file="$1" check_pattern_file "$maybe_bad"
     ;;
     dictionary|expect|allow)
