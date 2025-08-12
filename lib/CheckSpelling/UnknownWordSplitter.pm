@@ -78,9 +78,9 @@ sub file_to_list {
     } else {
       my $error = $@;
       my $home = dirname(__FILE__);
-      $error =~ s/$home.*?\.pm line \d+\./$re line $line_number (bad-regular-expression)/;
+      $error =~ s/$home.*?\.pm line \d+\./$re line $line_number (bad-regex)/;
       print STDERR $error;
-      push @file, '(?:\$^ - skipped because bad-regular-expression)';
+      push @file, '(?:\$^ - skipped because bad-regex)';
     }
   }
 
