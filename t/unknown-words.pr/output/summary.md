@@ -141,7 +141,7 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 note|path
 -|-
-Bad regex: Quantifier follows nothing in regex; marked by <-- HERE in m/+ <-- HERE foo/ at -e line 8, <> line 1. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
+Bad regex: Quantifier follows nothing in regex; marked by <-- HERE in m/+ <-- HERE foo/ at WORKSPACE/lib/CheckSpelling/CheckPattern.pm line 10, <> line 1. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
 </details>
 
 <details><summary>:open_file_folder: forbidden-pattern</summary>
