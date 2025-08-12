@@ -1194,6 +1194,7 @@ define_variables() {
   cleanup_file="$spellchecker/cleanup-file.pl"
   file_size="$spellchecker/file-size.pl"
   check_dictionary="$spellchecker/wrappers/check-dictionary"
+  check_pattern_file="$spellchecker/wrappers/check-pattern-file"
   check_yaml_key_value="$spellchecker/wrappers/check-yaml-key-value"
   get_yaml_value="$spellchecker/wrappers/get-yaml-value"
   quote_meta="$spellchecker/quote-meta.pl"
@@ -1336,27 +1337,7 @@ project_file_path() {
 }
 
 check_pattern_file() {
-  perl -i -e 'open WARNINGS, ">>:encoding(UTF-8)", $ENV{early_warnings};
-  my $file = $ENV{file};
-  while (<>) {
-    next if /^#/;
-    my $line = $_;
-    chomp;
-    next unless /./;
-    if (eval {qr/$_/}) {
-      print $line;
-    } else {
-      $@ =~ s/(.*?)\n.*/$1/m;
-      my $err = $@;
-      $err =~ s{^.*? in regex; marked by <-- HERE in m/(.*) <-- HERE.*$}{$1};
-      my $start = $+[1] - $-[1];
-      my $end = $start + 1;
-      print WARNINGS "$file:$.:$start ... $end, Warning - Bad regex: $@ (bad-regex)\n";
-      print "^\$\n";
-    }
-  }
-  close WARNINGS;
-  ' "$1"
+  "$check_pattern_file" "$1"
 }
 
 check_for_newline_at_eof() {
