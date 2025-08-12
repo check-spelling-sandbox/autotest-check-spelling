@@ -299,11 +299,11 @@ sub test_invalid_quantifiers {
   print $fh ".{1,}*";
   close $fh;
   my $output = join "\n", CheckSpelling::UnknownWordSplitter::file_to_list($filename);
-  is($output, '(?:\$^ - skipped because bad-regular-expression)');
+  is($output, '(?:\$^ - skipped because bad-regex)');
 }
 
 my ($stdout, $stderr, @result) = capture { test_invalid_quantifiers };
-is($stderr, "Nested quantifiers in regex; marked by <-- HERE in m/.{1,}* <-- HERE / at $filename line 1 (bad-regular-expression)
+is($stderr, "Nested quantifiers in regex; marked by <-- HERE in m/.{1,}* <-- HERE / at $filename line 1 (bad-regex)
 ");
 open $fh, '>:utf8', $filename;
 for (my $i = 0; $i < 1000; $i++) {
