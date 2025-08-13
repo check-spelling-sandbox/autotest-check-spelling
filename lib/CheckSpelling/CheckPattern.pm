@@ -2,20 +2,25 @@
 
 package CheckSpelling::CheckPattern;
 
+use CheckSpelling::Util;
+
 sub process_line {
-    my ($file, $line) = @_;
-    chomp $line;
-    return ($line, '') if $line =~ /^#/;
-    return ($line, '') unless $line =~ /./;
-    if (eval {qr/$line/}) {
-        return ($line, '')
+    my ($file, $text, $line) = @_;
+    chomp $text;
+    return ($text, '') if $text =~ /^#/;
+    return ($text, '') unless $text =~ /./;
+    if (eval {qr/$text/}) {
+        return ($text, '')
     }
     $@ =~ s/(.*?)\n.*/$1/m;
     my $err = $@;
-    $err =~ s{^.*? in regex; marked by <-- HERE in m/(.*) <-- HERE.*$}{$1};
-    my $start = $+[1] - $-[1];
+    chomp $err;
+    $err =~ s{^(.*?) in regex; marked by <-- HERE in m/(.*) <-- HERE.*$}{$2};
+    my $code = $1;
+    my $start = $+[2] - $-[2];
     my $end = $start + 1;
-    return ("^\$\n", "$file:$.:$start ... $end, Warning - Bad regex: $@ (bad-regex)\n");
+    my $wrapped = CheckSpelling::Util::wrap_in_backticks($err);
+    return ("^\$\n", "$file:$line:$start ... $end, Warning - $code: $wrapped. (bad-regex)\n");
 }
 
 1;

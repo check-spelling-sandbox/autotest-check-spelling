@@ -19,7 +19,7 @@ LINE: while (<>) {
     $oldargv = $ARGV;
   }
 
-  my ($line, $warning) = CheckSpelling::CheckPattern::process_line($file, $_);
+  my ($line, $warning) = CheckSpelling::CheckPattern::process_line($file, $_, $.);
   print "$line\n";
   if ($warning) {
     print WARNINGS $warning;
