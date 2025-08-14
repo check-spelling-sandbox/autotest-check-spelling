@@ -29,3 +29,4 @@ Summary Tables budget: INITIAL_BUDGET
 call_curl received a 429 and will wait for 5s:
 call_curl received a 503 and will wait for 5s:
 result_code=0
+t/with-dictionaries/config/test.txt:1:1 ... 35, Notice - Config file not used (unused-config-file)
