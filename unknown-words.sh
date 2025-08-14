@@ -2588,7 +2588,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   warning_output_sorted="$(mktemp)"
   sort-file < "$warning_output" > "$warning_output_sorted"
   mv "$warning_output_sorted" "$warning_output"
-  cat "$more_warnings" | tee -a "$warning_output" >&2
+  cat "$more_warnings" >> "$warning_output"
   rm "$more_warnings"
   commit_messages="$commit_messages" \
   pr_details_path="$pr_details_path" \
