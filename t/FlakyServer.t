@@ -27,7 +27,7 @@ cp(qw(
 ));
 
 my $github_repository = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
-my $github_sha = $ENV{GITHUB_SHA};
+my $github_sha = $ENV{GITHUB_SHA} || '';
 
 my @environment_variables_to_drop = split /\n/, `git ls-files -z |
   xargs -0 grep GITHUB_ |
@@ -113,7 +113,7 @@ sub read_file {
   my ($file, $working_directory, $sandbox, $github_repository, $internal_state_directory) = @_;
   return unless $file;
   local $/ = undef;
-  open my $fh, '<', $file || return;
+  return unless open my $fh, '<', $file;
   my $content = <$fh>;
   close $fh;
   return cleanup($content, $working_directory, $sandbox, $github_repository, $internal_state_directory);
