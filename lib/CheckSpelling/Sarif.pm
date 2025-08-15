@@ -38,7 +38,10 @@ sub parse_warnings {
     our %provenanceStringToIndex;
     our %directoryToProvenanceInsertion;
     my @results;
-    open WARNINGS, '<', $warnings || print STDERR "Could not open $warnings\n";
+    unless (open WARNINGS, '<', $warnings) {
+        print STDERR "Could not open $warnings\n";
+        return [];
+    }
     my $rules = ();
     my %encoded_files = ();
     my %hashes_needed_for_files = ();
