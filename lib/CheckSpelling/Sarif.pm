@@ -32,7 +32,10 @@ sub parse_warnings {
     my ($warnings) = @_;
     our $flatten;
     my @results;
-    open WARNINGS, '<', $warnings || print STDERR "Could not open $warnings\n";
+    unless (open WARNINGS, '<', $warnings) {
+        print STDERR "Could not open $warnings\n";
+        return [];
+    }
     my $rules = ();
     my %encoded_files = ();
     my %hashes_needed_for_files = ();
