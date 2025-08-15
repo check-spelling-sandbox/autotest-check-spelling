@@ -1124,6 +1124,9 @@ define_variables() {
   else
     data_dir="$(mktemp -d)"
   fi
+  mv "$early_warnings" "$data_dir/early_warnings.txt"
+  early_warnings="$data_dir/early_warnings.txt"
+
   bucket="${INPUT_BUCKET:-"$bucket"}"
   project="${INPUT_PROJECT:-"$project"}"
   if to_boolean ${junit:+"$junit"} || to_boolean "$INPUT_QUIT_WITHOUT_ERROR"; then
@@ -2507,10 +2510,10 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   fi
 
   begin_group 'Spell check'
-  warning_output="$(mktemp -d)"/warnings.txt
-  more_warnings="$(mktemp)"
-  severity_level="$(mktemp)"
-  severity_list="$(mktemp)"
+  warning_output="$(mktemp -d)/warnings.txt"
+  more_warnings="$data_dir/more_warnings.txt"
+  severity_level="$data_dir/severity_level.txt"
+  severity_list="$data_dir/severity_list.txt"
   cat "$file_list" |\
   env -i \
     SHELL="$SHELL" \
@@ -2573,11 +2576,10 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     MESSAGE="$check_file_names_warning" \
     check_yaml_key_value "$workflow_path" >&2
   fi
-  warning_output_sorted="$(mktemp)"
-  sort-file < "$warning_output" > "$warning_output_sorted"
-  mv "$warning_output_sorted" "$warning_output"
+  warning_output_unsorted="$data_dir/warning_output_unsorted.txt"
+  mv "$warning_output" "$warning_output_unsorted"
+  sort-file < "$warning_output_unsorted" > "$warning_output"
   cat "$more_warnings" >> "$warning_output"
-  rm "$more_warnings"
   commit_messages="$commit_messages" \
   pr_details_path="$pr_details_path" \
   synthetic_base="$synthetic_base" \
