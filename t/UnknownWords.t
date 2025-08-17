@@ -93,7 +93,7 @@ sub read_file {
   my ($file, $internal_state_directory, $cleanup_quoted) = @_;
   return unless $file;
   local $/ = undef;
-  open my $fh, '<', $file || return;
+  return '' unless open my $fh, '<', $file;
   my $content = <$fh>;
   close $fh;
   return cleanup($content, $internal_state_directory, $cleanup_quoted);
