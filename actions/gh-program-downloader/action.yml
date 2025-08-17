@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
   - name: Run downloader
-    uses: check-spelling/gh-program-downloader@5e540d58810c8d629cacba3e43dc9cc5c44ccf06 # v0.0.4 + 6 commits
+    uses: check-spelling/gh-program-downloader@prerelease
     with:
       repository: ${{ inputs.repository }}
       destination: ${{ inputs.destination }}
