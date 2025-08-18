@@ -2692,7 +2692,7 @@ get_has_errors() {
   if [ -z "$has_errors" ] &&
     [ -s "$counter_summary_file" ] &&
     [ -z "$counter_summary_keys" ]; then
-    counter_summary_keys=$(mktemp_json)
+    counter_summary_keys=$(mktemp)
     jq -r 'keys | .[]' "$counter_summary_file" > "$counter_summary_keys"
     if grep -E -q -v "$(echo "$INPUT_IGNORED,$INPUT_WARNINGS,$INPUT_NOTICES" | events_to_regular_expression)" "$counter_summary_keys" 2> /dev/null; then
       has_errors=1
