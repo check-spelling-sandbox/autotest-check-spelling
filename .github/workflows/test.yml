@@ -215,13 +215,9 @@ jobs:
       shell: bash
       run: |
         : Test
-        cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
-        # Standalone self-test of unknown-words
-
-        :information_source: Standalone does not have access to workflow configuration.
-        As such, it doesn't know about extra dictionaries.
-
-        EOF
+        git clone . ../introspected/
+        mv ../introspected .
+        cp .git/config introspected/.git
         step_summary="$GITHUB_STEP_SUMMARY"
         output="$GITHUB_OUTPUT"
         workflow_ref=$(echo "$GITHUB_WORKFLOW_REF" | perl -pe 's</[^@]+></spelling.yml>')
@@ -238,6 +234,7 @@ jobs:
         export GITHUB_STEP_SUMMARY="$step_summary"
         export GITHUB_OUTPUT="$output"
         export GITHUB_WORKFLOW_REF="$workflow_ref"
+        export GITHUB_REPOSITORY=check-spelling/check-spelling
         ./unknown-words.sh || true
         grep -q '@check-spelling-bot Report' "$GITHUB_STEP_SUMMARY"
     - name: upload artifact
