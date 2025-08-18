@@ -238,6 +238,37 @@ jobs:
         export GITHUB_STEP_SUMMARY="$step_summary"
         export GITHUB_OUTPUT="$output"
         export GITHUB_WORKFLOW_REF="$workflow_ref"
+
+        inputs=$(mktemp)
+        perl -ne 'unless ($stage) {
+          next unless /name: check-spelling/;
+          $stage=1;
+          next;
+        }
+        if ($stage==1) {
+          next unless /^(\s+)with:/;
+          $stage=2;
+          $indent=$1;
+          next;
+        }
+        if ($stage==2) {
+          last if (/^$/);
+          next if /^\s*#/;
+          s/\$\{\{.*\&\& 1 \}\}/0/;
+          if (/\$\{\{ (env\.\w+) \}\}/) {
+            $a=`spellchecker=. ./wrappers/get-yaml-value "$GITHUB_WORKFLOW_REF" jobs.spelling.$1`;
+            s/\$\{\{ (env\.\w+) \}\}/$a/;
+          };
+          s/^$indent//;
+          print;
+        }' .github/workflows/spelling.yml > "$inputs"
+
+        indent=$(grep ':' "$inputs" | head -1 |perl -pe 's/\S.*//') perl -pi -e 's/^$ENV{indent}//' "$inputs"
+        for a in $(perl -ne 'next unless /^\S/;s/:.*//; print' "$inputs"); do
+          export INPUT_$(echo "$a" | tr a-z- A-Z_)="$(spellchecker=. ./wrappers/get-yaml-value "$inputs" $a| tr "\n" " ")"
+        done
+        export GITHUB_REPOSITORY=check-spelling/check-spelling
+        export INPUTS='{}'
         ./unknown-words.sh || true
         grep -q '@check-spelling-bot Report' "$GITHUB_STEP_SUMMARY"
     - name: upload artifact
