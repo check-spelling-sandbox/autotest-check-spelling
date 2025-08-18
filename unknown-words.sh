@@ -246,13 +246,27 @@ load_env() {
   action_yml_json="$(mktemp_json)"
   if [ -z "$INPUTS" ] && [ -n "$workflow_path" ]; then
     export INPUTS="$(
-      cat "$workflow_path" |
-        "$yaml_to_json" |
-        jq '.jobs.spelling.steps[] |
-        select(
+      steps=$(
+        cat "$workflow_path" |
+          "$yaml_to_json" |
+          jq -rcM '.jobs.spelling.steps[]'
+      )
+      check_spelling_with=$(
+        echo "$steps" |
+        jq -rcM 'select(
           (.uses | test ("/check-spelling@"))
         )? |
         .with'
+      )
+      if [ -z "$check_spelling_with" ]; then
+        check_spelling_with=$(
+          echo "$steps" |
+          jq -rcM 'select(
+            .id=="spelling"
+          )? | .with'
+        )
+      fi
+      echo "$check_spelling_with"
     )"
   fi
   cat "$spellchecker/action.yml" |
