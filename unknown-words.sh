@@ -1392,7 +1392,7 @@ cleanup_file() {
   fi
 
   check_for_newline_at_eof "$maybe_bad" "${update_file:-$maybe_bad}"
-  printf "$(realpath --relative-to=${INPUT_EXPERIMENTAL_PATH:-.} "$maybe_bad")\0" >> "$used_config_files"
+  printf "$maybe_bad\0" >> "$used_config_files"
 
   if [ -n "$update_file" ]; then
     maybe_bad="$update_file"
@@ -2299,8 +2299,8 @@ set_up_files() {
       close $used;
       for my $file (<>) {
         $file =~ s/\0//;
-        $file = File::Spec->abs2rel($file, $base);
         next if defined $used_files{$file};
+        $file = File::Spec->abs2rel($file, $base);
         my $len = length $file;
         print "$file:1:1 ... $len, Notice - Config file not used (unused-config-file)\n";
       }
