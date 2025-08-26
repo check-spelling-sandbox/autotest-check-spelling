@@ -1224,7 +1224,8 @@ define_variables() {
   suggest_excludes="$spellchecker/wrappers/suggest-excludes"
   run_output="$temp_sandbox/unknown.words.txt"
   diff_output="$temp_sandbox/output.diff"
-  used_config_files="$temp_sandbox/used-config-files.list"
+  used_config_files="$data_dir/used-config-files.list"
+  seen_config_files="$data_dir/seen-config-files.list"
   tokens_file="$data_dir/tokens.txt"
   remove_words="$data_dir/remove_words.txt"
   action_log_ref="$data_dir/action_log_ref.txt"
@@ -2283,6 +2284,7 @@ set_up_files() {
   rm -f "$run_output"
   if [ -d "$bucket/$project/" ] ; then
     (find "$bucket/$project/" -type f -print0 ) |
+    tee "$seen_config_files" |
     used_config_files="$used_config_files" perl -e '
       use File::Spec;
       my $base = $ENV{INPUT_EXPERIMENTAL_PATH} || "";
