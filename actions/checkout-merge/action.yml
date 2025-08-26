@@ -29,7 +29,7 @@ runs:
   steps:
   - name: Merge
     id: action
-    uses: check-spelling/checkout-merge@46bad523dcb6368efab50ff2729c00443785abca # v0.0.7
+    uses: check-spelling/checkout-merge@4d9f87e6ddbfb482c688c34860d32d04bb5219f3 # v0.0.8
     with:
       base_ref: ${{ inputs.base_ref }}
       do_not_report: ${{ inputs.do_not_report }}
