@@ -108,7 +108,7 @@ jobs:
           git config --global init.defaultBranch silence_warning_about_default_branch
           echo 'cleanup=1' >> "$GITHUB_OUTPUT"
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: ${{ !contains(env.workflow_check_commit_messages, 'commits') && '1' || '0' }}
           filter: ${{ contains(env.workflow_check_commit_messages, 'commits') && 'tree:0' || '' }}
@@ -170,7 +170,7 @@ jobs:
       }}
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: comment
         uses: ./
         with:
@@ -196,7 +196,7 @@ jobs:
       }}
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: comment
         uses: ./
         with:
@@ -225,7 +225,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: apply spelling updates
         uses: ./
         with:
