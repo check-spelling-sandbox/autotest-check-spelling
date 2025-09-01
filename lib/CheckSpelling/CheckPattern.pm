@@ -9,13 +9,19 @@ sub process_line {
     chomp $line;
     return ($line, '') if $line =~ /^#/;
     return ($line, '') unless $line =~ /./;
-    if (eval {qr/$line/}) {
-        return ($line, '')
+    my $regex_pattern = qr{^(.*?) in regex; marked by <-- HERE in m/(.*) <-- HERE.*$};
+    my $warning;
+    local $SIG{__WARN__} = sub {
+        $warning = $_[0];
+    };
+    if (eval {qr/$line/} && ($warning eq '')) {
+        return ($line, '');
     }
-    $@ =~ s/(.*?)\n.*/$1/m;
-    my $err = $@;
+    $warning = $@ unless $warning;
+    $warning =~ s/(.*?)\n.*/$1/m;
+    my $err = $warning;
     chomp $err;
-    $err =~ s{^(.*?) in regex; marked by <-- HERE in m/(.*) <-- HERE.*$}{$2};
+    $err =~ s{$regex_pattern}{$2};
     my $code = $1;
     my $start = $+[2] - $-[2];
     my $end = $start + 1;
