@@ -1796,10 +1796,14 @@ words_to_lines() {
 
 build_dictionary_alias_pattern() {
   if [ -z "$dictionary_alias_pattern" ]; then
+    jq_error=$(mktemp)
     dictionary_alias_pattern="$(
       echo "$INPUT_DICTIONARY_SOURCE_PREFIXES" |
-      jq -r 'to_entries | map( {("s{^" +.key + ":}{" + .value +"};"): 1 } ) | .[] | keys[]' |xargs echo
+      jq -r 'to_entries | map( {("s{^" +.key + ":}{" + .value +"};"): 1 } ) | .[] | keys[]' 2> "$jq_error" |xargs echo
     )"
+    if [ -z "$dictionary_alias_pattern" ] && [ -s "$jq_error" ]; then
+      echo "::error ::Failed to parse dictionary_source_prefixes -- probably bad json (bad-dictionary-source-prefixes)" >> "$early_warnings"
+    fi
   fi
 }
 
