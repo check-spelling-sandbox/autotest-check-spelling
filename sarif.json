@@ -232,6 +232,32 @@
               }
             },
             {
+              "id": "bad-dictionary-source-prefixes",
+              "name": "BadDictionarySourcePrefixes",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#bad-dictionary-source-prefixes",
+              "shortDescription": {
+                "text": "Bad dictionary source prefixes"
+              },
+              "fullDescription": {
+                "text": "The dictionary source prefixes value isn't a valid json map of strings to strings."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Copy the [dictionary_source_prefixes](https://docs.check-spelling.dev/Configuration#dictionarysourceprefixes) value to a JSON validation tool. It should be of the form: `{'prefix': 'http://dictionaries.example.com/someething', ...}`.\n- Remove the value entirely.\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "warning",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "dictionary-not-found",
               "name": "DictionaryNotFound",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#dictionary-not-found",
