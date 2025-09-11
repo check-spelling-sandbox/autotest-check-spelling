@@ -2288,7 +2288,15 @@ set_up_files() {
   fi
   rm -f "$run_output"
   if [ -d "$bucket/$project/" ] ; then
-    (find "$bucket/$project/" -type f -print0 ) |
+    (cd "$bucket/$project/"; git ls-files -z . ) |
+    prefix="$bucket/$project" perl -e '
+      $/="\0";
+      my $prefix=$ENV{prefix};
+      while (<>) {
+        next if m</>;
+        print "$prefix/$_";
+      }
+    ' |
     tee "$seen_config_files" |
     used_config_files="$used_config_files" perl -e '
       use File::Spec;
