@@ -2592,6 +2592,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     forbidden_path="$forbidden_path" \
     forbidden_summary="$forbidden_summary" \
     check_file_names="$check_file_names" \
+    pr_title_file="$pr_title_file" \
+    pr_description_file="$pr_description_file" \
+    commit_messages="$commit_messages" \
     timing_report="$timing_report" \
     "$word_collator" |\
   "$strip_word_collator_suffix" > "$run_output"
