@@ -50,6 +50,84 @@
               }
             },
             {
+              "id": "unrecognized-spelling-pr-description",
+              "name": "UnrecognizedSpelling",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unrecognized-spelling-pr-description",
+              "shortDescription": {
+                "text": "Unrecognized Spelling PR Description"
+              },
+              "fullDescription": {
+                "text": "Token is neither in the dictionary nor expected"
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct spelling\n- Add to [allow](https://docs.check-spelling.dev/Configuration-Files#allow)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "error",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
+              "id": "unrecognized-spelling-pr-title",
+              "name": "UnrecognizedSpelling",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unrecognized-spelling-pr-title",
+              "shortDescription": {
+                "text": "Unrecognized Spelling PR Title"
+              },
+              "fullDescription": {
+                "text": "Token is neither in the dictionary nor expected"
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct spelling\n- Add to [allow](https://docs.check-spelling.dev/Configuration-Files#allow)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "error",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
+              "id": "unrecognized-spelling-commit-message",
+              "name": "UnrecognizedSpelling",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unrecognized-spelling-commit-message",
+              "shortDescription": {
+                "text": "Unrecognized Spelling Commit Message"
+              },
+              "fullDescription": {
+                "text": "Token is neither in the dictionary nor expected"
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct spelling\n- Add to [allow](https://docs.check-spelling.dev/Configuration-Files#allow)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "error",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "forbidden-pattern",
               "name": "ForbiddenPattern",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern",

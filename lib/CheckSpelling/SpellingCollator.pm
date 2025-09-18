@@ -279,6 +279,15 @@ sub summarize_totals {
   close $fh;
 }
 
+sub get_special {
+  my ($file, $special) = @_;
+  return 'file-list' if $file eq $special->{'file_list'};
+  return 'pr-title' if $file eq $special->{'pr_title_file'};
+  return 'pr-description' if $file eq $special->{'pr_description_file'};
+  return 'commit-message' if !rindex($file, $special->{'commit_messages'});
+  return 'file';
+}
+
 sub main {
   my @directories;
   my @cleanup_directories;
@@ -304,7 +313,16 @@ sub main {
   my $disable_noisy_file = $disable_flags =~ /(?:^|,|\s)noisy-file(?:,|\s|$)/;
   our $disable_word_collating = $only_check_changed_files || $disable_flags =~ /(?:^|,|\s)word-collating(?:,|\s|$)/;
   my $file_list = CheckSpelling::Util::get_file_from_env('check_file_names', '');
+  my $pr_title_file = CheckSpelling::Util::get_file_from_env('pr_title_file', '');
+  my $pr_description_file = CheckSpelling::Util::get_file_from_env('pr_description_file', '');
+  my $commit_messages = CheckSpelling::Util::get_file_from_env('commit_messages', '');
   my $timing_report = CheckSpelling::Util::get_file_from_env('timing_report', '');
+  my $special = {
+    'file_list' => $file_list,
+    'pr_title_file' => $pr_title_file,
+    'pr_description_file' => $pr_description_file,
+    'commit_messages' => $commit_messages,
+  };
   my ($start_time, $end_time);
 
   open WARNING_OUTPUT, '>:utf8', $warning_output;
@@ -436,12 +454,11 @@ sub main {
         # || ($unrecognized > $words / 2)
     ) {
       unless ($disable_noisy_file) {
-        if ($file eq $file_list) {
-          push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping file list because there seems to be more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-file-list)\n";
-        } else {
-          push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-file)\n";
+        my $kind = get_special($file, $special);
+        if ($kind == 'file') {
           print SHOULD_EXCLUDE "$file\n";
         }
+        push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-$kind)\n";
         push @directories, $directory;
         next;
       }
@@ -526,15 +543,17 @@ sub main {
     next unless open(NAME, '<:utf8', "$directory/name");
     my $file=<NAME>;
     close NAME;
-    my $is_file_list = $file eq $file_list;
+    my $kind = get_special($file, $special);
     open WARNINGS, '<:utf8', "$directory/warnings";
-    if (!$is_file_list) {
+    if ($kind ne 'file-list') {
       for $warning (<WARNINGS>) {
         chomp $warning;
         if ($warning =~ m/:(\d+):(\d+ \.\.\. \d+): `(.*)`/) {
           my ($line, $range, $item) = ($1, $2, $3);
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($item);
-          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word\. \(unrecognized-spelling\)/;
+          my $reason = 'unrecognized-spelling';
+          $reason .= "-$kind" unless $kind eq 'file';
+          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word\. \($reason\)/;
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
         } else {
           if ($warning =~ /\`(.*?)\` in line\. \(token-is-substring\)/) {
