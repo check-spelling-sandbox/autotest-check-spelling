@@ -79,7 +79,9 @@ while (<$warnings_in>) {
     s<^$commit_messages/([0-9a-f]+)\.message><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$1#>;
   }
   if (defined $pr_details_path) {
-    s<^$synthetic_base/pull-request/(\d+)/(?:description|summary).txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#>;
+    s<^$synthetic_base/pull-request/(\d+)/description\.txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#>;
+    s<^$synthetic_base/pull-request/(\d+)/description\.(\d+)\.txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#issue-$2>;
+    s<^$synthetic_base/pull-request/(\d+)/summary\.txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#partial-discussion-header>;
   }
   if (/\((?:$ignored_pattern)\)$/) {
     $_ = "" if m{(^(?:.*?):(?:\d+):(?:\d+) \.\.\. (?:\d+),)\s(?:Error|Notice|Warning)(\s-\s.+\s\(.*\))};

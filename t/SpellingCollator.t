@@ -7,7 +7,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 35;
+plan tests => 41;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -314,4 +314,38 @@ $file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized
 ");
 check_output_file($more_warnings, "$file_names:2:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling)
 $file_names:3:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling)
+");
+
+delete $ENV{'unknown_word_limit'};
+$ENV{'pr_title_file'} = $file_names;
+$directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', "
+:1:1 ... 4: `apple`
+");
+($output, $error_lines) = run_test($directory);
+check_output_file($warning_output, "$file_names
+");
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-pr-title)
+");
+
+delete $ENV{'pr_title_file'};
+$ENV{'pr_description_file'} = $file_names;
+($output, $error_lines) = run_test($directory);
+check_output_file($warning_output, "$file_names
+");
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-pr-description)
+");
+
+my $commit_messages = tempdir();
+$file_names = "$commit_messages/sha";
+fill_file($file_names, 'apple
+');
+delete $ENV{'pr_description_file'};
+$ENV{'commit_messages'} = $commit_messages;
+$directory = stage_test("$commit_messages/sha", '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', "
+:1:1 ... 4: `apple`
+");
+($output, $error_lines) = run_test($directory);
+check_output_file($warning_output, "$file_names
+");
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-commit-message)
 ");
