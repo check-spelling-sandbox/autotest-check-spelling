@@ -2574,6 +2574,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     dict="$dict" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
     check_file_names="$check_file_names" \
+    pr_title_file="$pr_title_file" \
+    pr_description_file="$pr_description_file" \
+    commit_messages="$commit_messages" \
     splitter_configuration="$splitter_configuration" \
     splitter_timeout="$INPUT_WORD_SPLITTER_TIMEOUT" \
     early_warnings="$early_warnings" \
