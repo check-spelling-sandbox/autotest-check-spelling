@@ -2513,7 +2513,14 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
         append_file_to_file_list "$pr_title_file"
       fi
       if [ 1 = "$(echo "$INPUT_CHECK_COMMIT_MESSAGES" | "$find_token" description)" ]; then
-        pr_description_file="$pr_details_path/description.txt"
+        pr_issue_url=$(jq -r '.pull_request._links.issue.href // empty' "$GITHUB_EVENT_PATH")
+        if [ -n "$pr_issue_url" ]; then
+          pr_issue_description_id="$(
+            call_curl "$pr_issue_url" |
+            jq -r '.id // empty'
+          )"
+        fi
+        pr_description_file="$pr_details_path/description${pr_issue_description_id:+".$pr_issue_description_id"}.txt"
         jq -r .pull_request.body "$GITHUB_EVENT_PATH" > "$pr_description_file"
         append_file_to_file_list "$pr_description_file"
       fi
@@ -2582,6 +2589,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     forbidden_path="$forbidden_path" \
     forbidden_summary="$forbidden_summary" \
     check_file_names="$check_file_names" \
+    pr_title_file="$pr_title_file" \
+    pr_description_file="$pr_description_file" \
+    commit_messages="$commit_messages" \
     timing_report="$timing_report" \
     "$word_collator" |\
   "$strip_word_collator_suffix" > "$run_output"
