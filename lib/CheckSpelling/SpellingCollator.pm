@@ -11,6 +11,8 @@ my %letter_map;
 my %ignored_event_map;
 my $disable_word_collating;
 
+my %last_seen;
+
 sub get_field {
   my ($record, $field) = @_;
   return 0 unless $record =~ (/\b$field:\s*(\d+)/);
@@ -97,6 +99,7 @@ sub log_skip_item {
     if (!defined $unknown_word_limit || ($seen_count++ < $unknown_word_limit)) {
       print MORE_WARNINGS "$file$warning\n"
     } else {
+      our %last_seen;
       $last_seen{$item} = "$file$warning";
     }
     $seen{$item} = $seen_count;
@@ -516,7 +519,7 @@ sub main {
     close WARNINGS;
   }
 
-  my %last_seen;
+  our %last_seen;
   my %unknown_file_word_count;
   for my $directory (@directories) {
     next unless (-s "$directory/warnings");
@@ -572,7 +575,7 @@ sub main {
   }
   if (defined $unknown_word_limit) {
     for my $warned_word (sort keys %last_seen) {
-      my $warning_count = $seen{$warned_word};
+      my $warning_count = $seen{$warned_word} || 0;
       next unless $warning_count >= $unknown_word_limit;
       my $warning = $last_seen{$warned_word};
       $warning =~ s/\Q. (unrecognized-spelling)\E/ -- found $warning_count times. (limited-references)\n/;
