@@ -385,9 +385,9 @@ sub main {
       next;
     }
 
+    push @directories, $directory;
     # stats isn't written if there was nothing interesting in the file
     unless (-s "$directory/stats") {
-      push @directories, $directory;
       report_timing($file, $start_time, $directory, 'warnings') if ($timing_report);
       next;
     }
@@ -448,23 +448,21 @@ sub main {
     }
 
     report_timing($file, $start_time, $directory, 'unknown') if ($timing_report);
+    my $kind = get_special($file, $special);
     # These heuristics are very new and need tuning/feedback
     if (
         ($unknown > $unique)
         # || ($unrecognized > $words / 2)
     ) {
       unless ($disable_noisy_file) {
-        my $kind = get_special($file, $special);
         if ($kind eq 'file') {
           print SHOULD_EXCLUDE "$file\n";
         }
         push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-$kind)\n";
-        push @directories, $directory;
         next;
       }
     }
-    unless (-s "$directory/unknown") {
-      push @directories, $directory;
+    unless ($kind =~ /^file/ && -s "$directory/unknown") {
       next;
     }
     open UNKNOWN, '<:utf8', "$directory/unknown";
@@ -479,7 +477,6 @@ sub main {
       $letter_map{$char}{$key} = \%word_map;
     }
     close UNKNOWN;
-    push @directories, $directory;
   }
   close SHOULD_EXCLUDE;
   close TIMING_REPORT if $timing_report;
