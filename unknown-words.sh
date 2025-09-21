@@ -2523,7 +2523,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     if ! to_boolean "$INPUT_CHECKOUT" && [ ! -d .git ]; then
       echo "$workflow_path:0:0 ... 0, Error - No files to check. Did you forget to check out the repository? (missing-checkout)" >> "$early_warnings"
     else
-      echo "$workflow_path:0:0 ... 0, Warning - No files to check. (no-files-to-check)" >> "$early_warnings"
+      echo "$workflow_path:0:0 ... 0, Warning - No files to check (no-files-to-check)" >> "$early_warnings"
     fi
   fi
   begin_group "Spell checking ($count) files"
