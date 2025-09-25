@@ -2500,6 +2500,12 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
             git log --format='%H' "$commit_sha..refs/private/after" >> "$clipped_log_revs"
           done < "$clip_log"
           sort -u "$clipped_log_revs" > "$log_revs"
+          if [ ! -s "$log_revs" ]; then
+            KEY=check_commit_messages \
+            VALUE="$INPUT_CHECK_COMMIT_MESSAGES" \
+            MESSAGE="Warning - Only commits added after check_commit_messages is enabled will be checked (no-new-commits-to-check)" \
+            check_yaml_key_value "$workflow_path"
+          fi
         fi
       fi
       while IFS= read -r commit_sha; do
