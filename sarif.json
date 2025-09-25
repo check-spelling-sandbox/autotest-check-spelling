@@ -803,6 +803,31 @@
               }
             },
             {
+              "id": "no-new-commits-to-check",
+              "name": "NoNewCommitsToCheck",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#no-new-commits-to-check",
+              "shortDescription": {
+                "text": "No new commits to check"
+              },
+              "fullDescription": {
+                "text": "Future commits will be checked for spelling."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- This is purely informative. Future commits will be checked.\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "precision": "low",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "missing-checkout",
               "name": "MissingCheckout",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#missing-checkout",
