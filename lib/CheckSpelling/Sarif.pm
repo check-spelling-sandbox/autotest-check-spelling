@@ -51,7 +51,7 @@ sub parse_warnings {
         # encode `message` and `file` to protect against low ascii`
         my $encoded_file = url_encode $file;
         $encoded_files{$encoded_file} = $file;
-        # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's sarif view
+        # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's SARIF view
         if ($message =~ /(`{2,})/) {
             my $backticks = $1;
             while ($message =~ /($backticks`+)(?=[`].*?\g{-1})/gs) {
