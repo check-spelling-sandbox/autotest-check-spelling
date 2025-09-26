@@ -2398,7 +2398,9 @@ get_before() {
     else
       BEFORE="$(git rev-parse "$AFTER"~)"
     fi
-    get_private_refs origin "$BEFORE" before
+    if [ -n "$BEFORE" ]; then
+      get_private_refs origin "$BEFORE" before
+    fi
     get_private_refs origin "$AFTER" after
   fi
 }
@@ -2466,7 +2468,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     if [ 1 = "$(echo "$INPUT_CHECK_COMMIT_MESSAGES" | "$find_token" commits)" ]; then
       get_before
       log_revs=$(mktemp)
-      git log --format='%H' refs/private/before..refs/private/after > "$log_revs"
+      git log --format='%H' ${BEFORE:+refs/private/before..}refs/private/after > "$log_revs"
       if [ -n "$workflow_path" ]; then
         workflow_blame=$(mktemp)
         partial_clone_filter_key=remote.origin.partial"clone"filter
