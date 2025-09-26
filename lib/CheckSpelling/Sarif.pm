@@ -215,7 +215,7 @@ sub main {
     my $json = JSON::PP->new->utf8->pretty->sort_by(sub { $JSON::PP::a cmp $JSON::PP::b });
     my $sarif_json = $json->decode($sarif_template);
 
-    if (defined $sarif_template_overlay_file) {
+    if (defined $sarif_template_overlay_file && -s $sarif_template_overlay_file) {
         my $merger = Hash::Merge->new();
         my $merge_behaviors = $merger->{'behaviors'}->{$merger->get_behavior()};
         my $merge_arrays = $merge_behaviors->{'ARRAY'}->{'ARRAY'};
@@ -225,55 +225,53 @@ sub main {
             return [@{$_[1]}];
         };
 
-        if (-s $sarif_template_overlay_file) {
-            my $sarif_template_overlay = CheckSpelling::Util::read_file $sarif_template_overlay_file;
-            my %runs_base = get_runs_from_sarif($sarif_json);
+        my $sarif_template_overlay = CheckSpelling::Util::read_file $sarif_template_overlay_file;
+        my %runs_base = get_runs_from_sarif($sarif_json);
 
-            my $sarif_template_hash = $json->decode($sarif_template_overlay);
-            my %runs_overlay = get_runs_from_sarif($sarif_template_hash);
-            for my $run_id (keys %runs_overlay) {
-                if (defined $runs_base{$run_id}) {
-                    my $run_base_hash = $runs_base{$run_id};
-                    my $run_overlay_hash = $runs_overlay{$run_id};
-                    for my $overlay_id (keys %$run_overlay_hash) {
-                        $run_base_hash->{$overlay_id} = $merger->merge(
-                            $run_overlay_hash->{$overlay_id},
-                            $run_base_hash->{$overlay_id}
-                        );
-                    }
-                } else {
-                    $runs_base{$run_id} = $runs_overlay{$run_id};
+        my $sarif_template_hash = $json->decode($sarif_template_overlay);
+        my %runs_overlay = get_runs_from_sarif($sarif_template_hash);
+        for my $run_id (keys %runs_overlay) {
+            if (defined $runs_base{$run_id}) {
+                my $run_base_hash = $runs_base{$run_id};
+                my $run_overlay_hash = $runs_overlay{$run_id};
+                for my $overlay_id (keys %$run_overlay_hash) {
+                    $run_base_hash->{$overlay_id} = $merger->merge(
+                        $run_overlay_hash->{$overlay_id},
+                        $run_base_hash->{$overlay_id}
+                    );
                 }
+            } else {
+                $runs_base{$run_id} = $runs_overlay{$run_id};
             }
-            #$sarif_json->
-            my @sarif_json_runs = @{$sarif_json->{'runs'}};
-            foreach my $sarif_json_run (@sarif_json_runs) {
-                my %sarif_json_run_hash=%{$sarif_json_run};
-                next unless defined $sarif_json_run_hash{'tool'};
-
-                my %sarif_json_run_tool_hash = %{$sarif_json_run_hash{'tool'}};
-                next unless defined $sarif_json_run_tool_hash{'driver'};
-
-                my %sarif_json_run_tool_driver_hash = %{$sarif_json_run_tool_hash{'driver'}};
-                my $driver_name = $sarif_json_run_tool_driver_hash{'name'};
-                next unless defined $driver_name &&
-                    defined $sarif_json_run_tool_driver_hash{'rules'};
-
-                my $driver_view_hash = $runs_base{$driver_name};
-                next unless defined $driver_view_hash;
-
-                my @sarif_json_run_tool_driver_rules = @{$sarif_json_run_tool_driver_hash{'rules'}};
-                for my $driver_rule_number (0 .. scalar @sarif_json_run_tool_driver_rules) {
-                    my $driver_rule = $sarif_json_run_tool_driver_rules[$driver_rule_number];
-                    my $driver_rule_id = $driver_rule->{'id'};
-                    next unless defined $driver_rule_id &&
-                        defined $driver_view_hash->{$driver_rule_id};
-                    $sarif_json_run_tool_driver_hash{'rules'}[$driver_rule_number] = $merger->merge($driver_view_hash->{$driver_rule_id}, $driver_rule);
-                }
-            }
-            delete $sarif_template_hash->{'runs'};
-            $sarif_json = $merger->merge($sarif_json, $sarif_template_hash);
         }
+        #$sarif_json->
+        my @sarif_json_runs = @{$sarif_json->{'runs'}};
+        foreach my $sarif_json_run (@sarif_json_runs) {
+            my %sarif_json_run_hash=%{$sarif_json_run};
+            next unless defined $sarif_json_run_hash{'tool'};
+
+            my %sarif_json_run_tool_hash = %{$sarif_json_run_hash{'tool'}};
+            next unless defined $sarif_json_run_tool_hash{'driver'};
+
+            my %sarif_json_run_tool_driver_hash = %{$sarif_json_run_tool_hash{'driver'}};
+            my $driver_name = $sarif_json_run_tool_driver_hash{'name'};
+            next unless defined $driver_name &&
+                defined $sarif_json_run_tool_driver_hash{'rules'};
+
+            my $driver_view_hash = $runs_base{$driver_name};
+            next unless defined $driver_view_hash;
+
+            my @sarif_json_run_tool_driver_rules = @{$sarif_json_run_tool_driver_hash{'rules'}};
+            for my $driver_rule_number (0 .. scalar @sarif_json_run_tool_driver_rules) {
+                my $driver_rule = $sarif_json_run_tool_driver_rules[$driver_rule_number];
+                my $driver_rule_id = $driver_rule->{'id'};
+                next unless defined $driver_rule_id &&
+                    defined $driver_view_hash->{$driver_rule_id};
+                $sarif_json_run_tool_driver_hash{'rules'}[$driver_rule_number] = $merger->merge($driver_view_hash->{$driver_rule_id}, $driver_rule);
+            }
+        }
+        delete $sarif_template_hash->{'runs'};
+        $sarif_json = $merger->merge($sarif_json, $sarif_template_hash);
     }
     {
         my @sarif_json_runs = @{$sarif_json->{'runs'}};
