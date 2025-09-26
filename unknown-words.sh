@@ -1323,7 +1323,7 @@ check_inputs() {
     if to_boolean "$INPUT_USE_SARIF" &&
       [ "$GITHUB_REPOSITORY" = '.' ]; then
       INPUT_USE_SARIF=
-      echo '::warning ::Disabling sarif under act without repository'
+      echo '::warning ::Disabling SARIF under act without repository'
     fi
   fi
   if [ -n "$INPUT_SPELL_CHECK_THIS" ] &&

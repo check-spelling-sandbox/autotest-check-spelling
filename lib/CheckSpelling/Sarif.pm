@@ -51,7 +51,7 @@ sub parse_warnings {
         # encode `message` and `file` to protect against low ascii`
         my $encoded_file = url_encode $file;
         $encoded_files{$encoded_file} = $file;
-        # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's sarif view
+        # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's SARIF view
         if ($message =~ /(`{2,})/) {
             my $backticks = $1;
             while ($message =~ /($backticks`+)(?=[`].*?\g{-1})/gs) {
@@ -205,7 +205,7 @@ sub get_runs_from_sarif {
 sub main {
     my ($sarif_template_file, $sarif_template_overlay_file, $category) = @_;
     unless (-f $sarif_template_file) {
-        warn "Could not find sarif template";
+        warn "Could not find SARIF template";
         return '';
     }
 
