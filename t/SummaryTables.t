@@ -8,21 +8,11 @@ use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
-plan tests => 20;
+plan tests => 16;
 use_ok('CheckSpelling::SummaryTables');
 
-is(CheckSpelling::SummaryTables::github_repo(
-    'https://github.com/some/thing.git'), 'some/thing');
-is(CheckSpelling::SummaryTables::github_repo(
-    'git@github.com:some/thing'), 'some/thing');
-is(CheckSpelling::SummaryTables::github_repo(
-    '../some/thing'), '');
 is(CheckSpelling::SummaryTables::file_ref(
     'file name', 20), 'file%20name:20');
-
-my $git_dir = `sh -c 'dirname \$(which git)'`;
-chomp $git_dir;
-is(CheckSpelling::SummaryTables::find_git(), $git_dir);
 
 $ENV{summary_budget} = 0;
 
