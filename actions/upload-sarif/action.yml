@@ -231,7 +231,7 @@ runs:
           -H "X-GitHub-Api-Version: 2022-11-28" \
           "$sarif_url" \
           -o "$result"; then
-          echo 'An error occurred checking the status of the sarif delivery. It should still be processed in the background, but errors that occur during processing may not be reported.' >&2
+          echo 'An error occurred checking the status of the SARIF delivery. It should still be processed in the background, but errors that occur during processing may not be reported.' >&2
           break
         fi
         processing_status=$(jq -r '.processing_status // empty' "$result" || true)
