@@ -1,3 +1,4 @@
+\b[0-9a-f]{40}\b
 ^(?:https\??|data):\S*[*+]$
 ^..:0.Xx\S*}\\b$
 catching 'templatesz'
