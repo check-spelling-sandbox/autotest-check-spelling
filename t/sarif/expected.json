@@ -66,6 +66,16 @@
 "automationDetails": {
 "id": "check-spelling/test"
 },
+"versionControlProvenance": [
+{
+"mappedTo": {
+"uriBaseId": "%SRCROOT%"
+},
+"branch": "expected-branch-name",
+"revisionId": "7070707070707070707070707070707070707070",
+"repositoryUri": "http://localhost"
+}
+],
 "results": [
 {
 "message": {
