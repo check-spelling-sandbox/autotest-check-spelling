@@ -84,10 +84,8 @@ sub git_source_and_rev {
     return () unless defined $last_git_dir;
     $file = join '/', (reverse @children);
 
-    my $prefix = '';
-    if (defined $github_urls{$last_git_dir}) {
-        $prefix = $github_urls{$last_git_dir};
-    } else {
+    my ($prefix, $remote_url, $rev, $branch);
+    unless (defined $github_urls{$last_git_dir}) {
         my $full_path = $ENV{PATH};
         $ENV{PATH} = find_git();
         my $git_dir = $ENV{GIT_DIR};
@@ -112,30 +110,36 @@ sub git_source_and_rev {
                 $rev = $ENV{PRIVATE_MERGE_SHA} if ($rev eq $private_synthetic_sha);
             }
         }
+        $branch = `git branch --show-current` unless $branch;
+        chomp $branch;
         $ENV{PATH} = $full_path;
-        $ENV{GIT_DIR} = $git_dir;
+        if ($git_dir) {
+            $ENV{GIT_DIR} = $git_dir;
+        } else {
+            delete $ENV{GIT_DIR};
+        }
         my $url_base;
         if ($remote_url && $remote_url ne '.') {
             unless ($remote_url =~ m<^https?://>) {
                 $remote_url =~ s!.*\@([^:]+):!https://$1/!;
             }
             $remote_url =~ s!\.git$!!;
-            $url_base = "$remote_url/blame";
         } elsif ($ENV{GITHUB_SERVER_URL} ne '' && $ENV{GITHUB_REPOSITORY} ne '') {
-            $url_base = "$ENV{GITHUB_SERVER_URL}/$ENV{GITHUB_REPOSITORY}/blame";
+            $remote_url = "$ENV{GITHUB_SERVER_URL}/$ENV{GITHUB_REPOSITORY}";
             $rev = $ENV{GITHUB_HEAD_REF} || $ENV{GITHUB_SHA} unless $rev;
+            $branch = $ENV{GITHUB_HEAD_REF} unless $branch;
         }
+        $url_base = "$remote_url/blame" if $remote_url;
         if ($url_base) {
             if ($pull_base) {
                 $url_base =~ s<^$pull_base/><$pull_head/>i;
             }
             $prefix = "$url_base/$rev/";
         }
-        if ($last_git_dir) {
-            $github_urls{$last_git_dir} = $prefix;
-        }
+
+        $github_urls{$last_git_dir} = [$prefix, $remote_url, $rev, $branch];
     }
-    return ($prefix, $file);
+    return $file, @{$github_urls{$last_git_dir}};
 }
 
 1;

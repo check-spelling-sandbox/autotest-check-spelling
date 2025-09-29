@@ -27,7 +27,7 @@ sub github_blame {
 
     return file_ref($file, $line) if ($file =~ m{^https?://});
 
-    my ($prefix, $parsed_file) = CheckSpelling::GitSources::git_source_and_rev($file);
+    my ($parsed_file, $prefix, $remote_url, $rev) = CheckSpelling::GitSources::git_source_and_rev($file);
     return file_ref($file, $line) unless defined $prefix;
     my $line_delimiter = $prefix =~ m<https?://> ? '#L' : ':';
 
