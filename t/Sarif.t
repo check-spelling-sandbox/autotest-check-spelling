@@ -29,9 +29,21 @@ https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is no
 
 ';
 close $fh;
+my $rev = `git rev-parse HEAD`;
+chomp $rev;
+my $rev_masked = '70'x20;
+`
+git remote rename origin real-origin;
+git remote add origin http://localhost;
+`;
 $ENV{'warning_output'} = $warnings;
 ($fh, $sarif_merged) = tempfile();
 my $sarif_generated = CheckSpelling::Sarif::main("$base/sarif.json", "$tests/sarif.json", 'check-spelling/test');
+`
+git remote remove origin;
+git remote rename real-origin origin;
+`;
+$sarif_generated =~ s/\Q$rev\E/$rev_masked/g;
 print $fh $sarif_generated;
 close $fh;
 my $formatted_sarif;

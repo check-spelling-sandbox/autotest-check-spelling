@@ -5,10 +5,12 @@ package CheckSpelling::Sarif;
 our $VERSION='0.1.0';
 our $flatten=0;
 
+use File::Basename;
 use Digest::SHA qw($errmsg);
 use JSON::PP;
 use Hash::Merge qw( merge );
 use CheckSpelling::Util;
+use CheckSpelling::GitSources;
 
 sub encode_low_ascii {
     $_ = shift;
@@ -31,6 +33,8 @@ sub double_slash_escape {
 sub parse_warnings {
     my ($warnings) = @_;
     our $flatten;
+    our %directoryToRepo;
+    our $directoryToProvenanceString;
     my @results;
     unless (open WARNINGS, '<', $warnings) {
         print STDERR "Could not open $warnings\n";
@@ -43,6 +47,8 @@ sub parse_warnings {
         next if m{^https://};
         next unless m{^(.+):(\d+):(\d+) \.\.\. (\d+),\s(Error|Warning|Notice)\s-\s(.+\s\((.+)\))$};
         my ($file, $line, $column, $endColumn, $severity, $message, $code) = ($1, $2, $3, $4, $5, $6, $7);
+        my $directory = dirname($file);
+        $directoryToProvenanceString{$directory} = collectVersionControlProvenance($file) unless defined $directoryToProvenanceString{$directory};
         # single-slash-escape `"` and `\`
         $message =~ s/(["\\])/\\$1/g;
         $message = encode_low_ascii $message;
@@ -94,6 +100,9 @@ sub parse_warnings {
             next;
         }
         my @lines = sort (keys %{$hashes_needed_for_files{$file}});
+        unless (defined $directoryToRepo{dirname($file)}) {
+            my ($parsed_file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+        }
         open $file_fh, '<', $file;
         my $line = shift @lines;
         $line = 2 if $line == 1;
@@ -202,6 +211,27 @@ sub get_runs_from_sarif {
     return %runs_view;
 }
 
+sub collectVersionControlProvenance {
+    my ($file) = @_;
+    my ($parsed_file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+    my $provenance = [$remote_url, $rev, $branch];
+    return JSON::PP::encode_json($provenance);
+}
+
+sub generateVersionControlProvenance {
+    my ($versionControlProvenanceList, $run) = @_;
+    my %provenance;
+    sub buildVersionControlProvenance {
+        my $d = $_;
+        my ($remote_url, $rev, $branch) = @{JSON::PP::decode_json($d)};
+        return { "repositoryUri" => $remote_url, "revisionId" => $rev, "branch" => $branch };
+    }
+    @provenanceList = map(buildVersionControlProvenance,@$versionControlProvenanceList);
+    $run->{"versionControlProvenance"} = \@provenanceList;
+}
+
+my %directoryToProvenanceString = ();
+
 sub main {
     my ($sarif_template_file, $sarif_template_overlay_file, $category) = @_;
     unless (-f $sarif_template_file) {
@@ -209,6 +239,8 @@ sub main {
         return '';
     }
 
+    $ENV{GITHUB_SERVER_URL} = '' unless defined $ENV{GITHUB_SERVER_URL};
+    $ENV{GITHUB_REPOSITORY} = '' unless defined $ENV{GITHUB_REPOSITORY};
     my $sarif_template = CheckSpelling::Util::read_file $sarif_template_file;
     die "sarif template is empty" unless $sarif_template;
 
@@ -289,6 +321,9 @@ sub main {
     my $results = parse_warnings $ENV{warning_output};
     if ($results) {
         $sarif{'runs'}[0]{'results'} = $results;
+        our %directoryToProvenanceString;
+        my @provenanceList = map { $directoryToProvenanceString{$_} } keys %directoryToProvenanceString;
+        generateVersionControlProvenance(\@provenanceList, $sarif{'runs'}[0]);
         my %codes;
         for my $result_ref (@$results) {
             my %result = %{$result_ref};
