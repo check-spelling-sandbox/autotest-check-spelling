@@ -30,9 +30,33 @@ https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is no
 
 ';
 close $fh;
+my $rev = `git rev-parse HEAD`;
+chomp $rev;
+my $rev_masked = '70'x20;
+my $branch = `git branch --show-current`;
+my $fallback_rev = `git rev-parse HEAD`;
+chomp $branch;
+chomp $fallback_rev;
+`
+git branch -m expected-branch-name 2>/dev/null || git checkout -B expected-branch-name 2>/dev/null
+
+if ! git remote get-url real-origin >/dev/null 2>/dev/null; then
+  git remote rename origin real-origin
+  git remote add origin http://localhost
+fi
+`;
+
 $ENV{'warning_output'} = $warnings;
 ($fh, $sarif_merged) = tempfile();
 my $sarif_generated = CheckSpelling::Sarif::main("$base/sarif.json", "$tests/sarif.json", 'check-spelling/test');
+
+`
+git remote remove origin
+git remote rename real-origin origin
+
+git branch -m '$branch' 2>/dev/null || git checkout '$fallback_rev' 2>/dev/null
+`;
+$sarif_generated =~ s/\Q$rev\E/$rev_masked/g;
 print $fh $sarif_generated;
 close $fh;
 my $formatted_sarif;
