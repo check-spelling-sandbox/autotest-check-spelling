@@ -1,3 +1,6 @@
+# Git commits
+\b[0-9a-f]{40}\b
+
 # README patterns examples
 ^(?:https\??|data):\S*[*+]$
 
