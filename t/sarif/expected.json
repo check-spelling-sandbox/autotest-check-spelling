@@ -240,8 +240,7 @@
 "message": {
 "text": "No rule definition for `imaginary-rule`"
 },
-"ruleId": "missing-rule-definition",
-"locations": []
+"ruleId": "missing-rule-definition"
 }
 ]
 }
