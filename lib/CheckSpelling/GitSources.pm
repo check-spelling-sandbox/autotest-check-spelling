@@ -140,7 +140,7 @@ sub git_source_and_rev {
 
         $github_urls{$last_git_dir} = [$prefix, $remote_url, $rev, $branch];
     }
-    return $file, @{$github_urls{$last_git_dir}};
+    return $file, dirname($last_git_dir), @{$github_urls{$last_git_dir}};
 }
 
 1;
