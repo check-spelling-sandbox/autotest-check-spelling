@@ -28,6 +28,38 @@ sub double_slash_escape {
     return $_;
 }
 
+sub fingerprintLocations {
+    my ($locations, $encoded_files_ref, $line_hashes_ref, $hashes_needed_for_files_ref, $message, $hashed_message) = @_;
+    my %encoded_files = %$encoded_files_ref;
+    my %line_hashes = %$line_hashes_ref;
+    my %hashes_needed_for_files = %$hashes_needed_for_files_ref;
+    my @locations_json = ();
+    my @fingerprints = ();
+    for my $location (@$locations) {
+        my $encoded_file = $location->{uri};
+        my $line = $location->{startLine};
+        my $column = $location->{startColumn};
+        my $endColumn = $location->{endColumn};
+        my $partialFingerprint = '';
+        my $file = $encoded_files{$encoded_file};
+        if (defined $line_hashes{$file}) {
+            my $line_hash = $line_hashes{$file}{$line};
+            if (defined $line_hash) {
+                my @instances = sort keys %{$hashes_needed_for_files{$file}{$line}{$hashed_message}};
+                my $hit = scalar @instances;
+                while (--$hit > 0) {
+                    last if $instances[$hit] == $column;
+                }
+                $partialFingerprint = Digest::SHA::sha1_base64("$line_hash:$message:$hit");
+            }
+        }
+        push @fingerprints, $partialFingerprint;
+        my $json_fragment = qq<{ "physicalLocation": { "artifactLocation": { "uri": "$encoded_file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line, "startColumn": $column, "endColumn": $endColumn } } }>;
+        push @locations_json, $json_fragment;
+    }
+    return { locations_json => \@locations_json, fingerprints => \@fingerprints };
+}
+
 sub parse_warnings {
     my ($warnings) = @_;
     our $flatten;
@@ -120,30 +152,9 @@ sub parse_warnings {
         for my $message (sort keys %{$rule}) {
             my $hashed_message = Digest::SHA::sha1_base64($message);
             my $locations = $rule->{$message};
-            my @locations_json = ();
-            my @fingerprints = ();
-            for my $location (@$locations) {
-                my $encoded_file = $location->{uri};
-                my $line = $location->{startLine};
-                my $column = $location->{startColumn};
-                my $endColumn = $location->{endColumn};
-                my $partialFingerprint = '';
-                my $file = $encoded_files{$encoded_file};
-                if (defined $line_hashes{$file}) {
-                    my $line_hash = $line_hashes{$file}{$line};
-                    if (defined $line_hash) {
-                        my @instances = sort keys %{$hashes_needed_for_files{$file}{$line}{$hashed_message}};
-                        my $hit = scalar @instances;
-                        while (--$hit > 0) {
-                            last if $instances[$hit] == $column;
-                        }
-                        $partialFingerprint = Digest::SHA::sha1_base64("$line_hash:$message:$hit");
-                    }
-                }
-                push @fingerprints, $partialFingerprint;
-                my $json_fragment = qq<{ "physicalLocation": { "artifactLocation": { "uri": "$encoded_file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line, "startColumn": $column, "endColumn": $endColumn } } }>;
-                push @locations_json, $json_fragment;
-            }
+            my $fingerprintResults = fingerprintLocations($locations, \%encoded_files, \%line_hashes, \%hashes_needed_for_files, $message, $hashed_message);
+            my @locations_json = @{$fingerprintResults->{locations_json}};
+            my @fingerprints = @{$fingerprintResults->{fingerprints}};
             if ($flatten) {
                 my $locations_json_flat = join ',', @locations_json;
                 my $partialFingerprints;
