@@ -1,9 +1,4 @@
 {
-"properties": {
-"comment": "check-spelling test"
-},
-"version": "2.1.0",
-"$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
 "runs": [
 {
 "columnKind": "unicodeCodePoints",
@@ -197,5 +192,10 @@
 }
 ]
 }
-]
+],
+"$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+"properties": {
+"comment": "check-spelling test"
+},
+"version": "2.1.0"
 }
