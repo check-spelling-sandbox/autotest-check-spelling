@@ -147,7 +147,7 @@ sub parse_warnings {
         }
         my @lines = sort (keys %{$hashes_needed_for_files{$file}});
         unless (defined $directoryToRepo{dirname($file)}) {
-            my ($parsed_file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+            my ($parsed_file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
         }
         open $file_fh, '<', $file;
         my $line = shift @lines;
@@ -238,8 +238,9 @@ sub get_runs_from_sarif {
 
 sub collectVersionControlProvenance {
     my ($file) = @_;
-    my ($parsed_file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
-    my $provenance = [$remote_url, $rev, $branch];
+    my ($parsed_file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+    my $base = substr $parsed_file, 0, length($file);
+    my $provenance = [$remote_url, $rev, $branch, $git_base_dir];
     return JSON::PP::encode_json($provenance);
 }
 
@@ -248,8 +249,17 @@ sub generateVersionControlProvenance {
     my %provenance;
     sub buildVersionControlProvenance {
         my $d = $_;
-        my ($remote_url, $rev, $branch) = @{JSON::PP::decode_json($d)};
-        return { "repositoryUri" => $remote_url, "revisionId" => $rev, "branch" => $branch };
+        my ($remote_url, $rev, $branch, $git_base_dir) = @{JSON::PP::decode_json($d)};
+        my $dir = $git_base_dir eq '.' ? '%SRCROOT%' : "DIR_$provenanceStringToIndex{$d}";
+        my $mappedTo = {
+            "uriBaseId" => $dir
+        };
+        return {
+            "repositoryUri" => $remote_url,
+            "revisionId" => $rev,
+            "branch" => $branch,
+            "mappedTo" => $mappedTo
+        };
     }
     @provenanceList = map(buildVersionControlProvenance,@$versionControlProvenanceList);
     $run->{"versionControlProvenance"} = \@provenanceList;
