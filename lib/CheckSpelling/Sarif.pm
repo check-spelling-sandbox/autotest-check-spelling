@@ -383,7 +383,8 @@ sub main {
                 my $message = "No rule definition for `$missing_code`";
                 my $locations_json_flat = '';
                 my $partialFingerprints = '';
-                my $result_json = qq<{"ruleId": "$missing_rule_definition_id", $partialFingerprints "message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
+                my $locations = $locations_json_flat ? qq<, "locations": [ $locations_json_flat ]> : '';
+                my $result_json = qq<{"ruleId": "$missing_rule_definition_id", $partialFingerprints "message": { "text": "$message" }$locations }>;
                 my $result = decode_json $result_json;
                 push @{$results}, $result;
             }
