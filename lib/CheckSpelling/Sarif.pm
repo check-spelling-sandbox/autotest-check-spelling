@@ -318,6 +318,9 @@ sub main {
             push @rules, $missing_rule_definition_ref;
             $missing_rule_definition_index = $defined_codes{$missing_rule_definition_id} = $code_index++;
             for my $missing_code (@missing_codes) {
+                my $message = "No rule definition for `$missing_code`";
+                my $locations_json_flat = '';
+                my $partialFingerprints = '';
                 my $result_json = qq<{"ruleId": "$missing_rule_definition_id", $partialFingerprints "message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
                 my $result = decode_json $result_json;
                 push @{$results}, $result;
@@ -328,7 +331,7 @@ sub main {
             my $result = $results->[$result_index];
             my $ruleId = $result->{'ruleId'};
             next if defined $ruleId && defined $defined_codes{$ruleId};
-            $result->{'ruleIndex'} = $missing_rule_definition_index;
+            $result->{'ruleId'} = $missing_rule_definition_id;
         }
     }
 
