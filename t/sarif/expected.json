@@ -44,6 +44,21 @@
 "defaultConfiguration": {
 "level": "warning"
 }
+},
+{
+"fullDescription": {
+"text": "Unfortunately the rule definition for an event hasn't been written. This is a bug in check-spelling."
+},
+"helpUri": "https://docs.check-spelling.dev/Event-descriptions#missing-rule-definition",
+"help": {
+"markdown": "**Remediation (click \"Show more\" below)**:\n- You should never see this. Please file a bug (including your sarif.json).\n\n",
+"text": "?"
+},
+"id": "missing-rule-definition",
+"name": "MissingRuleDefinition",
+"shortDescription": {
+"text": "Missing Rule Definition"
+}
 }
 ]
 }
@@ -53,8 +68,29 @@
 },
 "results": [
 {
+"message": {
+"text": "imaginary rule. \\(imaginary-rule\\)"
+},
+"locations": [
+{
+"physicalLocation": {
+"artifactLocation": {
+"uri": "t/sarif/sample.txt",
+"uriBaseId": "%SRCROOT%"
+},
+"region": {
+"endColumn": 4,
+"startColumn": 2,
+"startLine": 9
+}
+}
+}
+],
+"ruleId": "missing-rule-definition"
+},
+{
 "partialFingerprints": {
-"cs0": "1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
+"cs0":"1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
 },
 "message": {
 "text": "[je'ep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
@@ -189,6 +225,13 @@
 }
 }
 ]
+},
+{
+"message": {
+"text": "No rule definition for `imaginary-rule`"
+},
+"ruleId": "missing-rule-definition",
+"locations": []
 }
 ]
 }
