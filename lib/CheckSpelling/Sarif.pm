@@ -54,7 +54,10 @@ sub fingerprintLocations {
             }
         }
         push @fingerprints, $partialFingerprint;
-        my $json_fragment = qq<{ "physicalLocation": { "artifactLocation": { "uri": "$encoded_file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line, "startColumn": $column, "endColumn": $endColumn } } }>;
+        my $startColumn = $column ? qq<, "startColumn": $column> : '';
+        $endColumn = $endColumn ? qq<, "endColumn": $endColumn> : '';
+        $line = 1 unless $line;
+        my $json_fragment = qq<{ "physicalLocation": { "artifactLocation": { "uri": "$encoded_file", "uriBaseId": "%SRCROOT%" }, "region": { "startLine": $line$startColumn$endColumn } } }>;
         push @locations_json, $json_fragment;
     }
     return { locations_json => \@locations_json, fingerprints => \@fingerprints };
