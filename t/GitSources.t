@@ -8,7 +8,7 @@ use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
-plan tests => 13;
+plan tests => 17;
 use_ok('CheckSpelling::GitSources');
 
 is(CheckSpelling::GitSources::github_repo(
@@ -47,18 +47,23 @@ mkdir next; touch a b next/c; git add a b next/c; git $git_configs commit -m a;
 `;
 is($?, 0, 'git child1 init worked');
 
-my ($file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("$git_root/a");
+chdir $git_root;
+my ($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("a");
 is($file, 'a', "git_root file");
 is($remote_url, $git_root_url, "git_root remote_url");
 is($branch, 'main', "git_root branch");
+is($git_base_dir, '.', "git_root git_base_dir");
 
-($file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("$child1/a");
+($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("child1/a");
 is($file, 'a', "child1 a");
+is($git_base_dir, 'child1', "child1 git_base_dir");
 
-($file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("$child1/b");
+($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("child1/b");
 is($file, 'b', "child1 b");
+is($git_base_dir, 'child1', "child1 git_base_dir");
 
-($file, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("$child1/next/c");
+($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("child1/next/c");
 is($file, 'next/c', "child1 file");
 is($remote_url, $child1_url, "child1 next/c");
+is($git_base_dir, 'child1', "child1 git_base_dir");
 chdir $working_directory;
