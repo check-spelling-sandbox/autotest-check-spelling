@@ -2,13 +2,15 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use File::Basename;
 use File::Temp qw/ tempfile /;
 use Test::More;
 use JSON::PP;
+use Capture::Tiny ':all';
 
-plan tests => 3;
+plan tests => 5;
 use_ok('CheckSpelling::Sarif');
 
 is(CheckSpelling::Sarif::encode_low_ascii("\x05"), '\u0005');
@@ -19,13 +21,15 @@ my $base = dirname($tests);
 $ENV{'CHECK_SPELLING_VERSION'} = '0.0.0';
 my ($fh, $sarif_merged, $warnings);
 ($fh, $warnings) = tempfile();
+my $imaginary_rule = `$tests/sarif/code.sh`;
+chomp $imaginary_rule;
 print $fh 't/sarif/sample.txt:1:24 ... 28, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:1:30 ... 34, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:2:1 ... 5, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:5:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:7:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:8:6 ... 11, Error - ``je`ep`` is not a recognized word. (unrecognized-spelling)
-t/sarif/sample.txt:9:2 ... 4, Error - imaginary rule. (imaginary-rule)
+t/sarif/sample.txt:9:2 ... 4, Error - imaginary rule. ('.$imaginary_rule.')
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word. (unrecognized-spelling)
 
 ';
@@ -48,7 +52,14 @@ fi
 
 $ENV{'warning_output'} = $warnings;
 ($fh, $sarif_merged) = tempfile();
-my $sarif_generated = CheckSpelling::Sarif::main("$base/sarif.json", "$tests/sarif.json", 'check-spelling/test');
+
+my ($stdout, $stderr, $sarif_generated) = capture {
+CheckSpelling::Sarif::main("$base/sarif.json", "$tests/sarif.json", 'check-spelling/test');
+};
+
+is($stdout, '', 'CheckSpelling::Sarif::main out');
+is($stderr, '::notice title=missing-rule-definition::t/sarif/code.sh:2:7 ... 21, Notice - No rule definition for `imaginary-rule` (missing-rule-definition)
+', 'CheckSpelling::Sarif::main err');
 
 `
 git remote remove origin
