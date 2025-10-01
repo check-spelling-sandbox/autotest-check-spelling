@@ -547,7 +547,7 @@ sub main {
         chomp $warning;
         next unless $warning =~ s/^:(\d+)/:1/;
         $file = $check_file_paths[$1];
-        if ($warning =~ s/:(\d+ \.\.\. \d+): `(.*)`/:$1, Warning - `$2` is not a recognized word\. \(check-file-path\)/) {
+        if ($warning =~ s/:(\d+ \.\.\. \d+): `(.*)`/:$1, Warning - `$2` is not a recognized word. (check-file-path)/) {
           next if skip_item($2);
           if (defined $unknown_file_word_limit) {
             next if ++$unknown_file_word_count{$2} > $unknown_file_word_limit;
