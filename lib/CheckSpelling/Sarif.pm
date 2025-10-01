@@ -32,9 +32,6 @@ sub double_slash_escape {
 
 sub fingerprintLocations {
     my ($locations, $encoded_files_ref, $line_hashes_ref, $hashes_needed_for_files_ref, $message, $hashed_message) = @_;
-    my %encoded_files = %$encoded_files_ref;
-    my %line_hashes = %$line_hashes_ref;
-    my %hashes_needed_for_files = %$hashes_needed_for_files_ref;
     my @locations_json = ();
     my @fingerprints = ();
     for my $location (@$locations) {
@@ -43,11 +40,11 @@ sub fingerprintLocations {
         my $column = $location->{startColumn};
         my $endColumn = $location->{endColumn};
         my $partialFingerprint = '';
-        my $file = $encoded_files{$encoded_file};
-        if (defined $line_hashes{$file}) {
-            my $line_hash = $line_hashes{$file}{$line};
+        my $file = $encoded_files_ref->{$encoded_file};
+        if (defined $line_hashes_ref->{$file}) {
+            my $line_hash = $line_hashes_ref->{$file}{$line};
             if (defined $line_hash) {
-                my @instances = sort keys %{$hashes_needed_for_files{$file}{$line}{$hashed_message}};
+                my @instances = sort keys %{$hashes_needed_for_files_ref->{$file}{$line}{$hashed_message}};
                 my $hit = scalar @instances;
                 while (--$hit > 0) {
                     last if $instances[$hit] == $column;
@@ -63,6 +60,50 @@ sub fingerprintLocations {
         push @locations_json, $json_fragment;
     }
     return { locations_json => \@locations_json, fingerprints => \@fingerprints };
+}
+
+sub hashFiles {
+    my ($hashes_needed_for_files_ref, $line_hashes_ref, $directoryToRepo_ref, $used_hashes_ref) = @_;
+    for my $file (sort keys %$hashes_needed_for_files_ref) {
+        $line_hashes_ref->{$file} = ();
+        unless (-e $file) {
+            delete $hashes_needed_for_files_ref->{$file};
+            next;
+        }
+        my @lines = sort (keys %{$hashes_needed_for_files_ref->{$file}});
+        unless (defined $directoryToRepo_ref->{dirname($file)}) {
+            my ($parsed_file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+        }
+        open $file_fh, '<', $file;
+        my $line = shift @lines;
+        $line = 2 if $line == 1;
+        my $buffer = '';
+        while (<$file_fh>) {
+            if ($line == $.) {
+                my $sample = substr $buffer, -100, 100;
+                my $hash = Digest::SHA::sha1_base64($sample);
+                for (; $line == $.; $line = shift @lines) {
+                    my $hit = $used_hashes_ref->{$hash}++;
+                    $hash = "$hash:$hit" if $hit;
+                    $line_hashes_ref->{$file}{$line} = $hash;
+                    last unless @lines;
+                }
+            }
+            $buffer .= $_;
+            $buffer =~ s/\s+/ /g;
+            $buffer = substr $buffer, -100, 100;
+        }
+        close $file_fh;
+    }
+}
+
+sub addToHashesNeededForFiles {
+    my ($file, $line, $column, $message, $hashes_needed_for_files_ref) = @_;
+    my $hashed_message = Digest::SHA::sha1_base64($message);
+    $hashes_needed_for_files_ref->{$file} = () unless defined $hashes_needed_for_files_ref->{$file};
+    $hashes_needed_for_files_ref->{$file}{$line} = () unless defined $hashes_needed_for_files_ref->{$file}{$line};
+    $hashes_needed_for_files_ref->{$file}{$line}{$hashed_message} = () unless defined $hashes_needed_for_files_ref->{$file}{$line}{$hashed_message};
+    $hashes_needed_for_files_ref->{$file}{$line}{$hashed_message}{$column} = '1';
 }
 
 sub parse_warnings {
@@ -122,11 +163,7 @@ sub parse_warnings {
         unless (defined $rule->{$message}) {
             $rule->{$message} = [];
         }
-        my $hashed_message = Digest::SHA::sha1_base64($message);
-        $hashes_needed_for_files{$file} = () unless defined $hashes_needed_for_files{$file};
-        $hashes_needed_for_files{$file}{$line} = () unless defined $hashes_needed_for_files{$file}{$line};
-        $hashes_needed_for_files{$file}{$line}{$hashed_message} = () unless defined $hashes_needed_for_files{$file}{$line}{$hashed_message};
-        $hashes_needed_for_files{$file}{$line}{$hashed_message}{$column} = '1';
+        addToHashesNeededForFiles($file, $line, $column, $message, \%hashes_needed_for_files);
         my $locations = $rule->{$message};
         my $physicalLocation = {
             'uri' => $encoded_file,
@@ -139,37 +176,7 @@ sub parse_warnings {
     }
     my %line_hashes = ();
     my %used_hashes = ();
-    for my $file (sort keys %hashes_needed_for_files) {
-        $line_hashes{$file} = ();
-        unless (-e $file) {
-            delete $hashes_needed_for_files{$file};
-            next;
-        }
-        my @lines = sort (keys %{$hashes_needed_for_files{$file}});
-        unless (defined $directoryToRepo{dirname($file)}) {
-            my ($parsed_file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
-        }
-        open $file_fh, '<', $file;
-        my $line = shift @lines;
-        $line = 2 if $line == 1;
-        my $buffer = '';
-        while (<$file_fh>) {
-            if ($line == $.) {
-                my $sample = substr $buffer, -100, 100;
-                my $hash = Digest::SHA::sha1_base64($sample);
-                for (; $line == $.; $line = shift @lines) {
-                    my $hit = $used_hashes{$hash}++;
-                    $hash = "$hash:$hit" if $hit;
-                    $line_hashes{$file}{$line} = $hash;
-                    last unless @lines;
-                }
-            }
-            $buffer .= $_;
-            $buffer =~ s/\s+/ /g;
-            $buffer = substr $buffer, -100, 100;
-        }
-        close $file_fh;
-    }
+    hashFiles(\%hashes_needed_for_files, \%line_hashes, \%directoryToRepo, \%used_hashes);
     for my $code (sort keys %{$rules}) {
         my $rule = $rules->{$code};
         for my $message (sort keys %{$rule}) {
@@ -378,9 +385,37 @@ sub main {
         if (@missing_codes) {
             push @rules, $missing_rule_definition_ref;
             $missing_rule_definition_index = $defined_codes{$missing_rule_definition_id} = $code_index++;
+            my $spellchecker = $ENV{spellchecker} || dirname(dirname(dirname(__FILE__)));
+            my %hashes_needed_for_files = ();
+            my %line_hashes = ();
+            my %used_hashes = ();
+            our %directoryToRepo;
             for my $missing_code (@missing_codes) {
                 my $message = "No rule definition for `$missing_code`";
-                my $locations_json_flat = '';
+                my $code_locations = `find '$spellchecker' -name '.git*' -prune -type f -name '*.sh' -o -name '*.pl' -o -name '*.pm' -o -name '*.t' -print0|xargs -0 grep -n '$missing_code' | perl -pe 's<^\./><>'`;
+                my @locations;
+                for my $line (split /\n/, $code_locations) {
+                    chomp $line;
+                    my ($file, $lineno, $code) = $line =~ /^(.+?):(\d+):(.+)$/;
+                    next unless defined $file;
+                    $code =~ /^(.*?)\b$missing_code\b/;
+                    my $startColumn = length($1) + 1;
+                    my $location = {
+                        'uri' => url_encode($file),
+                        'startLine' => $lineno,
+                        'startColumn' => $startColumn,
+                        'endColumn' => length($1) + length($missing_code) + 1,
+                    };
+                    push @locations, $location;
+                    my $encoded_file = url_encode $file;
+                    $encoded_files{$encoded_file} = $file;
+                    addToHashesNeededForFiles($file, $lineno, $startColumn, $message, \%hashes_needed_for_files);
+                }
+                hashFiles(\%hashes_needed_for_files, \%line_hashes, \%directoryToRepo, \%used_hashes);
+                my $fingerprintResults = fingerprintLocations(\@locations, \%encoded_files, \%encoded_files, \%line_hashes, $message, Digest::SHA::sha1_base64($message));
+                my @locations_json = @{$fingerprintResults->{locations_json}};
+                my @fingerprints = @{$fingerprintResults->{fingerprints}};
+                my $locations_json_flat = join ',', @locations_json;
                 my $partialFingerprints = '';
                 my $locations = $locations_json_flat ? qq<, "locations": [ $locations_json_flat ]> : '';
                 my $result_json = qq<{"ruleId": "$missing_rule_definition_id", $partialFingerprints "message": { "text": "$message" }$locations }>;
