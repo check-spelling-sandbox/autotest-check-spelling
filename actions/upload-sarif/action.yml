@@ -190,7 +190,7 @@ runs:
       rm -f "$sarif_payload"
 
       sarif_id=$(jq -r '.id // empty' "$result" || true)
-      sarif_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/sarifs/$sarif_id"
+      sarif_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$sarif_id"
       (
         echo "id=$sarif_id"
         echo "url=$sarif_url"
