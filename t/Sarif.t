@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use File::Basename;
 use File::Temp qw/ tempfile /;
@@ -19,13 +20,15 @@ my $base = dirname($tests);
 $ENV{'CHECK_SPELLING_VERSION'} = '0.0.0';
 my ($fh, $sarif_merged, $warnings);
 ($fh, $warnings) = tempfile();
+my $imaginary_rule = `$tests/sarif/code.sh`;
+chomp $imaginary_rule;
 print $fh 't/sarif/sample.txt:1:24 ... 28, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:1:30 ... 34, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:2:1 ... 5, Error - `meep` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:5:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:7:1 ... 7, Error - `mibbit` is not a recognized word. (unrecognized-spelling)
 t/sarif/sample.txt:8:6 ... 11, Error - ``je`ep`` is not a recognized word. (unrecognized-spelling)
-t/sarif/sample.txt:9:2 ... 4, Error - imaginary rule. (imaginary-rule)
+t/sarif/sample.txt:9:2 ... 4, Error - imaginary rule. ('.$imaginary_rule.')
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word. (unrecognized-spelling)
 
 ';
