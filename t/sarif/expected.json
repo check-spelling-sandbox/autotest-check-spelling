@@ -100,7 +100,7 @@
 },
 {
 "partialFingerprints":{
-"cs0":"1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
+"cs0": "1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
 },
 "message":{
 "text":"[je'ep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
@@ -237,6 +237,21 @@
 ]
 },
 {
+"locations": [
+{
+"physicalLocation": {
+"artifactLocation": {
+"uriBaseId": "%SRCROOT%",
+"uri": "t/Sarif.t"
+},
+"region": {
+"endColumn": 70,
+"startLine": 29,
+"startColumn": 56
+}
+}
+}
+],
 "message": {
 "text": "No rule definition for `imaginary-rule`"
 },
