@@ -1,1 +1,1 @@
-Please add expect items to a file corresponding to the file with the word.
+Please add expect items to a file corresponding to the file containing the word.
