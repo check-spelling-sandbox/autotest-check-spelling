@@ -97,7 +97,7 @@ sub log_skip_item {
   my $seen_count = $seen{$item};
   if (defined $seen_count) {
     if (!defined $unknown_word_limit || ($seen_count++ < $unknown_word_limit)) {
-      print MORE_WARNINGS "$file$warning\n"
+      print MORE_WARNINGS "$file$warning\n";
     } else {
       our %last_seen;
       $last_seen{$item} = "$file$warning";
@@ -458,7 +458,9 @@ sub main {
         if ($kind eq 'file') {
           print SHOULD_EXCLUDE "$file\n";
         }
-        push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). (noisy-$kind)\n";
+        $warning = "noisy-$kind";
+        count_warning $warning;
+        push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). ($warning)\n";
         next;
       }
     }
@@ -552,6 +554,7 @@ sub main {
           $reason .= "-$kind" unless $kind eq 'file';
           $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word. ($reason)/;
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
+          count_warning $warning if $kind ne 'file';
         } else {
           if ($warning =~ /\`(.*?)\` in line\. \(token-is-substring\)/) {
             next if skip_item($1);
