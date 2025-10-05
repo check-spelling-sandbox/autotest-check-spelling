@@ -264,18 +264,18 @@ inputs:
   use_magic_file:
     description: "Use magic file to skip binary files"
     required: false
-    default: 1
+    default: "1"
   caller_container:
     description: "Hack for nektos/act - pass the outputs.docker_container to give check-spelling a way to retrieve data it needs to report a comment"
     required: false
   candidate_example_limit:
     description: "Control the number of examples shown for candidate patterns"
     required: false
-    default: 3
+    default: "3"
   summary_table:
     description: "Provide item table (paths, content)"
     required: false
-    default: 1
+    default: "1"
   ignore-pattern:
     description: "Word Splitter Ignore Pattern"
     required: false
@@ -307,7 +307,7 @@ inputs:
   unrecognized-words-before-collapsing:
     description: "Control how many unrecognized words can be displayed without wrapping in a collapsed widget"
     required: false
-    default: 10
+    default: "10"
   sarif-token:
     description: "Token for use with github/codeql-action/upload-sarif"
     required: false
@@ -317,7 +317,7 @@ inputs:
   wait-for-sarif-processing:
     description: "Wait for GitHub Advanced Security to process SARIF output"
     required: false
-    default: false
+    default: "false"
   include-advice:
     description: "When to include advice (`always`, has `error`, could update `metadata`)"
     required: false
@@ -325,11 +325,11 @@ inputs:
   always-report-comment:
     description: "Post comments for warnings and notices"
     required: false
-    default: false
+    default: "false"
   word-splitter-timeout:
     description: "Per file spell checking time limit"
     required: false
-    default: 30
+    default: "30"
   submodules:
     description: "Check sub-repositories (with `checkout` this will automatically check out subrepositories, without it assumes they're already checked out)"
     required: false
