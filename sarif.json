@@ -570,6 +570,32 @@
               }
             },
             {
+              "id": "unexpected-line-ending",
+              "name": "UnexpectedLineEnding",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unexpected-line-ending",
+              "shortDescription": {
+                "text": "Unexpected line ending"
+              },
+              "fullDescription": {
+                "text": "This generally means you have a mix of DOS and Unix line endings."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Convert the file to consistently use a single line ending\n- Opening the file with Visual Studio Code, select the LF/CRLF in the status indicator and select your choice of line endings and then save the file\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "recommendation",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "check-file-path",
               "name": "CheckFilePath",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#check-file-path",
