@@ -2360,7 +2360,7 @@ get_private_refs() {
   git_fetch_log="$(mktemp)"
   git_fetch_err="$(mktemp)"
   if ! git fetch -f "$remote" ${UNSHALLOW:+"$UNSHALLOW"} "$source_ref":refs/private/"$dest_ref" > "$git_fetch_log" 2> "$git_fetch_err"; then
-    echo "git fetch "$remote" ${UNSHALLOW:+"$UNSHALLOW"} '$source_ref:refs/private/$dest_ref' -- failed:"
+    echo "git fetch '$remote' ${UNSHALLOW:+"$UNSHALLOW"} '$source_ref:refs/private/$dest_ref' -- failed:"
     cat "$git_fetch_err"
     cat "$git_fetch_log"
     if ! git fetch -f . "$source_ref":refs/private/"$dest_ref" > "$git_fetch_log" 2> "$git_fetch_err"; then
