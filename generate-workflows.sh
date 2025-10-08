@@ -13,6 +13,7 @@ for repo in $projects; do
       workflow="$extra_workflows/$repo_with_dashes-$(basename "$file")"
       (
         echo "# $repo $(git rev-parse --abbrev-ref HEAD)=$(git rev-parse HEAD)"
+        check_commit_messages="$(perl -ne 'next if /^\s*#/; next unless s/^\s*check_commit_messages:\s+//;print' "$file" | head -1)" \
         "$GITHUB_WORKSPACE/rewrite-workflow.pl" "$file"
       ) > "$workflow"
       diff -u "$file" "$workflow" || true

@@ -2,6 +2,8 @@
 my $repo = $ENV{repo};
 my $is_spell_check_this = $repo =~ m</spell-check-this>;
 my $set_name = 0;
+my $check_commit_messages = $ENV{check_commit_messages};
+my $env_check_commit_messages = '${{ env.check_commit_messages }}';
 
 while (<>) {
   if (/^(\s*)steps:/) {
@@ -22,6 +24,8 @@ while (<>) {
     my $action_dir = q<$(find .github/actions/ -mindepth 1 -maxdepth 1 -type d -name 'spell*')>;
     if ($is_spell_check_this) {
       my $replacement = '# $1';
+      my $ref = '$GITHUB_WORKFLOW_REF';
+      my $gh_env = q<$GITHUB_ENV>;
       my $code = qq?
     ref: prerelease
 - name: enable checking spelling metadata
@@ -35,6 +39,14 @@ while (<>) {
       tee -a "$action_dir/allow.txt" > /dev/null || true
     git diff || true
 ?;
+      if ($check_commit_messages) {
+        $code .= qq?
+    : Set check commit messages
+    if echo "$ref" | grep -q -E '@.*/prerelease/'; then
+      echo "check_commit_messages=$check_commit_messages" >> "$gh_env"
+    fi
+?;
+      }
       $code =~ s/^/$indent/gm;
       print $code;
     } else {
@@ -45,6 +57,9 @@ while (<>) {
   $set_name = 1 if s/^(name: .*)/$1 ($repo)/;
   s/^(\s*cancel-in-progress:).*/$1 false/;
   s/(^\s+checkout:) true/$1 false/;
+  if ($is_spell_check_this && $check_commit_messages) {
+    s/(check_commit_messages:) .*/$1 $env_check_commit_messages/;
+  }
   print;
 }
 unless ($set_name) {
