@@ -20,6 +20,7 @@ sub events_to_regular_expression {
 
 my $GITHUB_SERVER_URL = CheckSpelling::Util::get_file_from_env('GITHUB_SERVER_URL');
 my $GITHUB_REPOSITORY = CheckSpelling::Util::get_file_from_env('GITHUB_REPOSITORY');
+my $github_commit_repository = CheckSpelling::Util::get_file_from_env('github_commit_repository') || $GITHUB_REPOSITORY;
 my $commit_messages = CheckSpelling::Util::get_file_from_env('commit_messages');
 my $pr_details_path = CheckSpelling::Util::get_file_from_env('pr_details_path');
 my $synthetic_base = CheckSpelling::Util::get_file_from_env('synthetic_base');
@@ -76,7 +77,7 @@ my ($has_notice, $has_warning, $has_error) = (0, 0, 0);
 
 while (<$warnings_in>) {
   if (defined $commit_messages) {
-    s<^$commit_messages/([0-9a-f]+)\.message><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$1#>;
+    s<^$commit_messages/([0-9a-f]+)\.message><$GITHUB_SERVER_URL/$github_commit_repository/commit/$1#>;
   }
   if (defined $pr_details_path) {
     s<^$synthetic_base/pull-request/(\d+)/description\.txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#>;
