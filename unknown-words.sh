@@ -2402,6 +2402,10 @@ get_before() {
       get_private_refs origin "$BEFORE" before
     fi
     get_private_refs origin "$AFTER" after
+    if ! git show-ref --exists refs/private/after 2>/dev/null; then
+      get_private_refs origin "$(git rev-parse HEAD)" after
+      github_commit_repository=$(git remote get-url origin | perl -ne 'next unless m{^.+[:/]+([^/]+/[^/]+?)(?:\.git|)$}; print $1')
+    fi
   fi
 }
 
@@ -2489,24 +2493,25 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
           fi
           git config "$partial_clone_filter_key" "$partial_clone_filter_value"
         fi
-        git blame HEAD -- "$workflow_path" > "$workflow_blame"
-        workflow_commits_revs=$(mktemp)
-        "$get_commits_for_check_commit_message" "$workflow_blame" | sort -u |xargs -n1 git rev-parse > "$workflow_commits_revs"
-        clip_log=$(mktemp)
-        while IFS= read -r commit_sha; do
-          grep -q "$commit_sha" "$log_revs" && echo "$commit_sha" || true
-        done < "$workflow_commits_revs" > "$clip_log"
-        if [ -s "$clip_log" ]; then
-          clipped_log_revs=$(mktemp)
+        if git blame HEAD -- "$workflow_path" > "$workflow_blame" 2>/dev/null; then
+          workflow_commits_revs=$(mktemp)
+          "$get_commits_for_check_commit_message" "$workflow_blame" | sort -u |xargs -n1 git rev-parse > "$workflow_commits_revs"
+          clip_log=$(mktemp)
           while IFS= read -r commit_sha; do
-            git log --format='%H' "$commit_sha..refs/private/after" >> "$clipped_log_revs"
-          done < "$clip_log"
-          sort -u "$clipped_log_revs" > "$log_revs"
-          if [ ! -s "$log_revs" ]; then
-            KEY=check_commit_messages \
-            VALUE="$INPUT_CHECK_COMMIT_MESSAGES" \
-            MESSAGE="Warning - Only commits added after check_commit_messages is enabled will be checked (no-new-commits-to-check)" \
-            check_yaml_key_value "$workflow_path"
+            grep -q "$commit_sha" "$log_revs" && echo "$commit_sha" || true
+          done < "$workflow_commits_revs" > "$clip_log"
+          if [ -s "$clip_log" ]; then
+            clipped_log_revs=$(mktemp)
+            while IFS= read -r commit_sha; do
+              git log --format='%H' "$commit_sha..refs/private/after" >> "$clipped_log_revs"
+            done < "$clip_log"
+            sort -u "$clipped_log_revs" > "$log_revs"
+            if [ ! -s "$log_revs" ]; then
+              KEY=check_commit_messages \
+              VALUE="$INPUT_CHECK_COMMIT_MESSAGES" \
+              MESSAGE="Warning - Only commits added after ${b}check_commit_messages${b} is changed will be checked (no-new-commits-to-check)" \
+              check_yaml_key_value "$workflow_path"
+            fi
           fi
         fi
       fi
@@ -2642,6 +2647,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   synthetic_base="$synthetic_base" \
   severity_level="$severity_level" \
   severity_list="$severity_list" \
+  github_commit_repository="$github_commit_repository" \
   $adjust_severities "$warning_output"
   cat "$warning_output" >&2
   . "$severity_list"
