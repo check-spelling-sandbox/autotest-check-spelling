@@ -395,7 +395,10 @@ runs:
       run: |
         : Shim path and local actions
         THIS_ACTION_PATH=$(realpath "$GITHUB_ACTION_PATH")
-        echo "THIS_ACTION_PATH=$THIS_ACTION_PATH" >> "$GITHUB_ENV"
+        (
+          echo "THIS_ACTION_PATH=$THIS_ACTION_PATH"
+          echo "spellchecker=$THIS_ACTION_PATH"
+        ) >> "$GITHUB_ENV"
         if ! ln -s "$THIS_ACTION_PATH"/actions ../check-spelling-actions; then
           mkdir -p ../check-spelling-actions
           rsync --delete -a "$THIS_ACTION_PATH"/actions/ ../check-spelling-actions/
@@ -408,7 +411,6 @@ runs:
     - name: check-actions
       id: check-actions
       env:
-        spellchecker: ${{ env.THIS_ACTION_PATH }}
         GH_ACTION_REPOSITORY: ${{ github.action_repository || github.repository }}
         GH_ACTION_REF: ${{ github.action_ref || github.ref_name }}
       shell: bash
@@ -437,7 +439,6 @@ runs:
       id: alternate-check-actions
       shell: bash
       env:
-        spellchecker: ${{ env.THIS_ACTION_PATH }}
         GH_ACTION_REPOSITORY: ${{ github.action_repository || github.repository }}
         GH_ACTION_REF: ${{ github.action_ref || github.ref_name }}
       run: |
@@ -465,7 +466,6 @@ runs:
       if: steps.checkout.outputs.outcome == 'failure'
       shell: bash
       env:
-        spellchecker: ${{ env.THIS_ACTION_PATH }}
         ssh_key: ${{ inputs.ssh_key }}
         ssh_account: git@github.com
         GH_TOKEN: ${{ github.token }}
@@ -549,7 +549,6 @@ runs:
       env:
         INPUTS: ${{ toJSON(inputs) }}
         DEBUG: ${{ inputs.debug }}
-        spellchecker: ${{ env.THIS_ACTION_PATH }}
         GH_ACTION_REPOSITORY: ${{ github.action_repository || github.repository }}
         GH_ACTION_REF: ${{ github.action_ref || github.ref_name }}
       shell: bash
