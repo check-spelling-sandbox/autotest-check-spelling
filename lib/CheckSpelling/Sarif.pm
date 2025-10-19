@@ -195,6 +195,7 @@ sub parse_warnings {
                 if ($partialFingerprint ne '') {
                     $partialFingerprints = qq<"partialFingerprints": { "cs0" : "$partialFingerprint" },>;
                 }
+                $message =~ s/\s\\\\\([^()]+?\\\)$//g;
                 my $result_json = qq<{"ruleId": "$code", $partialFingerprints "message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
                 my $result = decode_json $result_json;
                 push @results, $result;
@@ -207,6 +208,7 @@ sub parse_warnings {
                     if ($partialFingerprint ne '') {
                         $partialFingerprints = qq<"partialFingerprints": { "cs0" : "$partialFingerprint" },>;
                     }
+                    $message =~ s/\s\\\\\([^()]+?\\\)$//g;
                     my $result_json = qq<{"ruleId": "$code", $partialFingerprints "message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
                     my $result = decode_json $result_json;
                     push @results, $result;

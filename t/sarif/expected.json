@@ -79,7 +79,7 @@
 "results": [
 {
 "message": {
-"text": "imaginary rule. \\(imaginary-rule\\)"
+"text": "imaginary rule."
 },
 "locations": [
 {
@@ -99,11 +99,32 @@
 "ruleId": "missing-rule-definition"
 },
 {
+"locations": [
+{
+"physicalLocation": {
+"region": {
+"startLine": 10,
+"startColumn": 5,
+"endColumn": 10
+},
+"artifactLocation": {
+"uriBaseId": "%SRCROOT%",
+"uri": "t/sarif/other.txt"
+}
+}
+}
+],
+"ruleId": "unrecognized-spelling",
+"message": {
+"text": "[ a](#security-tab) matches pattern '\\\\\\sa\\(?= \\(something\\)\\)'."
+}
+},
+{
 "partialFingerprints": {
 "cs0": "1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
 },
 "message": {
-"text": "[je'ep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[je'ep](#security-tab) is not a recognized word."
 },
 "ruleId": "unrecognized-spelling",
 "locations": [
@@ -124,7 +145,7 @@
 },
 {
 "message": {
-"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[meep](#security-tab) is not a recognized word."
 },
 "locations": [
 {
@@ -145,7 +166,7 @@
 },
 {
 "message": {
-"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[meep](#security-tab) is not a recognized word."
 },
 "locations": [
 {
@@ -170,7 +191,7 @@
 },
 "ruleId": "unrecognized-spelling",
 "message": {
-"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[meep](#security-tab) is not a recognized word."
 },
 "locations": [
 {
@@ -190,7 +211,7 @@
 },
 {
 "message": {
-"text": "[mibbit](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[mibbit](#security-tab) is not a recognized word."
 },
 "locations": [
 {
@@ -218,7 +239,7 @@
 },
 "ruleId": "unrecognized-spelling",
 "message": {
-"text": "[mibbit](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[mibbit](#security-tab) is not a recognized word."
 },
 "locations": [
 {
