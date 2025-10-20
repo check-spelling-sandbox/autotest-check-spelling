@@ -318,6 +318,7 @@ get_previous_comment() {
 }
 
 get_a_comment() {
+  [ -z "$GITHUB_GRAPHQL_URL" ] && return
   comment_search_re="$1"
   if [ -z "$comment_author_id" ]; then
     who_am_i
@@ -365,6 +366,7 @@ get_a_comment() {
 }
 
 get_comment_url_from_id() {
+  [ -z "$GITHUB_GRAPHQL_URL" ] && return
   id="$1"
   comment_url_from_id_query="query { node(id:$Q$id$Q) { ... on IssueComment { url } } }"
   comment_url_from_id_json="$(wrap_in_json 'query' "$comment_url_from_id_query")"
@@ -487,6 +489,7 @@ get_workflow_path() {
     return
   fi
   action_run="$(mktemp_json)"
+  [ -z "$GITHUB_API_URL" ] && return
   if call_curl \
     "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > "$action_run"; then
     workflow_url="$(jq -r '.workflow_url // empty' "$action_run")"
@@ -1727,6 +1730,14 @@ curl_auth() {
   fi
 }
 
+dump_curl_response() {
+  cat "$response_body"
+  rm -f "$response_body"
+  if [ -z "$keep_headers" ]; then
+    rm -f "$response_headers"
+  fi
+}
+
 call_curl() {
   curl_attempt=0
   response_headers="$(mktemp)"
@@ -1745,29 +1756,52 @@ call_curl() {
       "$@" \
       -o "$response_body" \
       > "$curl_output"
+    curl_exit_code=$?
     if [ ! -s "$response_body" ] && [ -s "$curl_output" ]; then
       mv "$curl_output" "$response_body"
     fi
     echo >> "$response_headers"
     response_code=$(perl -e '$_=<>; $_=0 unless s#^HTTP/[\d.]+ (\d+).*#$1#;print;' "$response_headers")
-    case "$response_code" in
-    301|302|307|308)
-      curl_url="$(perl -ne 'next unless /^location:\s*(\S+)/i; print $1' "$response_headers")"
-      delay=0
-      ;;
-    429|502|503)
-      delay="$("$calculate_delay" "$response_headers")"
-      ;;
-    *)
-      cat "$response_body"
-      rm -f "$response_body"
-      if [ -z "$keep_headers" ]; then
-        rm -f "$response_headers"
-      fi
-      return
-      ;;
-    esac
-    (echo "call_curl received a $response_code and will wait for ${delay}s:"; grep -E -i 'x-github-request-id|x-rate-limit-|retry-after' "$response_headers") >&2
+    if [ "$curl_exit_code" -ne 0 ] && [ $response_code -eq 0 ]; then
+      case $curl_exit_code in
+      2)
+        dump_curl_response
+        (
+          echo "call_curl got an exit code $curl_exit_code from curl for '$curl_url'"
+        ) >&2
+        return
+        ;;
+      3)
+        dump_curl_response
+        return
+        ;;
+      *)
+        delay=0
+        (
+          echo "call_curl got an exit code $curl_exit_code from curl for '$curl_url' and will wait for ${delay}s before retrying:"
+          cat "$response_headers"
+        ) >&2
+        ;;
+      esac
+    else
+      case "$response_code" in
+      301|302|307|308)
+        curl_url="$(perl -ne 'next unless /^location:\s*(\S+)/i; print $1' "$response_headers")"
+        delay=0
+        ;;
+      429|502|503)
+        delay="$("$calculate_delay" "$response_headers")"
+        ;;
+      *)
+        dump_curl_response
+        return
+        ;;
+      esac
+      (
+        echo "call_curl received a $response_code and will wait for ${delay}s before retrying:"
+        grep -E -i 'x-github-request-id|x-rate-limit-|retry-after' "$response_headers"
+      ) >&2
+    fi
     sleep "$delay"
     curl_attempt="$(( curl_attempt + 1 ))"
   done
@@ -3447,13 +3481,14 @@ escape_git_branch() {
 generate_merge_instructions() {
   text_before="$1"
   text_after="$2"
-  if [ -n "$GITHUB_HEAD_REF" ] && [ "$remote_ref" != "$GITHUB_HEAD_REF" ]; then
-    head_prefix=''
-    if ! echo "$remote_ref" | grep -q '^refs/'; then
-      head_prefix=refs/heads/
-    fi
-    echo "${text_before}git fetch '$(git remote get-url origin)' $head_prefix'$(escape_git_branch "$remote_ref")':refs/private/check-spelling-merge-base &&${n}git checkout '$(escape_git_branch "$GITHUB_HEAD_REF")' &&${n}git merge -m 'Merge $(escape_git_branch "$remote_ref")' 'refs/private/check-spelling-merge-base'${text_after}${n}git push . :'refs/private/check-spelling-merge-base'"
+  if [ -z "$GITHUB_HEAD_REF" ] || [ "$remote_ref" == "$GITHUB_HEAD_REF" ]; then
+    return
   fi
+  head_prefix=''
+  if ! echo "$remote_ref" | grep -q '^refs/'; then
+    head_prefix=refs/heads/
+  fi
+  echo "${text_before}git fetch '$(git remote get-url origin)' $head_prefix'$(escape_git_branch "$remote_ref")':refs/private/check-spelling-merge-base &&${n}git checkout '$(escape_git_branch "$GITHUB_HEAD_REF")' &&${n}git merge -m 'Merge $(escape_git_branch "$remote_ref")' 'refs/private/check-spelling-merge-base'${text_after}${n}git push . :'refs/private/check-spelling-merge-base'"
 }
 
 generate_sample_commit_help() {
@@ -3687,9 +3722,7 @@ collapse_comment_mutation() {
 }
 
 collapse_comment() {
-  if [ -z "$GITHUB_GRAPHQL_URL" ]; then
-    return
-  fi
+  [ -z "$GITHUB_GRAPHQL_URL" ] && return
   call_curl \
   "$GITHUB_GRAPHQL_URL" \
   -H "Content-Type: application/json" \
