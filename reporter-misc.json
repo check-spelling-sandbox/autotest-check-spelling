@@ -144,6 +144,18 @@
             ]
         },
         {
+            "owner": "check-spelling-perl-non-numeric",
+            "severity":"warning",
+            "pattern": [
+                {
+                    "regexp": "(Argument \"[^\"]+\" isn't numeric in numeric .. \\([<=>!]=?\\)) at (.*) line (\\d+)\\.$",
+                    "message": 1,
+                    "file": 2,
+                    "line": 3
+                }
+            ]
+        },
+        {
             "owner": "github-internal-server-error",
             "pattern": [
                 {
