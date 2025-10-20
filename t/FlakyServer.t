@@ -27,7 +27,8 @@ cp(qw(
 ));
 
 my $github_repository = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
-my $github_sha = $ENV{GITHUB_SHA} || '';
+my $github_sha = $ENV{GITHUB_SHA} || `git rev-parse HEAD`;
+chomp $github_sha;
 
 my @environment_variables_to_drop = split /\n/, `git ls-files -z |
   xargs -0 grep GITHUB_ |
@@ -41,8 +42,12 @@ for my $key (@environment_variables_to_drop) {
 }
 
 $ENV{GITHUB_STEP_SUMMARY} = $github_step_summary;
+$ENV{GITHUB_SERVER_URL} = 'https://github.com';
 $ENV{GITHUB_REPOSITORY} = $github_repository;
 
+$github_repository =~ m<^(.*?)/(.*?)$>;
+$ENV{GITHUB_REPOSITORY_OWNER} = $1;
+$ENV{GITHUB_REPOSITORY_NAME} = $2;
 my $github_output;
 ($fh, $github_output) = tempfile();
 $ENV{GITHUB_OUTPUT} = $github_output;
@@ -62,6 +67,23 @@ $ENV{INPUTS} = qq<{
 }>;
 
 my ($stdout, $stderr, @results);
+
+my $temp_origin = 'real-origin';
+my $real_origin = `git remote get-url real-origin 2>/dev/null`;
+chomp $real_origin;
+my $origin = `git remote get-url origin 2>/dev/null`;
+chomp $origin;
+my $reset_origin;
+unless ($origin =~ m{^https?://}) {
+  if ($real_origin) {
+    my $fd;
+    ($fd, $temp_origin) = basename(tempfile());
+  }
+  system('git', 'remote', 'rename', 'origin', $temp_origin);
+  system('git', 'remote', 'add', 'origin', "$ENV{GITHUB_SERVER_URL}/$ENV{GITHUB_REPOSITORY}");
+  $reset_origin = 1;
+}
+
 ($stdout, $stderr, @results) = capture {
   $ENV{PATH} = "$working_directory/wrappers:$ENV{PATH}";
   $ENV{spellchecker} = $working_directory;
@@ -69,6 +91,11 @@ my ($stdout, $stderr, @results);
   $ENV{THIS_ACTION_PATH} = $working_directory;
   system("unknown-words-server")
 };
+
+if ($reset_origin) {
+  `git remote remove origin`;
+  `git remote rename "$temp_origin" origin`;
+}
 
 sub cleanup {
   my ($text, $working_directory, $sandbox, $github_repository, $internal_state_directory) = @_;
