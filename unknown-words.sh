@@ -1516,7 +1516,9 @@ github_step_summary_likely_fatal_event() {
 }
 
 github_step_summary_dictionaries_failed() {
-  message="Problems were encountered retrieving $1 dictionaries ($(echo "$2"|xargs))."
+  failed_dictionaries_dir="${dictionaries_base_dir:-"$spellchecker/dictionaries"}/$1.failed"
+  failed_dictionaries=$(cat $failed_dictionaries_dir/* 2>/dev/null)
+  message="Problems were encountered retrieving $1 dictionaries ($(echo "${failed_dictionaries:-$2}"|xargs))."
 
   if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
     message=$(echo "
@@ -1840,6 +1842,9 @@ get_extra_dictionary() {
         echo "Failed to retrieve $extra_dictionary_url ($url)"
         cat "$response_headers"
       ) >&2
+      dictionary_name=$(mktemp)
+      echo "$extra_dictionary_url" > "$dictionary_name"
+      mv "$dictionary_name" "$failed_dictionaries_dir"
       rm -f "$dictionaries_canary"
       return
     fi
@@ -1864,7 +1869,8 @@ get_extra_dictionaries() {
   dictionaries_dir="${dictionaries_base_dir:-"$spellchecker/dictionaries"}/$dictionary_class"
   extra_dictionaries="$(echo "$2" | words_to_lines)"
   dictionaries_canary="$3"
-  mkdir -p "$dictionaries_dir"
+  failed_dictionaries_dir="$dictionaries_dir.failed"
+  mkdir -p "$dictionaries_dir" "$failed_dictionaries_dir"
   response_headers="$(mktemp)"
   if [ -n "$extra_dictionaries" ]; then
     parallel_task_list=$(mktemp -d)
