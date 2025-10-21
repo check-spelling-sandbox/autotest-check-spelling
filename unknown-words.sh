@@ -101,7 +101,7 @@ dispatcher() {
             cat "$pull_request_json"
             echo 'Cannot determine if there is an open pull request, proceeding as if there is not.'
           ) >&2
-        elif [ "$(jq length "$pull_request_json")" -gt 0 ]; then
+        elif [ $(jq length "$pull_request_json") -gt 0 ]; then
           if [ -f "$workflow_path" ] && [ -s "$workflow_path" ]; then
             found_pull_request_file=1
             pull_request_events=$(
@@ -520,7 +520,7 @@ get_workflow_path() {
         fi
       ) |
           xargs -0 grep -l --null "$github_job_pattern" > "$possible_workflows"
-      if [ "$(tr -cd '\000' < "$possible_workflows" | char_count)" -eq 1 ]; then
+      if [ $(tr -cd '\000' < "$possible_workflows" | char_count) -eq 1 ]; then
         xargs -0 < "$possible_workflows" | tee "$action_workflow_path_file"
       fi
     fi
@@ -603,7 +603,7 @@ react_comment_and_die() {
 
     res=0
     comment "$COMMENTS_URL" "$PAYLOAD" > /dev/null || res=$?
-    if [ "$res" -gt 0 ]; then
+    if [ $res -gt 0 ]; then
       if ! to_boolean "$DEBUG"; then
         echo "::error ::Failed posting to $COMMENTS_URL"
         cat "$PAYLOAD"
@@ -903,7 +903,7 @@ handle_comment() {
   else
     [ -n "$comment_url" ] ||
       confused_comment "$trigger_comment_url" "Did not find match for _/_$b$comments_url${b}_/_ in comment."
-    [ "$(echo "$comment_url" | line_count)" -gt 1 ] &&
+    [ $(echo "$comment_url" | line_count) -gt 1 ] &&
       confused_comment "$trigger_comment_url" "Found more than one _/_$b$comments_url${b}_/_ match in comment:$n$B$n$comment_url$n$B"
   fi
 
@@ -1161,7 +1161,7 @@ define_variables() {
   if [ -z "$job_count" ]; then
     job_count=$(nproc 2>/dev/null || sysctl -n hw.physicalcpu)
   fi
-  if ! is_number "$job_count" || [ "$job_count" -lt 2 ]; then
+  if ! is_number "$job_count" || [ $job_count -lt 2 ]; then
     job_count=1
   fi
   extra_dictionary_limit="$(echo "${INPUT_EXTRA_DICTIONARY_LIMIT}" | perl -pe 's/\D+//g')"
@@ -1390,7 +1390,7 @@ cleanup_file() {
 
   result=0
   "$cleanup_file" || result=$?
-  if [ "$result" -gt 0 ]; then
+  if [ $result -gt 0 ]; then
     quit "$result"
   fi
 
@@ -1482,7 +1482,7 @@ get_project_files_deprecated() {
 download() {
   exit_value=0
   keep_headers=1 call_curl "$1" > "$2"
-  if { [ -z "$response_code" ] || [ "$response_code" -ge 400 ] || [ "$response_code" -eq 000 ] ; } 2> /dev/null; then
+  if { [ -z "$response_code" ] || [ $response_code -ge 400 ] || [ $response_code -eq 000 ] ; } 2> /dev/null; then
     exit_value=1
     (
       echo "Failed to download $1 (to $2)"
@@ -1749,7 +1749,7 @@ call_curl() {
   curl_output="$(mktemp)"
   curl_url="$1"
   shift
-  until [ "$curl_attempt" -ge 3 ]
+  until [ $curl_attempt -ge 3 ]
   do
     curl \
       "$curl_url" \
@@ -1863,7 +1863,7 @@ get_extra_dictionary() {
     "$url" \
     > "$dest"
   if echo "$url"|grep -q -E '^https?://'; then
-    if { [ -z "$response_code" ] || [ "$response_code" -ge 400 ] || [ "$response_code" -eq 000 ] ; } 2> /dev/null; then
+    if { [ -z "$response_code" ] || [ $response_code -ge 400 ] || [ $response_code -eq 000 ] ; } 2> /dev/null; then
       echo "::error ::Failed to retrieve $extra_dictionary_url -- HTTP $response_code for $url ($dictionary_class-dictionary-not-found)" >> "$early_warnings"
       (
         echo "Failed to retrieve $extra_dictionary_url ($url)"
@@ -1875,7 +1875,7 @@ get_extra_dictionary() {
       rm -f "$dictionaries_canary"
       return
     fi
-    if [ "$response_code" -eq 304 ]; then
+    if [ $response_code -eq 304 ]; then
       return
     fi
   fi
@@ -2595,9 +2595,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   get_file_list
   end_group
   queue_size="$((count / job_count / 4))"
-  if [ "$queue_size" -lt 4 ]; then
+  if [ $queue_size -lt 4 ]; then
     queue_size="$((count / job_count))"
-    if [ "$queue_size" -lt 1 ]; then
+    if [ $queue_size -lt 1 ]; then
       queue_size=1
     fi
   fi
@@ -2844,7 +2844,7 @@ get_action_log() {
       action_log="$(get_action_log_overview)"
 
       job_info_and_step_info="$(get_job_info_and_step_info)"
-      if [ "$(echo "$job_info_and_step_info" | line_count)" -eq 4 ]; then
+      if [ $(echo "$job_info_and_step_info" | line_count) -eq 4 ]; then
         job_log=$(echo "$job_info_and_step_info" | head -1)
         job_name=$(echo "$job_info_and_step_info" | head -2 | tail -1)
         step_number=$(echo "$job_info_and_step_info" | head -3 | tail -1)
@@ -3061,7 +3061,7 @@ spelling_body() {
           $B
           $(cat "$should_exclude_patterns")
           $B"| strip_lead)"
-        if [ "$(line_count < "$should_exclude_file")" -gt 10 ]; then
+        if [ $(line_count < "$should_exclude_file") -gt 10 ]; then
           output_excludes_large="$(echo "
             "'You should consider excluding directory paths (e.g. `(?:^|/)vendor/`), filenames (e.g. `(?:^|/)yarn\.lock$`), or file extensions (e.g. `\.gz$`)
             '| strip_lead)"
@@ -3254,7 +3254,7 @@ quit() {
   echo "::remove-matcher owner=check-spelling::"
   echo "::remove-matcher owner=check-spelling-https::"
   status="$1"
-  if { [ -z "$status" ] || [ "$status" -eq 0 ] ; } && [ -n "$has_errors" ]; then
+  if { [ ${status:-0} -eq 0 ] ; } && [ -n "$has_errors" ]; then
     status=1
   fi
   case "$status" in
@@ -3413,7 +3413,7 @@ trim_commit_comment() {
   body_to_payload
   previous_payload_size="$payload_size"
   payload_size="$("$file_size" "$PAYLOAD")"
-  if [ "$payload_size" -lt "$previous_payload_size" ]; then
+  if [ $payload_size -lt $previous_payload_size ]; then
     echo "::warning ::Trimming '$1' ($previous_payload_size=>$payload_size) to get comment payload under GitHub size limit ($github_comment_size_limit)"
     cat "$stripped"
     rm "$stripped"
@@ -3425,31 +3425,31 @@ trim_commit_comment() {
 }
 
 minimize_comment_body() {
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment 'Script' '(<details><summary>)To accept.* these unrecognized.*?</summary>().*?(?=</details>\n)' 'Script unavailable</summary>\n\n'
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment 'Stale words' '(<details><summary>These words are not needed and should be removed.*?</summary>)(.*?)(?=</details>)' '\n\n'
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment 'Available dictionaries' '(<details><summary>Available dictionaries.*?</summary>\n*)(.*?)(?=</details>)' ''
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment 'Unrecognized words' '(<details><summary>Unrecognized words.*?</summary>\n*)\`\`\`(.*?)\`\`\`'
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment 'Files' '(<details><summary>Some files were automatically ignored.*</summary>)\n.*?\`\`\`(.*?)\`\`\`.*?(?=</details>)' '\n\n'
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   trim_commit_comment '' '(\nSee the [^\n]*\n)(.*)$' '\n\n'
-  if [ "$payload_size" -le "$github_comment_size_limit" ]; then
+  if [ $payload_size -le $github_comment_size_limit ]; then
     return 0
   fi
   cat "$BODY"
@@ -3651,7 +3651,7 @@ post_commit_comment() {
       unlock_pr
       keep_headers=1 comment "$COMMENTS_URL" "$PAYLOAD" > "$response" || res=$?
       lock_pr
-      if [ -z "$response_code" ] || [ "$response_code" -ge 400 ] 2> /dev/null; then
+      if [ ${response_code:-400} -ge 400 ] 2> /dev/null; then
         if ! to_boolean "$DEBUG"; then
           echo "::error ::Failed to post to $COMMENTS_URL"
           cat "$PAYLOAD"
@@ -3663,7 +3663,7 @@ post_commit_comment() {
           echo "Body:"
           cat "$response"
           echo " //// "
-          if [ "$response_code" -eq 403 ]; then
+          if [ $response_code -eq 403 ]; then
             if grep -q '#create-a-commit-comment' "$response"; then
               echo "Consider adding:"
               echo
@@ -3917,11 +3917,11 @@ check_spelling_report() {
     title='There are now fewer misspellings than before'
   fi
   set_output_variable unknown_words "$tokens_file"
-  if [ "$unknown_count" -eq 0 ]; then
+  if [ $unknown_count -eq 0 ]; then
     unknown_word_body=''
   else
     unrecognized_words_title="Unrecognized words ($unknown_count)"
-    if [ "$unknown_count" -gt ${INPUT_UNRECOGNIZED_WORDS_BEFORE_COLLAPSING:-10} ]; then
+    if [ $unknown_count -gt ${INPUT_UNRECOGNIZED_WORDS_BEFORE_COLLAPSING:-10} ]; then
       unknown_word_body="$n<details><summary>$unrecognized_words_title</summary>
 
 $B
@@ -3932,7 +3932,7 @@ $B
       unknown_word_body="$n### $unrecognized_words_title$N$(cat "$tokens_file")"
     fi
   fi
-  if [ -n "$has_errors" ] || [ "$unknown_count" -gt 0 ]; then
+  if [ -n "$has_errors" ] || [ $unknown_count -gt 0 ]; then
     spelling_warning "$title" "$unknown_word_body" "$N$(remove_items)$n" "$instructions"
   else
     quit_without_error=1
