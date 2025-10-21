@@ -1087,6 +1087,10 @@ events_to_regular_expression() {
   perl -pe 's/[^-a-z]+/|/g;s/^\||\|$//g;s/^$/\$^/'
 }
 
+is_number() {
+  [ "$1" -eq "$1" ] 2>/dev/null
+}
+
 define_variables() {
   if [ -f "$output_variables" ]; then
     return
@@ -1157,7 +1161,7 @@ define_variables() {
   if [ -z "$job_count" ]; then
     job_count=$(nproc 2>/dev/null || sysctl -n hw.physicalcpu)
   fi
-  if ! [ "$job_count" -eq "$job_count" ] 2>/dev/null || [ "$job_count" -lt 2 ]; then
+  if ! is_number "$job_count" || [ "$job_count" -lt 2 ]; then
     job_count=1
   fi
   extra_dictionary_limit="$(echo "${INPUT_EXTRA_DICTIONARY_LIMIT}" | perl -pe 's/\D+//g')"
