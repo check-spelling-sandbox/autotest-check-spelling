@@ -2983,8 +2983,11 @@ spelling_body() {
     remote_ref=${remote_ref#refs/heads/}
     if [ -s "$extra_dictionaries_cover_entries" ]; then
       expected_item_count="$(line_count < "$expect_path")"
-      if [ "$expected_item_count" -gt 0 ]; then
-        expect_details="This includes both **expected items** ($expected_item_count) from $expect_files and **unrecognized words** ($unknown_count)
+      if [ $expected_item_count -gt 0 ]; then
+        if [ $unknown_count -gt 0 ]; then
+          expect_details_unknown=" and **unrecognized words** ($unknown_count)"
+        fi
+        expect_details="This includes both **expected items** ($expected_item_count) from $expect_files$expect_details_unknown
         "
         expect_head=" (expected and unrecognized)"
       fi
