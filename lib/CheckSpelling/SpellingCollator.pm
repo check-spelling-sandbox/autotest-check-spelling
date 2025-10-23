@@ -3,6 +3,8 @@
 package CheckSpelling::SpellingCollator;
 
 our $VERSION='0.1.0';
+use 5.022;
+use feature 'unicode_strings';
 use warnings;
 use File::Path qw(remove_tree);
 use CheckSpelling::Util;
