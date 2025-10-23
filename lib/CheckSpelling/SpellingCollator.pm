@@ -130,6 +130,7 @@ sub stem_word {
 sub collate_key {
   my ($key) = @_;
   our $disable_word_collating;
+  my $char;
   if ($disable_word_collating) {
     $char = lc substr $key, 0, 1;
   } else {
