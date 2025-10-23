@@ -149,7 +149,7 @@ sub load_expect {
   our %expected;
   %expected = ();
   if (open(EXPECT, '<:utf8', $expect)) {
-    while ($word = <EXPECT>) {
+    while (my $word = <EXPECT>) {
       $word =~ s/\R//;
       $expected{$word} = 0;
     }
