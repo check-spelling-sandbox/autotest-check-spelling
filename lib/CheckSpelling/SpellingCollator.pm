@@ -435,7 +435,7 @@ sub main {
         }
       }
       if (@forbidden_totals) {
-        @forbidden_list=get_array($stats, 'forbidden');
+        my @forbidden_list=get_array($stats, 'forbidden');
         my @lines=get_array($stats, 'forbidden_lines');
         if (@forbidden_list) {
           for (my $i=0; $i < scalar @forbidden_list; $i++) {
@@ -460,7 +460,7 @@ sub main {
         if ($kind eq 'file') {
           print SHOULD_EXCLUDE "$file\n";
         }
-        $warning = "noisy-$kind";
+        my $warning = "noisy-$kind";
         count_warning $warning;
         push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). ($warning)\n";
         next;
@@ -470,7 +470,7 @@ sub main {
       next;
     }
     open UNKNOWN, '<:utf8', "$directory/unknown";
-    for $token (<UNKNOWN>) {
+    for my $token (<UNKNOWN>) {
       $token =~ s/\R//;
       next unless $token =~ /./;
       my ($key, $char) = collate_key $token;
@@ -547,7 +547,7 @@ sub main {
     my $kind = get_special($file, $special);
     open WARNINGS, '<:utf8', "$directory/warnings";
     if ($kind ne 'file-list') {
-      for $warning (<WARNINGS>) {
+      for my $warning (<WARNINGS>) {
         chomp $warning;
         if ($warning =~ m/:(\d+):(\d+ \.\.\. \d+): `(.*)`/) {
           my ($line, $range, $item) = ($1, $2, $3);
@@ -567,7 +567,7 @@ sub main {
         print WARNING_OUTPUT "$file$warning\n";
       }
     } else {
-      for $warning (<WARNINGS>) {
+      for my $warning (<WARNINGS>) {
         chomp $warning;
         next unless $warning =~ s/^:(\d+)/:1/;
         $file = $check_file_paths[$1];
@@ -620,7 +620,7 @@ sub main {
 
   # display the current unknown
   for my $char (sort keys %letter_map) {
-    for $key (sort CheckSpelling::Util::case_biased keys(%{$letter_map{$char}})) {
+    for my $key (sort CheckSpelling::Util::case_biased keys(%{$letter_map{$char}})) {
       my %word_map = %{$letter_map{$char}{$key}};
       my @words = keys(%word_map);
       if (scalar(@words) > 1) {
