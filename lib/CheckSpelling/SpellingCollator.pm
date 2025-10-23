@@ -189,7 +189,7 @@ sub group_related_words {
       next if $key eq $plural_key;
       next unless defined $letter_map{$char}{$key};
       my %word_map = %{$letter_map{$char}{$key}};
-      for $word (keys(%{$letter_map{$char}{$plural_key}})) {
+      for my $word (keys(%{$letter_map{$char}{$plural_key}})) {
         $word_map{$word} = 1;
       }
       $letter_map{$char}{$key} = \%word_map;
