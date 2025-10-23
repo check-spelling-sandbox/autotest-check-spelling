@@ -94,6 +94,7 @@ sub log_skip_item {
   my ($item, $file, $warning, $unknown_word_limit) = @_;
   return 1 if should_skip_warning $warning;
   return 1 if skip_item($item);
+  our %seen;
   my $seen_count = $seen{$item};
   if (defined $seen_count) {
     if (!defined $unknown_word_limit || ($seen_count++ < $unknown_word_limit)) {
