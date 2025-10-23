@@ -491,7 +491,7 @@ runs:
       working-directory: ${{ inputs.experimental_path }}
       run: |
         : Save SHA
-        git show HEAD
+        git log -1 --oneline HEAD
         PRIVATE_CHECKOUT_REF="refs/pull/${{ github.event.pull_request.number }}/merge"
         echo "PRIVATE_CHECKOUT_REF=$PRIVATE_CHECKOUT_REF" >> "$GITHUB_ENV"
         if git fetch origin "$PRIVATE_CHECKOUT_REF"; then
