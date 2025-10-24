@@ -266,7 +266,7 @@ fill_file($forbidden_patterns, '# please avoid starting lines with "pe" followed
 $ENV{ignored_events} = 'ignored-warning';
 $directory = stage_test($file_names, '{forbidden: [1], forbidden_lines: [2:1:3]}}', '', ":1:1 ... 5: `apple`
 :2:1 ... 4: `pear`
-:2:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
+:2:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.` (forbidden-pattern)
 :2:1 ... 3, Warning - `something`. (ignored-warning)
 :3:3 ... 6: `pear`
 :4:3 ... 6: `pear`
@@ -290,7 +290,7 @@ check_output_file($forbidden_summary, '#### please avoid starting lines with "pe
 ');
 check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word (check-file-path)
 pear:1:1 ... 4, Warning - `pear` is not a recognized word (check-file-path)
-pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
+pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.` (forbidden-pattern)
 1/pear:1:3 ... 6, Warning - `pear` is not a recognized word (check-file-path)
 ');
 truncate($forbidden_patterns, 0);

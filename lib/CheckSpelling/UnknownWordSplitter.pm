@@ -458,9 +458,9 @@ sub split_file {
           if ($found_trigger_re) {
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
             my $quoted_trigger_re = CheckSpelling::Util::wrap_in_backticks($found_trigger_re);
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re. (forbidden-pattern)\n";
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
           } else {
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry. (forbidden-pattern)\n";
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry (forbidden-pattern)\n";
           }
           $previous_line_state = $_;
         }

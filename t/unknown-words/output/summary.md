@@ -139,8 +139,8 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 note|path
 -|-
-`+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
-`sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. | unknown-words/input/sample.file:1
+`+` matches a line_forbidden.patterns entry: `(?![A-Z]\|[a-z]\|'\|\s\|=).` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
+`sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b` | unknown-words/input/sample.file:1
 </details>
 
 <details><summary>:open_file_folder: ignored-expect-variant</summary>
