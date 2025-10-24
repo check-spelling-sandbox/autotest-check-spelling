@@ -103,7 +103,7 @@ open $fh, '>:utf8', $filename;
 print $fh ("bar "x1000)."\n\n";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/skipped", 'average line width (4001) exceeds the threshold (1000). (minified-file)
+check_output_file("$output_dir/skipped", 'average line width (4001) exceeds the threshold (1000) (minified-file)
 ');
 open $fh, '>:utf8', $filename;
 print $fh "FooBar baz Bar elf baz bar supercalifragelisticexpialidocious
@@ -118,7 +118,7 @@ check_output_file("$output_dir/stats", '{words: 4, unrecognized: 3, unknown: 2, 
 check_output_file_sorted_lines("$output_dir/warnings", ":1:8 ... 11: `baz`
 :1:20 ... 23: `baz`
 :1:16 ... 19: `elf`
-:2:1 ... 10, Warning - `FooBarBar` matches a line_forbidden.patterns entry. (forbidden-pattern)
+:2:1 ... 10, Warning - `FooBarBar` matches a line_forbidden.patterns entry (forbidden-pattern)
 ");
 check_output_file("$output_dir/unknown", 'baz
 elf
@@ -129,7 +129,7 @@ $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 $CheckSpelling::UnknownWordSplitter::forbidden_re='$^';
 check_output_file("$output_dir/name", $filename);
 check_output_file("$output_dir/stats", undef);
-check_output_file("$output_dir/skipped", "size `72` exceeds limit `1`. (large-file)
+check_output_file("$output_dir/skipped", "size `72` exceeds limit `1` (large-file)
 ");
 $CheckSpelling::UnknownWordSplitter::largest_file = 1000000;
 $CheckSpelling::UnknownWordSplitter::patterns_re = 'i.';
@@ -187,9 +187,9 @@ close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/name", $filename);
 check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1], forbidden_lines: [3:7:12,2:7:20]}');
-check_output_file_sorted_lines("$output_dir/warnings", ":2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns entry: `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s`. (forbidden-pattern)
-:3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b`. (forbidden-pattern)
-:3:7 ... 12, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b`. (forbidden-pattern)
+check_output_file_sorted_lines("$output_dir/warnings", ":2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns entry: `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s` (forbidden-pattern)
+:3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
+:3:7 ... 12, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
 :4:6 ... 9: `ham`
 ");
 check_output_file("$output_dir/unknown", 'ham
@@ -225,7 +225,7 @@ $ENV{PATH}='/usr/bin';
 $ENV{INPUT_USE_MAGIC_FILE}=1;
 CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/skipped", "it appears to be a binary file (`inode/x-empty`). (binary-file)
+check_output_file("$output_dir/skipped", "it appears to be a binary file (`inode/x-empty`) (binary-file)
 ");
 
 $dirname = tempdir();
@@ -236,7 +236,7 @@ CheckSpelling::UnknownWordSplitter::init($dirname);
 $CheckSpelling::UnknownWordSplitter::INPUT_LARGEST_FILE = 0;
 $CheckSpelling::UnknownWordSplitter::INPUT_LARGEST_FILE = undef;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/skipped", "it appears to be a binary file (`application/octet-stream`). (binary-file)
+check_output_file("$output_dir/skipped", "it appears to be a binary file (`application/octet-stream`) (binary-file)
 ");
 
 my $hunspell_dictionary_path = tempdir();
@@ -289,7 +289,7 @@ close $fh;
 CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 
-check_output_file("$output_dir/skipped", 'file is a single line file. (single-line-file)
+check_output_file("$output_dir/skipped", 'file only has a single line (single-line-file)
 ');
 
 $ENV{INPUT_USE_MAGIC_FILE}='';
@@ -319,7 +319,7 @@ for (my $i = 0; $i < 10; $i++) {
 }
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/skipped", 'average line width (1002) exceeds the threshold (1000). (minified-file)
+check_output_file("$output_dir/skipped", 'average line width (1002) exceeds the threshold (1000) (minified-file)
 ');
 open $fh, '>:utf8', $filename;
 print $fh "======= ==== === a ==== ======\r\n"x127;
