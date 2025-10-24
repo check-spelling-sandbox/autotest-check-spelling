@@ -288,10 +288,10 @@ check_output_file($forbidden_summary, '#### please avoid starting lines with "pe
 ```
 
 ');
-check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word. (check-file-path)
-pear:1:1 ... 4, Warning - `pear` is not a recognized word. (check-file-path)
+check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word (check-file-path)
+pear:1:1 ... 4, Warning - `pear` is not a recognized word (check-file-path)
 pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
-1/pear:1:3 ... 6, Warning - `pear` is not a recognized word. (check-file-path)
+1/pear:1:3 ... 6, Warning - `pear` is not a recognized word (check-file-path)
 ');
 truncate($forbidden_patterns, 0);
 
