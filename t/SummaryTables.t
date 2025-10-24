@@ -93,9 +93,9 @@ Unsupported configuration: use_sarif needs security-events: write | https://gith
 ");
 is($stderr, "Summary Tables budget: 600
 Summary Tables budget reduced to: 538
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-Summary Tables budget reduced to: 284
-Summary Tables budget reduced to: 23
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+Summary Tables budget reduced to: 285
+Summary Tables budget reduced to: 25
 ");
 is($result, 1);
 close $input;
@@ -107,9 +107,9 @@ CheckSpelling::SummaryTables::main();
 };
 is($stderr, q<Summary Tables budget: 100
 Summary Tables budget reduced to: 38
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary. (summary-table-skipped)
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary (summary-table-skipped)
 >);
 is($stdout, '');
 is($result, 0);
@@ -122,9 +122,9 @@ CheckSpelling::SummaryTables::main();
 };
 is($stderr, q<Summary Tables budget: 100
 Summary Tables budget reduced to: 38
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary. (summary-table-skipped)
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary (summary-table-skipped)
 >);
 is($stdout, '');
 is($result, 0);

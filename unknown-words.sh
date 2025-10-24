@@ -3630,7 +3630,7 @@ post_summary() {
     if [ $summary_budget -gt "$(char_count < "$summary_table")" ]; then
       cat "$summary_table" >> "$step_summary_draft"
     else
-      echo "::warning title=Summary Table skipped::Details too big to include in Step Summary. (summary-table-skipped)"
+      echo "::warning title=Summary Table skipped::Details too big to include in Step Summary (summary-table-skipped)"
     fi
     end_group
   fi
