@@ -556,7 +556,7 @@ sub main {
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($item);
           my $reason = 'unrecognized-spelling';
           $reason .= "-$kind" unless $kind eq 'file';
-          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word. ($reason)/;
+          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word ($reason)/;
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
           count_warning $warning if $kind ne 'file';
         } else {
@@ -601,7 +601,7 @@ sub main {
       my $warning_count = $seen{$warned_word} || 0;
       next unless $warning_count >= $unknown_word_limit;
       my $warning = $last_seen{$warned_word};
-      $warning =~ s/\Q. (unrecognized-spelling)\E/ -- found $warning_count times. (limited-references)\n/;
+      $warning =~ s/\Q (unrecognized-spelling)\E/ -- found $warning_count times (limited-references)\n/;
       next if should_skip_warning $warning;
       print WARNING_OUTPUT $warning;
       count_warning $warning;
