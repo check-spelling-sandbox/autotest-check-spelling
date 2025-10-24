@@ -19,21 +19,20 @@ is ($err, '');
 my $invalid_regex = "^\$\n";
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("+foo");
-is ($out, $invalid_regex);
-is ($err, "1 ... 2, Warning - Quantifier follows nothing: `+`. (bad-regex)\n");
+is ($out, $invalid_regex);is ($err, "1 ... 2, Warning - Quantifier follows nothing: `+` (bad-regex)\n");
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("x{\n");
 is ($out, $invalid_regex);
-is ($err, "2 ... 3, Warning - Unescaped left brace in regex is passed through: `x{`. (bad-regex)\n");
+is ($err, "2 ... 3, Warning - Unescaped left brace in regex is passed through: `x{` (bad-regex)\n");
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("x{a{\n");
 is ($out, $invalid_regex);
-is ($err, "4 ... 5, Warning - Unescaped left brace in regex is passed through: `x{a{`. (bad-regex)\n");
+is ($err, "4 ... 5, Warning - Unescaped left brace in regex is passed through: `x{a{` (bad-regex)\n");
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("hello(");
 is ($out, $invalid_regex);
-is ($err, "6 ... 7, Warning - Unmatched `(`: `hello(`. (bad-regex)\n");
+is ($err, "6 ... 7, Warning - Unmatched `(`: `hello(` (bad-regex)\n");
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("help[");
 is ($out, $invalid_regex);
-is ($err, "5 ... 6, Warning - Unmatched `[`: `help[`. (bad-regex)\n");
+is ($err, "5 ... 6, Warning - Unmatched `[`: `help[` (bad-regex)\n");
