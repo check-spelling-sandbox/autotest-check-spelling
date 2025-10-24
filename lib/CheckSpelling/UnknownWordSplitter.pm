@@ -412,7 +412,7 @@ sub split_file {
       if ($. == 1) {
         unless ($disable_minified_file) {
           if ($file_size >= 512 && length($_) == $file_size) {
-            skip_file($temp_dir, "file is a single line file. (single-line-file)\n");
+            skip_file($temp_dir, "file only has a single line (single-line-file)\n");
             last;
           }
         }

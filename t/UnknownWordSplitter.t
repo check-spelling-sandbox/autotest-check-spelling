@@ -289,7 +289,7 @@ close $fh;
 CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 
-check_output_file("$output_dir/skipped", 'file is a single line file. (single-line-file)
+check_output_file("$output_dir/skipped", 'file only has a single line (single-line-file)
 ');
 
 $ENV{INPUT_USE_MAGIC_FILE}='';
