@@ -1337,7 +1337,7 @@ check_inputs() {
     ! echo "$INPUT_SPELL_CHECK_THIS" | perl -ne 'chomp; exit 1 unless m{^[-_.A-Za-z0-9]+/[-_.A-Za-z0-9]+(?:|\@[-_./A-Za-z0-9]+)$};'; then
     KEY=spell_check_this \
     VALUE="$INPUT_SPELL_CHECK_THIS" \
-    MESSAGE='Warning - Unsupported repository: spell_check_this. Correct spell_check_this value or remove configuration. (unsupported-repo-notation)' \
+    MESSAGE='Warning - Unsupported repository: spell_check_this. Correct value or remove configuration (unsupported-repo-notation)' \
     check_yaml_key_value "$workflow_path"
     INPUT_SPELL_CHECK_THIS=''
   fi
