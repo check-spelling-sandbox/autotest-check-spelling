@@ -501,7 +501,7 @@ sub split_file {
           } else {
             my $offset = $line_length + 1;
             my $wrapped = CheckSpelling::Util::wrap_in_backticks($raw_token);
-            print WARNINGS ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line. (token-is-substring)\n";
+            print WARNINGS ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line (token-is-substring)\n";
           }
         }
       }
