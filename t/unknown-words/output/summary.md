@@ -147,7 +147,7 @@ note|path
 
 note|path
 -|-
-`Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L2
+`Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L2
 </details>
 
 <details><summary>:open_file_folder: non-alpha-in-dictionary</summary>
@@ -161,12 +161,12 @@ Ignoring entry because it contains non-alpha characters | GITHUB_SERVER_URL/GITH
 
 note|path
 -|-
-`Aiglos` is not a recognized word. | unknown-words/input/sample.file:3
-`Alqua` is not a recognized word. | unknown-words/input/sample.file:3
-`diid` is not a recognized word. | unknown-words/input/sample.file:2
-`fixx` is not a recognized word. | unknown-words/input/sample.file:2
-`thiss` is not a recognized word. | unknown-words/input/sample.file:2
-`youu` is not a recognized word. | unknown-words/input/sample.file:2
+`Aiglos` is not a recognized word | unknown-words/input/sample.file:3
+`Alqua` is not a recognized word | unknown-words/input/sample.file:3
+`diid` is not a recognized word | unknown-words/input/sample.file:2
+`fixx` is not a recognized word | unknown-words/input/sample.file:2
+`thiss` is not a recognized word | unknown-words/input/sample.file:2
+`youu` is not a recognized word | unknown-words/input/sample.file:2
 </details>
 
 <details><summary>:open_file_folder: unused-config-file</summary>
