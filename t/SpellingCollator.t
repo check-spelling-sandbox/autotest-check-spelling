@@ -145,10 +145,10 @@ nnnnnnnnns
 xxxpaz (xxxpaz, xxxpazs)
 ");
 is($error_lines, '');
-check_output_file($warning_output, q<test.txt:2:3 ... 8, Warning - `something` is not a recognized word. (unrecognized-spelling)
+check_output_file($warning_output, q<test.txt:2:3 ... 8, Warning - `something` is not a recognized word (unrecognized-spelling)
 >);
 check_output_file($counter_summary, '');
-check_output_file($more_warnings, 'test.txt:10:4 ... 10, Warning - `something` is not a recognized word. (unrecognized-spelling)
+check_output_file($more_warnings, 'test.txt:10:4 ... 10, Warning - `something` is not a recognized word (unrecognized-spelling)
 ');
 fill_file($expect, "
 AAA
@@ -201,16 +201,16 @@ Jjj
 lll
 ");
 is($error_lines, '');
-check_output_file($warning_output, q<case.txt:1:1 ... 1, Warning - `Aaa` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `aaa` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `bbb` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `Ddd` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `ddd` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `eee` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `FFF` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `Ggg` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `Jjj` is not a recognized word. (unrecognized-spelling)
-case.txt:1:1 ... 1, Warning - `lll` is not a recognized word. (unrecognized-spelling)
+check_output_file($warning_output, q<case.txt:1:1 ... 1, Warning - `Aaa` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `aaa` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `bbb` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `Ddd` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `ddd` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `eee` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `FFF` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `Ggg` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `Jjj` is not a recognized word (unrecognized-spelling)
+case.txt:1:1 ... 1, Warning - `lll` is not a recognized word (unrecognized-spelling)
 >);
 check_output_file($counter_summary, '');
 check_output_file($more_warnings, '');
@@ -237,7 +237,7 @@ is($output, "calloc (calloc, a'calloc, calloc'd)
 malloc (malloc, malloc'd)
 ");
 is($error_lines, '');
-check_output_file($warning_output, q<punctuation.txt:1:1 ... 1, Warning - `a'calloc` is not a recognized word. (unrecognized-spelling)
+check_output_file($warning_output, q<punctuation.txt:1:1 ... 1, Warning - `a'calloc` is not a recognized word (unrecognized-spelling)
 >);
 check_output_file($counter_summary, '');
 check_output_file($more_warnings, '');
@@ -266,7 +266,7 @@ fill_file($forbidden_patterns, '# please avoid starting lines with "pe" followed
 $ENV{ignored_events} = 'ignored-warning';
 $directory = stage_test($file_names, '{forbidden: [1], forbidden_lines: [2:1:3]}}', '', ":1:1 ... 5: `apple`
 :2:1 ... 4: `pear`
-:2:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
+:2:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.` (forbidden-pattern)
 :2:1 ... 3, Warning - `something`. (ignored-warning)
 :3:3 ... 6: `pear`
 :4:3 ... 6: `pear`
@@ -288,10 +288,10 @@ check_output_file($forbidden_summary, '#### please avoid starting lines with "pe
 ```
 
 ');
-check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word. (check-file-path)
-pear:1:1 ... 4, Warning - `pear` is not a recognized word. (check-file-path)
-pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.`. (forbidden-pattern)
-1/pear:1:3 ... 6, Warning - `pear` is not a recognized word. (check-file-path)
+check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word (check-file-path)
+pear:1:1 ... 4, Warning - `pear` is not a recognized word (check-file-path)
+pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.` (forbidden-pattern)
+1/pear:1:3 ... 6, Warning - `pear` is not a recognized word (check-file-path)
 ');
 truncate($forbidden_patterns, 0);
 
@@ -310,10 +310,10 @@ $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, un
 $ENV{'unknown_word_limit'} = 3;
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
-$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling)
+$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
 ");
-check_output_file($more_warnings, "$file_names:2:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling)
-$file_names:3:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling)
+check_output_file($more_warnings, "$file_names:2:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
+$file_names:3:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
 ");
 
 delete $ENV{'unknown_word_limit'};
@@ -324,7 +324,7 @@ $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, un
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
 ");
-check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-pr-title)
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-pr-title)
 ");
 
 delete $ENV{'pr_title_file'};
@@ -332,7 +332,7 @@ $ENV{'pr_description_file'} = $file_names;
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
 ");
-check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-pr-description)
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-pr-description)
 ");
 
 my $commit_messages = tempdir();
@@ -347,5 +347,5 @@ $directory = stage_test("$commit_messages/sha", '{words: 3, unrecognized: 2, unk
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
 ");
-check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word. (unrecognized-spelling-commit-message)
+check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-commit-message)
 ");

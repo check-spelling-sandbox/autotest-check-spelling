@@ -79,7 +79,7 @@
 "results": [
 {
 "message": {
-"text": "imaginary rule."
+"text": "imaginary rule"
 },
 "locations": [
 {
@@ -116,15 +116,15 @@
 ],
 "ruleId": "unrecognized-spelling",
 "message": {
-"text": "[ a](#security-tab) matches pattern '\\\\\\sa\\(?= \\(something\\)\\)'."
+"text": "[ a](#security-tab) matches pattern '\\\\\\sa\\(?= \\(something\\)\\)'"
 }
 },
 {
 "partialFingerprints":{
-"cs0": "1/gjHUF9c5Ywgi+22MVI9Z/IlCU"
+"cs0": "BvY2BKM5lxpHEJdKillpqiWZ3mo"
 },
 "message":{
-"text":"[je'ep](#security-tab) is not a recognized word."
+"text":"[je'ep](#security-tab) is not a recognized word"
 },
 "ruleId":"unrecognized-spelling",
 "locations":[
@@ -145,7 +145,7 @@
 },
 {
 "message": {
-"text": "[meep](#security-tab) is not a recognized word."
+"text": "[meep](#security-tab) is not a recognized word"
 },
 "locations": [
 {
@@ -166,7 +166,7 @@
 },
 {
 "message": {
-"text": "[meep](#security-tab) is not a recognized word."
+"text": "[meep](#security-tab) is not a recognized word"
 },
 "locations": [
 {
@@ -187,11 +187,11 @@
 },
 {
 "partialFingerprints": {
-"cs0": "SF7mUJynC9XdvAy9ZdVDsZH89zU"
+"cs0": "+FpQY0W/k7oLflcAHsuRPiSuDIY"
 },
 "ruleId": "unrecognized-spelling",
 "message": {
-"text": "[meep](#security-tab) is not a recognized word. \\(unrecognized-spelling\\)"
+"text": "[meep](#security-tab) is not a recognized word"
 },
 "locations": [
 {
@@ -211,7 +211,7 @@
 },
 {
 "message": {
-"text": "[mibbit](#security-tab) is not a recognized word."
+"text": "[mibbit](#security-tab) is not a recognized word"
 },
 "locations": [
 {
@@ -230,16 +230,16 @@
 ],
 "ruleId": "unrecognized-spelling",
 "partialFingerprints": {
-"cs0": "oRIug4rkTYu2hs0/P6FcQiHZiyg"
+"cs0": "bWBeHF6ti9VRxR+ic53fyRI48IQ"
 }
 },
 {
 "partialFingerprints": {
-"cs0": "Dqlq3XemizivlDuDNNi3AFLoFj4"
+"cs0": "UfygTwuHtOK2E0r5rpnyee9KTC8"
 },
 "ruleId": "unrecognized-spelling",
 "message": {
-"text": "[mibbit](#security-tab) is not a recognized word."
+"text": "[mibbit](#security-tab) is not a recognized word"
 },
 "locations": [
 {
@@ -266,9 +266,9 @@
 "uri": "t/Sarif.t"
 },
 "region": {
-"endColumn": 70,
+"endColumn": 69,
 "startLine": 29,
-"startColumn": 56
+"startColumn": 55
 }
 }
 }
