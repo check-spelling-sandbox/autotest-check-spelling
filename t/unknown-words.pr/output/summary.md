@@ -141,7 +141,7 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 note|path
 -|-
-Quantifier follows nothing: `+`. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
+Quantifier follows nothing: `+` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
 </details>
 
 <details><summary>:open_file_folder: forbidden-pattern</summary>
