@@ -339,7 +339,7 @@ sub split_file {
   my @forbidden_re_lines = (0) x scalar @forbidden_re_list;
   my $temp_dir = tempdir(DIR=>$sandbox);
   print STDERR "checking file: $file\n" if defined $ENV{'DEBUG'};
-  open(NAME, '>:utf8', "$temp_dir/name");
+  open(NAME, '>', "$temp_dir/name");
     print NAME $file;
   close NAME;
   my $file_size = -s $file;
