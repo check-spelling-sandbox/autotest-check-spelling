@@ -51,11 +51,11 @@ is(CheckSpelling::SummaryTables::github_blame(
     'child/README.md', 1), "https://github.com/another/place/blame/$ref/README.md#L1");
 
 my $oldIn = *ARGV;
-my $text = 'file.yml:1:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (unsupported-configuration)
-file.yml:2:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:3:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:4:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:5:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (some-configuration)
+my $text = 'file.yml:1:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (unsupported-configuration)
+file.yml:2:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:3:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:4:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:5:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (some-configuration)
 
 ';
 $ENV{'GITHUB_HEAD_REF'} = 'test-ref';
@@ -77,14 +77,14 @@ is($stdout, "<details><summary>Details :mag_right:</summary>
 
 note|path
 -|-
-Unsupported configuration: use_sarif needs security-events: write. | https://github.com/owner/example/blame/$head/file.yml#L5
+Unsupported configuration: use_sarif needs security-events: write | https://github.com/owner/example/blame/$head/file.yml#L5
 </details>
 
 <details><summary>:open_file_folder: unsupported-configuration</summary>
 
 note|path
 -|-
-Unsupported configuration: use_sarif needs security-events: write. | https://github.com/owner/example/blame/$head/file.yml#L1
+Unsupported configuration: use_sarif needs security-events: write | https://github.com/owner/example/blame/$head/file.yml#L1
 </details>
 
 
@@ -93,9 +93,9 @@ Unsupported configuration: use_sarif needs security-events: write. | https://git
 ");
 is($stderr, "Summary Tables budget: 600
 Summary Tables budget reduced to: 538
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-Summary Tables budget reduced to: 284
-Summary Tables budget reduced to: 23
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+Summary Tables budget reduced to: 285
+Summary Tables budget reduced to: 25
 ");
 is($result, 1);
 close $input;
@@ -107,9 +107,9 @@ CheckSpelling::SummaryTables::main();
 };
 is($stderr, q<Summary Tables budget: 100
 Summary Tables budget reduced to: 38
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary. (summary-table-skipped)
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary (summary-table-skipped)
 >);
 is($stdout, '');
 is($result, 0);
@@ -122,9 +122,9 @@ CheckSpelling::SummaryTables::main();
 };
 is($stderr, q<Summary Tables budget: 100
 Summary Tables budget reduced to: 38
-::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary. (summary-table-skipped)
-::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary. (summary-table-skipped)
+::warning title=summary-table::Details for 'alternate-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'some-configuration' too big to include in Step Summary (summary-table-skipped)
+::warning title=summary-table::Details for 'unsupported-configuration' too big to include in Step Summary (summary-table-skipped)
 >);
 is($stdout, '');
 is($result, 0);

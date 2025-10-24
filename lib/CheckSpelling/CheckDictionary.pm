@@ -9,7 +9,7 @@ sub process_line {
     if ($ignore_pattern ne '' && $line =~ /^.*?($ignore_pattern+)/) {
         my ($left, $right) = ($-[1] + 1, $+[1] + 1);
         my $column_range="$left ... $right";
-        return ('', "$file:$.:$column_range, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)\n");
+        return ('', "$file:$.:$column_range, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)\n");
     }
     return ($line, '');
 }

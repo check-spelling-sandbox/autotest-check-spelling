@@ -550,10 +550,10 @@ sub main {
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($item);
           my $reason = 'unrecognized-spelling';
           $reason .= "-$kind" unless $kind eq 'file';
-          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word. ($reason)/;
+          $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word ($reason)/;
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
         } else {
-          if ($warning =~ /\`(.*?)\` in line\. \(token-is-substring\)/) {
+          if ($warning =~ /\`(.*?)\` in line \(token-is-substring\)/) {
             next if skip_item($1);
           }
           count_warning $warning;
@@ -569,7 +569,7 @@ sub main {
         if ($warning =~ m/:(\d+ \.\.\. \d+): `(.*)`/) {
           my ($range, $item) = ($1, $2);
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($item);
-          $warning =~ s/:\d+ \.\.\. \d+: `.*`/:$range, Warning - $wrapped is not a recognized word. (check-file-path)/;
+          $warning =~ s/:\d+ \.\.\. \d+: `.*`/:$range, Warning - $wrapped is not a recognized word (check-file-path)/;
           next if skip_item($item);
           if (defined $unknown_file_word_limit) {
             next if ++$unknown_file_word_count{$item} > $unknown_file_word_limit;
@@ -594,7 +594,7 @@ sub main {
       my $warning_count = $seen{$warned_word} || 0;
       next unless $warning_count >= $unknown_word_limit;
       my $warning = $last_seen{$warned_word};
-      $warning =~ s/\Q. (unrecognized-spelling)\E/ -- found $warning_count times. (limited-references)\n/;
+      $warning =~ s/\Q (unrecognized-spelling)\E/ -- found $warning_count times (limited-references)\n/;
       next if should_skip_warning $warning;
       print WARNING_OUTPUT $warning;
       count_warning $warning;
