@@ -51,11 +51,11 @@ is(CheckSpelling::SummaryTables::github_blame(
     'child/README.md', 1), "https://github.com/another/place/blame/$ref/README.md#L1");
 
 my $oldIn = *ARGV;
-my $text = 'file.yml:1:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (unsupported-configuration)
-file.yml:2:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:3:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:4:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (alternate-configuration)
-file.yml:5:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write. (some-configuration)
+my $text = 'file.yml:1:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (unsupported-configuration)
+file.yml:2:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:3:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:4:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (alternate-configuration)
+file.yml:5:1 ... 1, Warning - Unsupported configuration: use_sarif needs security-events: write (some-configuration)
 
 ';
 $ENV{'GITHUB_HEAD_REF'} = 'test-ref';
@@ -77,14 +77,14 @@ is($stdout, "<details><summary>Details :mag_right:</summary>
 
 note|path
 -|-
-Unsupported configuration: use_sarif needs security-events: write. | https://github.com/owner/example/blame/$head/file.yml#L5
+Unsupported configuration: use_sarif needs security-events: write | https://github.com/owner/example/blame/$head/file.yml#L5
 </details>
 
 <details><summary>:open_file_folder: unsupported-configuration</summary>
 
 note|path
 -|-
-Unsupported configuration: use_sarif needs security-events: write. | https://github.com/owner/example/blame/$head/file.yml#L1
+Unsupported configuration: use_sarif needs security-events: write | https://github.com/owner/example/blame/$head/file.yml#L1
 </details>
 
 
