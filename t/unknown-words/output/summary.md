@@ -154,7 +154,7 @@ note|path
 
 note|path
 -|-
-Ignoring entry because it contains non-alpha characters. | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
+Ignoring entry because it contains non-alpha characters | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
 </details>
 
 <details><summary>:open_file_folder: unrecognized-spelling</summary>

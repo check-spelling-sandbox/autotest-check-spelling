@@ -35,7 +35,7 @@ is($line, 'hello', 'valid entry (result)');
 
 $ENV{comment_char} = '$';
 ($line, $warning) = CheckSpelling::CheckDictionary::process_line($filepath, "hello#123");
-is($warning, "$filepath:10:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
+is($warning, "$filepath:10:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 ", 'invalid entry (warning)');
 is($line, '', 'invalid entry (result)');
 
@@ -53,7 +53,7 @@ my ($stdout, $stderr, @results);
   system("$spellchecker/wrappers/check-dictionary", $filepath)
 };
 is($stdout, '', 'wrappers/check-dictionary (stdout)');
-is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
+is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 $filename:2:0 ... 6, Warning - Entry has inconsistent line endings (unexpected-line-ending)
 $filename:3:0 ... 7, Warning - Entry has inconsistent line endings (unexpected-line-ending)
 ", 'wrappers/check-dictionary (stderr)');
@@ -88,7 +88,7 @@ SKIP: {
   };
 
   is($stdout, '', 'wrappers/check-dictionary (stdout)');
-  is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
+  is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 $filename:2:0 ... 6, Warning - Entry has inconsistent line endings (unexpected-line-ending)
 $filename:3:0 ... 7, Warning - Entry has inconsistent line endings (unexpected-line-ending)
 ", 'wrappers/check-dictionary (stderr)');
