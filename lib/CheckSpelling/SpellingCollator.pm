@@ -560,7 +560,7 @@ sub main {
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
           count_warning $warning if $kind ne 'file';
         } else {
-          if ($warning =~ /\`(.*?)\` in line\. \(token-is-substring\)/) {
+          if ($warning =~ /\`(.*?)\` in line \(token-is-substring\)/) {
             next if skip_item($1);
           }
           count_warning $warning;
