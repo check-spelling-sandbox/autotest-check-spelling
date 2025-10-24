@@ -92,7 +92,7 @@ sub main {
         my $file_path = "$summary_tables/$table_file";
         my $cost = $header_length + $footer_length + -s $file_path;
         if ($budget && ($budget < $cost)) {
-            print STDERR "::warning title=summary-table::Details for '$table_file' too big to include in Step Summary. (summary-table-skipped)\n";
+            print STDERR "::warning title=summary-table::Details for '$table_file' too big to include in Step Summary (summary-table-skipped)\n";
             next;
         }
         open $table, "<", $file_path;
