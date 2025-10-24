@@ -419,7 +419,7 @@ sub split_file {
       }
       $_ = decode_utf8($_, FB_DEFAULT);
       if (/[\x{D800}-\x{DFFF}]/) {
-        skip_file($temp_dir, "file contains a UTF-16 surrogate. This is not supported. (utf16-surrogate-file)\n");
+        skip_file($temp_dir, "file contains a UTF-16 surrogate -- UTF-16 surrogates are not supported (utf16-surrogate-file)\n");
         last;
       }
       s/\R$//;
