@@ -2,17 +2,17 @@
 
 Downloaded https://raw.githubusercontent.com/CHECK-SPELLING/CHECK-SPELLING/dictionary-20200211/dict.txt (to ...)
 Retrieved extra:elvish.txt
-WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).`. (forbidden-pattern)
-WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters. (non-alpha-in-dictionary)
-WORKSPACE/t/unknown-words.pr/config/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect. (ignored-expect-variant)
-WORKSPACE/t/unknown-words.pr/config/patterns.txt:1:1 ... 2, Warning - Quantifier follows nothing: `+`. (bad-regex)
-unknown-words/input/sample.file:1:21 ... 32, Error - `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b`. (forbidden-pattern)
-unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word. (unrecognized-spelling)
-unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word. (unrecognized-spelling)
-unknown-words/input/sample.file:2:17 ... 21, Error - `fixx` is not a recognized word. (unrecognized-spelling)
-unknown-words/input/sample.file:2:22 ... 27, Error - `thiss` is not a recognized word. (unrecognized-spelling)
-unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word. (unrecognized-spelling)
-unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word. (unrecognized-spelling)
+WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns entry: `(?![A-Z]|[a-z]|'|\s|=).` (forbidden-pattern)
+WORKSPACE/t/unknown-words.pr/config/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
+WORKSPACE/t/unknown-words.pr/config/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect (ignored-expect-variant)
+WORKSPACE/t/unknown-words.pr/config/patterns.txt:1:1 ... 2, Warning - Quantifier follows nothing: `+` (bad-regex)
+unknown-words/input/sample.file:1:21 ... 32, Error - `sample.file` matches a line_forbidden.patterns entry: `\bsample\.file\b` (forbidden-pattern)
+unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:2:17 ... 21, Error - `fixx` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:2:22 ... 27, Error - `thiss` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word (unrecognized-spelling)
 Summary Tables budget: INITIAL_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET

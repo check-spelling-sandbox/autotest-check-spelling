@@ -346,7 +346,7 @@ sub split_file {
   if (defined $largest_file) {
     unless ($check_file_names eq $file) {
       if ($file_size > $largest_file) {
-        skip_file($temp_dir, "size `$file_size` exceeds limit `$largest_file`. (large-file)\n");
+        skip_file($temp_dir, "size `$file_size` exceeds limit `$largest_file` (large-file)\n");
         return $temp_dir;
       }
     }
@@ -366,7 +366,7 @@ sub split_file {
       my $file_kind = <$file_fh>;
       close $file_fh;
       if ($file_kind =~ /^(.*?); charset=binary/) {
-        skip_file($temp_dir, "it appears to be a binary file (`$1`). (binary-file)\n");
+        skip_file($temp_dir, "it appears to be a binary file (`$1`) (binary-file)\n");
         return $temp_dir;
       }
     }
@@ -412,14 +412,14 @@ sub split_file {
       if ($. == 1) {
         unless ($disable_minified_file) {
           if ($file_size >= 512 && length($_) == $file_size) {
-            skip_file($temp_dir, "file is a single line file. (single-line-file)\n");
+            skip_file($temp_dir, "file only has a single line (single-line-file)\n");
             last;
           }
         }
       }
       $_ = decode_utf8($_, FB_DEFAULT);
       if (/[\x{D800}-\x{DFFF}]/) {
-        skip_file($temp_dir, "file contains a UTF-16 surrogate. This is not supported. (utf16-surrogate-file)\n");
+        skip_file($temp_dir, "file contains a UTF-16 surrogate -- UTF-16 surrogates are not supported (utf16-surrogate-file)\n");
         last;
       }
       s/\R$//;
@@ -458,9 +458,9 @@ sub split_file {
           if ($found_trigger_re) {
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
             my $quoted_trigger_re = CheckSpelling::Util::wrap_in_backticks($found_trigger_re);
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re. (forbidden-pattern)\n";
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
           } else {
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry. (forbidden-pattern)\n";
+            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry (forbidden-pattern)\n";
           }
           $previous_line_state = $_;
         }
@@ -501,7 +501,7 @@ sub split_file {
           } else {
             my $offset = $line_length + 1;
             my $wrapped = CheckSpelling::Util::wrap_in_backticks($raw_token);
-            print WARNINGS ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line. (token-is-substring)\n";
+            print WARNINGS ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line (token-is-substring)\n";
           }
         }
       }
@@ -531,7 +531,7 @@ sub split_file {
         my $ratio = int($offset / $.);
         my $ratio_threshold = 1000;
         if ($ratio > $ratio_threshold) {
-          skip_file($temp_dir, "average line width ($ratio) exceeds the threshold ($ratio_threshold). (minified-file)\n");
+          skip_file($temp_dir, "average line width ($ratio) exceeds the threshold ($ratio_threshold) (minified-file)\n");
         }
       }
     }
@@ -540,8 +540,8 @@ sub split_file {
   };
   if ($@) {
     die unless $@ eq "alarm\n";
-    print WARNINGS ":$.:1 ... 1, Warning - Could not parse file within time limit. (slow-file)\n";
-    skip_file($temp_dir, "could not parse file within time limit. (slow-file)\n");
+    print WARNINGS ":$.:1 ... 1, Warning - Could not parse file within time limit (slow-file)\n";
+    skip_file($temp_dir, "could not parse file within time limit (slow-file)\n");
   }
 
   close FILE;
