@@ -576,7 +576,7 @@ sub main {
         if ($warning =~ m/:(\d+ \.\.\. \d+): `(.*)`/) {
           my ($range, $item) = ($1, $2);
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($item);
-          $warning =~ s/:\d+ \.\.\. \d+: `.*`/:$range, Warning - $wrapped is not a recognized word. (check-file-path)/;
+          $warning =~ s/:\d+ \.\.\. \d+: `.*`/:$range, Warning - $wrapped is not a recognized word (check-file-path)/;
           next if skip_item($item);
           if (defined $unknown_file_word_limit) {
             next if ++$unknown_file_word_count{$item} > $unknown_file_word_limit;
