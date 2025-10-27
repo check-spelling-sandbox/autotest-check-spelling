@@ -105,6 +105,10 @@ runs:
       ssh-user: ${{ inputs.ssh-user }}
       submodules: ${{ inputs.submodules }}
       token: ${{ inputs.token }}
+    env:
+      GIT_CURL_VERBOSE: True
+      GIT_TRACE: True
+      GIT_SSH_COMMAND: ssh -v -v -v
   - name: Restore silly message
     if: steps.quiet.outputs.cleanup
     shell: bash
