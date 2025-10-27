@@ -541,7 +541,7 @@ sub split_file {
   if ($@) {
     die unless $@ eq "alarm\n";
     print WARNINGS ":$.:1 ... 1, Warning - Could not parse file within time limit (slow-file)\n";
-    skip_file($temp_dir, "could not parse file within time limit (slow-file)\n");
+    skip_file($temp_dir, "it could not be parsed file within time limit (slow-file)\n");
   }
 
   close FILE;
