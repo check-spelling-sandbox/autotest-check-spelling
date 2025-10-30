@@ -7,7 +7,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 41;
+plan tests => 43;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -317,6 +317,20 @@ $file_names:3:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-
 ");
 
 delete $ENV{'unknown_word_limit'};
+
+$directory = stage_test($file_names, '{words: 3, unrecognized: 5, unknown: 8, unique: 2}', '', "
+:1:1 ... 4: `apple`
+:2:1 ... 4: `apple`
+:3:1 ... 4: `apple`
+:4:1 ... 4: `apple`
+:5:1 ... 4: `apple`
+:6:1 ... 4: `apple`
+");
+($output, $error_lines) = run_test($directory);
+check_output_file($warning_output, "$file_names:1:1 ... 1, Warning - Skipping `$file_names` because it seems to have more noise (8) than unique words (2) (total: 5 / 3). (noisy-file)
+");
+check_output_file($more_warnings, "");
+
 $ENV{'pr_title_file'} = $file_names;
 $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', "
 :1:1 ... 4: `apple`
