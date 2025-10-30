@@ -389,10 +389,10 @@ sub main {
       next;
     }
 
-    push @directories, $directory;
     # stats isn't written if there was nothing interesting in the file
     unless (-s "$directory/stats") {
       report_timing($file, $start_time, $directory, 'warnings') if ($timing_report);
+      push @directories, $directory;
       next;
     }
 
@@ -465,9 +465,11 @@ sub main {
         my $warning = "noisy-$kind";
         count_warning $warning;
         push @delayed_warnings, "$file:1:1 ... 1, Warning - Skipping `$file` because it seems to have more noise ($unknown) than unique words ($unique) (total: $unrecognized / $words). ($warning)\n";
+        push @cleanup_directories, $directory;
         next;
       }
     }
+    push @directories, $directory;
     unless ($kind =~ /^file/ && -s "$directory/unknown") {
       next;
     }
