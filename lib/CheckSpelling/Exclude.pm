@@ -17,7 +17,7 @@ sub file_to_re {
     local $/=undef;
     my $file=<FILE>;
     for (split /\R/, $file) {
-      next if /^#/;
+      next if /^(?:#|$)/;
       s/^\s*(.*)\s*$/(?:$1)/;
       s/\\Q(.*?)\\E/quotemeta($1)/eg;
       push @items, $_;

@@ -13,6 +13,7 @@ my ($fh, $filename) = tempfile();
 binmode( $fh, ":utf8" );
 print $fh '# ignore
 line
+
 \Qx.y\E
 ';
 close $fh;
