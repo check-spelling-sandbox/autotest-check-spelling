@@ -1240,6 +1240,9 @@ define_variables() {
   job_id_ref="$data_dir/job_id_ref.txt"
   jobs_summary_link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT"
   extra_dictionaries_json="$data_dir/suggested_dictionaries.json"
+  dictionary_source_prefixes_json="$data_dir/dictionary_source_prefixes.json"
+  check_extra_dictionaries_list="$data_dir/check_extra_dictionaries.list"
+  extra_dictionaries_list="$data_dir/extra_dictionaries.list"
   export sarif_overlay_path="$data_dir/overlay.sarif.json"
   file_list="$data_dir/checked_files.lst"
   BODY="$data_dir/comment.md"
@@ -2307,6 +2310,14 @@ set_up_files() {
       fi
       end_group
     fi
+    write_non_empty_item() {
+      if [ -n "$1" ]; then
+        echo "$1" > "$2"
+      fi
+    }
+    write_non_empty_item "$INPUT_CHECK_EXTRA_DICTIONARIES" "$check_extra_dictionaries_list"
+    write_non_empty_item "$INPUT_EXTRA_DICTIONARIES" "$extra_dictionaries_list"
+    write_non_empty_item "$INPUT_DICTIONARY_SOURCE_PREFIXES" "$dictionary_source_prefixes_json"
     get_project_files dictionary_additions.words "$allow_path"
     get_project_files allow.txt "$allow_path"
     if [ -s "$allow_path" ]; then
@@ -2327,6 +2338,16 @@ set_up_files() {
     fi
     get_project_files line_forbidden.patterns "$forbidden_path"
     get_project_files candidate.patterns "$candidates_path"
+  else
+    if [ -s "$check_extra_dictionaries_list" ]; then
+      export INPUT_DICTIONARY_SOURCE_PREFIXES=$(cat "$dictionary_source_prefixes_json")
+    fi
+    if [ -s "$check_extra_dictionaries_list" ]; then
+      export INPUT_CHECK_EXTRA_DICTIONARIES=$(cat "$check_extra_dictionaries_list")
+    fi
+    if [ -s "$extra_dictionaries_list" ]; then
+      export INPUT_EXTRA_DICTIONARIES=$(cat "$extra_dictionaries_list")
+    fi
   fi
   extra_dictionaries_cover_entries="$(mktemp)"
   get_project_files line_masks.patterns "$patterns_path"
