@@ -1516,6 +1516,7 @@ github_step_summary_warning() {
 
 github_step_summary_likely_fatal() {
   github_step_summary_kind "$1" "$2" "$3" 'stop_sign'
+  offer_quote_reply_cached=0
 }
 
 github_step_summary_likely_fatal_event() {
