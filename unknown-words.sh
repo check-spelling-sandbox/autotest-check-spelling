@@ -1531,17 +1531,6 @@ github_step_summary_dictionaries_failed() {
   failed_dictionaries=$(cat $failed_dictionaries_dir/* 2>/dev/null)
   message="Problems were encountered retrieving $1 dictionaries ($(echo "${failed_dictionaries:-$2}"|xargs))."
 
-  if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
-    message=$(echo "
-    $message
-
-    This workflow is running from a ${b}pull_request_target${b} event. In order to test changes to
-    dictionaries, you will need to use a workflow that is **not** associated with a ${b}pull_request${b} as
-    pull_request_target relies on the configuration of the destination branch, not the branch which
-    you are changing.
-    " | strip_lead)
-  fi
-
   dictionary_not_found="$1-dictionary-not-found"
   echo -n '#' >> "$delay_step_summary_warnings"
   if [ "$1" = extra ]; then
@@ -3266,8 +3255,33 @@ spelling_body() {
     else
       details_heading=""
     fi
+    if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ] &&
+       [ -n "$workflow_path" ] &&
+      [ -s "$workflow_path" ]; then
+      workflow_head_content_file=$(mktemp)
+      git fetch origin "$(jq -r '.pull_request.head.sha // empty' "$GITHUB_EVENT_PATH")":refs/private/check-spelling-head &&
+      git show "refs/private/check-spelling-head:$workflow_path" > "$workflow_head_content_file" || true
+      if [ -s "$workflow_head_content_file" ] && [ "$(cat "$workflow_head_content_file" |shasum)" != "$(cat "$workflow_path" | shasum )" ]; then
+        for token in $INPUT_CHECK_EXTRA_DICTIONARIES $INPUT_EXTRA_DICTIONARIES $(echo "$INPUT_DICTIONARY_SOURCE_PREFIXES" | jq -r 'values|.[]' 2>/dev/null || true); do
+          if [ $(grep -c "$token" "$workflow_head_content_file") -ne $(grep -c "$token" "$workflow_path") ]; then
+            warn_about_changing_workflow_dictionaries=1
+            break
+          fi
+        done
+        if [ -n "$warn_about_changing_workflow_dictionaries" ]; then
+          workflow_changes_to_dictionary_warning=$(echo "
+          ###### :warning: Workflow changes to dictionary configuration are ignored in pull requests
+
+          This workflow is running from a ${b}pull_request_target${b} event. In order to test changes to
+          dictionaries, you will need to use a workflow that is **not** associated with a ${b}pull_request${b} as
+          ${b}pull_request_target${b} relies on the configuration of the destination branch, not the branch which
+          you are changing.
+          " | strip_lead)
+        fi
+      fi
+    fi
     step_summary_warnings="$(flush_step_summary_warnings)"
-    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
+    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice$workflow_changes_to_dictionary_warning
       " | perl -pe 's/^\s+$/\n/;'| uniq)
 }
 
