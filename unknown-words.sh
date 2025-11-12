@@ -2957,9 +2957,6 @@ spelling_body() {
         sarif_report="$sarif_report [:rotating_light: alerts]($code_scanning_results_url),"
       fi
     fi
-    or_markdown=','
-  else
-    or_markdown=' or'
   fi
 
   case "$GITHUB_EVENT_NAME" in
