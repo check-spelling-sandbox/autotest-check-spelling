@@ -123,6 +123,7 @@ sub wrap_in_backticks {
     $longest = $length if $length > $longest;
   }
   my $q = '`'x ($longest + 1);
+  $a = " $a " if ($a =~ m<^`|`$>);
   return "$q$a$q";
 }
 
