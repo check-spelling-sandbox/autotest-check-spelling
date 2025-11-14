@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 47;
+plan tests => 48;
 use_ok('CheckSpelling::Util');
 
 $ENV{'EMPTY_VAR'}='';
@@ -205,6 +205,7 @@ my @expected_sort = qw(
 @sorted = sort CheckSpelling::Util::number_biased @unsorted;
 is_deeply(\@sorted, \@expected_sort, 'sorting with number_biased');
 
-is(CheckSpelling::Util::wrap_in_backticks('this'), '`this`');
-is(CheckSpelling::Util::wrap_in_backticks('this `thing` is good'), '``this `thing` is good``');
-is(CheckSpelling::Util::wrap_in_backticks('this `thing` is ``very`` good'), '```this `thing` is ``very`` good```');
+is(CheckSpelling::Util::wrap_in_backticks('`this'), '`` `this ``', 'leading backtick');
+is(CheckSpelling::Util::wrap_in_backticks('this'), '`this`', 'basic string');
+is(CheckSpelling::Util::wrap_in_backticks('this `thing` is good'), '``this `thing` is good``', 'nested backticks');
+is(CheckSpelling::Util::wrap_in_backticks('this `thing` is ``very`` good'), '```this `thing` is ``very`` good```', 'many backticks');
