@@ -221,6 +221,6 @@ check_for_submodules
 
 (
   echo '## Checkout Failed'
-  echo '😕 check-spelling is not familiar with this failure case, please file a 🐛 bug (checkout-failed-unknown-cause)'
+  echo '😕 check-spelling is not familiar with this failure case, please [review the list of known 🐛 bugs](https://github.com/check-spelling/check-spelling/issues?q=is%3Aissue%20checkout-failed-unknown-cause) and if you cannot find one that matches this case, please [file a 🐛 bug (checkout-failed-unknown-cause)](https://github.com/check-spelling/check-spelling/issues/new?title=%5Bcheckout-failed-unknown-cause%5D%20scenario&body=Please%20provide%20details+preferably%20including%20a%20link%20to%20a%20workflow%20run,%20the%20configuration%20of%20the%20repository,%20and%20anything%20else%20you%20may%20know%20about%20the%20problem%2e)'
 ) >> "$GITHUB_STEP_SUMMARY"
 exit 1
