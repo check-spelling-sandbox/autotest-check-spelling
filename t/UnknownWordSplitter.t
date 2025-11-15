@@ -11,9 +11,10 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 49;
+plan tests => 50;
 
 use_ok('CheckSpelling::UnknownWordSplitter');
+use_ok('CheckSpelling::Exclude');
 
 sub read_file {
     my ($file) = @_;
@@ -50,7 +51,7 @@ BROADDEPlay
 
 bar";
 close $fh;
-is(CheckSpelling::UnknownWordSplitter::file_to_re($filename), "(?:foo)|(?:Mooprh)|(?:BROADDEPlay)|(?:bar)");
+is(CheckSpelling::Exclude::file_to_re($filename), "(?:foo)|(?:Mooprh)|(?:BROADDEPlay)|(?:bar)");
 $CheckSpelling::UnknownWordSplitter::word_match = CheckSpelling::UnknownWordSplitter::valid_word();
 is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:\w|'){3,}\b)>);
 $CheckSpelling::UnknownWordSplitter::shortest=100;
