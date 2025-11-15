@@ -95,11 +95,6 @@ sub list_to_re {
   return join "|", (@list);
 }
 
-sub file_to_re {
-  my ($re) = @_;
-  return list_to_re(file_to_list($re));
-}
-
 sub not_empty {
   my ($thing) = @_;
   return defined $thing && $thing ne ''
