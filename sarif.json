@@ -362,6 +362,32 @@
               }
             },
             {
+              "id": "duplicate-pattern",
+              "name": "DuplicatePattern",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#duplicate-pattern",
+              "shortDescription": {
+                "text": "Duplicate Pattern"
+              },
+              "fullDescription": {
+                "text": "Identical pattern appears more than once."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct the [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n- See [duplicate-pattern](https://docs.check-spelling.dev/Event-descriptions#duplicate-pattern)\n- Remove duplicates of the pattern -- leaving at most one copy.\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "warning",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "bad-regex",
               "name": "BadRegex",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#bad-regex",

@@ -11,7 +11,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 59;
+plan tests => 62;
 
 use_ok('CheckSpelling::UnknownWordSplitter');
 use_ok('CheckSpelling::Exclude');
@@ -83,6 +83,11 @@ print $fh '# forbidden
 
 # Flag duplicated "words"
 \s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\s\g{-1}\s
+
+# other
+\bdonut\b
+
+\ba b c d e f\b
 ';
 close $fh;
 %CheckSpelling::UnknownWordSplitter::dictionary = ();
@@ -176,9 +181,12 @@ fruit
 grape
 ';
 close $fh;
-CheckSpelling::UnknownWordSplitter::init($dirname);
+my ($stdout, $stderr, @result) = capture { CheckSpelling::UnknownWordSplitter::init($dirname); };
+is($stdout, '', 'duplicate-pattern output');
+is($stderr, $dirname.'/forbidden.txt:9:1 ... 9, Warning - duplicate pattern: `\bdonut\b` (duplicate-pattern)'."\n", 'duplicate-pattern warning');
+is(@result, 1, 'duplicate-pattern result');
 ($fh, $filename) = tempfile();
-print $fh "banana cherry
+print $fh "banana cherry a b c d e f
 cherry fruit fruit egg
 fruit donut grape donut banana
 egg \xE2\x80\x99ham
@@ -187,10 +195,11 @@ grape
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/name", $filename, 'name');
-check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1], forbidden_lines: [3:7:12,2:7:20]}', 'stats');
-check_output_file_sorted_lines("$output_dir/warnings", ":2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns entry: `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s` (forbidden-pattern)
-:3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
-:3:7 ... 12, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
+check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1,1], forbidden_lines: [3:7:12,2:7:20,1:15:26]}', 'stats');
+check_output_file_sorted_lines("$output_dir/warnings", ":1:15 ... 26, Warning - `a b c d e f` matches a line_forbidden.patterns entry: `\\ba b c d e f\\b` (forbidden-pattern)
+:2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns rule: Flag duplicated \"words\" - `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s` (forbidden-pattern)
+:3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns rule: forbidden - `\\bdonut\\b` (forbidden-pattern)
+:3:7 ... 12, Warning - `donut` matches a line_forbidden.patterns rule: forbidden - `\\bdonut\\b` (forbidden-pattern)
 :4:6 ... 9: `ham`
 ", 'warnings');
 check_output_file("$output_dir/unknown", 'ham
@@ -213,7 +222,7 @@ select $oldFH;
 ok($output_directory =~ /.*\n/, 'output directory');
 chomp($output_directory);
 ok(-d $output_directory, 'output directory exists');
-check_output_file("$output_directory/stats", '{words: 13, unrecognized: 1, unknown: 1, unique: 6, candidates: [0,1], candidate_lines: [0,4:6:9], forbidden: [0,0], forbidden_lines: [0,0]}', 'stats');
+check_output_file("$output_directory/stats", '{words: 13, unrecognized: 1, unknown: 1, unique: 6, candidates: [0,1], candidate_lines: [0,4:6:9], forbidden: [0,0,0], forbidden_lines: [0,0,0]}', 'stats');
 check_output_file_sorted_lines("$output_directory/warnings", ":4:6 ... 9: `ham`
 ", 'warnings');
 check_output_file("$output_directory/unknown", 'ham
@@ -262,7 +271,7 @@ sub init_maybe_hunspell_unavailable {
     return ($stdout, $stderr, @result);
 }
 
-my ($stdout, $stderr, @result) = init_maybe_hunspell_unavailable();
+($stdout, $stderr, @result) = init_maybe_hunspell_unavailable();
 is($stdout, '', 'hunspell out');
 is($stderr, '', 'hunspell err');
 is(@result, 1, 'hunspell result');
