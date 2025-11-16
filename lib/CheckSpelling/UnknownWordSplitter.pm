@@ -23,6 +23,7 @@ my ($longest_word, $shortest_word, $word_match, $forbidden_re, $patterns_re, $ca
 my ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
 my ($shortest, $longest) = (255, 0);
 my @forbidden_re_list;
+my %forbidden_re_descriptions;
 my @candidates_re_list;
 my $hunspell_dictionary_path;
 my @hunspell_dictionaries;
@@ -58,33 +59,60 @@ sub quote_re {
   return $expression;
 }
 
-sub file_to_list {
+sub file_to_lists {
   my ($re) = @_;
-  my @file;
-  return @file unless open(FILE, '<:utf8', $re);
-
-  local $/=undef;
-  my $file=<FILE>;
-  close FILE;
-  my $line_number = 0;
-  for (split /\R/, $file) {
-    ++$line_number;
-    next if /^#/;
-    chomp;
-    next unless s/^(.+)/(?:$1)/;
-    my $quoted = quote_re($1);
-    if (test_re $quoted) {
-      push @file, $_;
-    } else {
-      my $error = $@;
-      my $home = dirname(__FILE__);
-      $error =~ s/$home.*?\.pm line \d+\./$re line $line_number (bad-regex)/;
-      print STDERR $error;
-      push @file, '(?:\$^ - skipped because bad-regex)';
+  my @patterns;
+  my %hints;
+  my $fh;
+  if (open($fh, '<:utf8', $re)) {
+    local $/=undef;
+    my $file=<$fh>;
+    close $fh;
+    my $line_number = 0;
+    my $hint = '';
+    for (split /\R/, $file) {
+      ++$line_number;
+      chomp;
+      if (/^#(?:\s(.+)|)/) {
+        $hint = $1 if $1 ne '' && $hint eq '';
+        next;
+      }
+      $hint = '' unless $_ ne '';
+      my $pattern = $_;
+      next unless s/^(.+)/(?:$1)/;
+      my $quoted = quote_re($1);
+      unless (test_re $quoted) {
+        my $error = $@;
+        my $home = dirname(__FILE__);
+        $error =~ s/$home.*?\.pm line \d+\./$re line $line_number (bad-regex)/;
+        print STDERR $error;
+        $_ = '(?:\$^ - skipped because bad-regex)';
+        $hint = '';
+      }
+      if (defined $hints{$_}) {
+        my $pattern_length = length $pattern;
+        my $wrapped = CheckSpelling::Util::wrap_in_backticks($pattern);
+        print STDERR "$re:$line_number:1 ... $pattern_length, Warning - duplicate pattern: $wrapped (duplicate-pattern)\n";
+        $_ = '(?:\$^ - skipped because duplicate-pattern on $line_number)';
+      } else {
+        push @patterns, $_;
+        $hints{$_} = $hint;
+      }
+      $hint = '';
     }
   }
 
-  return @file;
+  return {
+    patterns => \@patterns,
+    hints => \%hints,
+  };
+}
+
+sub file_to_list {
+  my ($re) = @_;
+  my $lists = file_to_lists($re);
+
+  return @{$lists->{'patterns'}};
 }
 
 sub list_to_re {
@@ -187,6 +215,7 @@ sub init {
   our $sandbox = CheckSpelling::Util::get_file_from_env('sandbox', '');
   our $hunspell_dictionary_path = CheckSpelling::Util::get_file_from_env('hunspell_dictionary_path', '');
   our $timeout = CheckSpelling::Util::get_val_from_env('splitter_timeout', 30);
+  our %forbidden_re_descriptions;
   if ($hunspell_dictionary_path) {
     our @hunspell_dictionaries = ();
     if (eval 'use Text::Hunspell; 1') {
@@ -208,7 +237,9 @@ sub init {
   }
 
   if (-e "$configuration/forbidden.txt") {
-    @forbidden_re_list = file_to_list "$configuration/forbidden.txt";
+    my $forbidden_re_info = file_to_lists "$configuration/forbidden.txt";
+    @forbidden_re_list = @{$forbidden_re_info->{'patterns'}};
+    %forbidden_re_descriptions = %{$forbidden_re_info->{'hints'}};
     $forbidden_re = list_to_re @forbidden_re_list;
   } else {
     $forbidden_re = undef;
@@ -323,6 +354,7 @@ sub split_file {
     $disable_single_line_file,
     $sandbox,
   );
+  our %forbidden_re_descriptions;
   our ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
 
   # https://www.fileformat.info/info/unicode/char/2019/
@@ -451,9 +483,14 @@ sub split_file {
           }
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($match);
           if ($found_trigger_re) {
+            my $description = $forbidden_re_descriptions{$found_trigger_re} || '';
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
             my $quoted_trigger_re = CheckSpelling::Util::wrap_in_backticks($found_trigger_re);
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
+            if ($description ne '') {
+              print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns rule: $description - $quoted_trigger_re (forbidden-pattern)\n";
+            } else {
+              print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
+            }
           } else {
             print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry (forbidden-pattern)\n";
           }
