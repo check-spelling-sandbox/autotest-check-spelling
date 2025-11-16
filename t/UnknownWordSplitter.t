@@ -11,7 +11,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 50;
+plan tests => 59;
 
 use_ok('CheckSpelling::UnknownWordSplitter');
 use_ok('CheckSpelling::Exclude');
@@ -255,7 +255,17 @@ gunz
 ";
 close $fh;
 $ENV{'dict'} = "$directory/words";
-CheckSpelling::UnknownWordSplitter::init($dirname);
+
+sub init_maybe_hunspell_unavailable {
+    my ($stdout, $stderr, @result) = capture { CheckSpelling::UnknownWordSplitter::init($dirname); };
+    $stderr =~ s/^\QCould not load Text::Hunspell for dictionaries (hunspell-unavailable)\E\n$//;
+    return ($stdout, $stderr, @result);
+}
+
+my ($stdout, $stderr, @result) = init_maybe_hunspell_unavailable();
+is($stdout, '', 'hunspell out');
+is($stderr, '', 'hunspell err');
+is(@result, 1, 'hunspell result');
 delete $ENV{'dict'};
 ($fh, $filename) = tempfile();
 print $fh "bar
@@ -280,14 +290,20 @@ $dirname = tempdir();
 ($fh, $filename) = tempfile();
 print $fh "\x05"x5;
 close $fh;
-CheckSpelling::UnknownWordSplitter::init($dirname);
+($stdout, $stderr, @result) = init_maybe_hunspell_unavailable();
+is($stdout, '', 'hunspell out');
+is($stderr, '', 'hunspell err');
+is(@result, 1, 'hunspell result');
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 is(-e "$output_dir/skipped", undef, 'skipped');
 $dirname = tempdir();
 ($fh, $filename) = tempfile();
 print $fh "\x05"x512;
 close $fh;
-CheckSpelling::UnknownWordSplitter::init($dirname);
+($stdout, $stderr, @result) = init_maybe_hunspell_unavailable();
+is($stdout, '', 'hunspell out');
+is($stderr, '', 'hunspell err');
+is(@result, 1, 'hunspell result');
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 
 check_output_file("$output_dir/skipped", 'file only has a single line (single-line-file)
@@ -303,7 +319,7 @@ sub test_invalid_quantifiers {
   is($output, '(?:\$^ - skipped because bad-regex)', 'bad-regex');
 }
 
-my ($stdout, $stderr, @result) = capture { test_invalid_quantifiers };
+($stdout, $stderr, @result) = capture { test_invalid_quantifiers };
 is($stderr, "Nested quantifiers in regex; marked by <-- HERE in m/.{1,}* <-- HERE / at $filename line 1 (bad-regex)
 ", 'nested quanitifiers bad-regex');
 open $fh, '>:utf8', $filename;
