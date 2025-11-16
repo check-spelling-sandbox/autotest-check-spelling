@@ -28,9 +28,9 @@ sub read_file {
 }
 
 sub check_output_file {
-    my ($file, $expected) = @_;
+    my ($file, $expected, $test) = @_;
     my $content = read_file($file);
-    is($content, $expected);
+    is($content, $expected, $test);
 }
 
 sub sort_lines {
@@ -39,8 +39,8 @@ sub sort_lines {
 }
 
 sub check_output_file_sorted_lines {
-    my ($file, $expected) = @_;
-    is(sort_lines(read_file($file)), sort_lines($expected));
+    my ($file, $expected, $test) = @_;
+    is(sort_lines(read_file($file)), sort_lines($expected), 'sorted: '.($test || '...'));
 }
 
 $ENV{splitter_timeout} = 300000;
@@ -51,21 +51,21 @@ BROADDEPlay
 
 bar";
 close $fh;
-is(CheckSpelling::Exclude::file_to_re($filename), "(?:foo)|(?:Mooprh)|(?:BROADDEPlay)|(?:bar)");
+is(CheckSpelling::Exclude::file_to_re($filename), "(?:foo)|(?:Mooprh)|(?:BROADDEPlay)|(?:bar)", 'file_to_re');
 $CheckSpelling::UnknownWordSplitter::word_match = CheckSpelling::UnknownWordSplitter::valid_word();
-is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:\w|'){3,}\b)>);
+is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:\w|'){3,}\b)>, 'word_match');
 $CheckSpelling::UnknownWordSplitter::shortest=100;
 $CheckSpelling::UnknownWordSplitter::longest="";
 CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
-is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4);
-is($CheckSpelling::UnknownWordSplitter::shortest, 3);
-is($CheckSpelling::UnknownWordSplitter::longest, 13);
-is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:[A-Z]|[a-z]|'){3,13}\b)>);
+is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4, 'load dictionary with shortest=100');
+is($CheckSpelling::UnknownWordSplitter::shortest, 3, 'calculate shortest');
+is($CheckSpelling::UnknownWordSplitter::longest, 13, 'calculate longest');
+is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:[A-Z]|[a-z]|'){3,13}\b)>, 'word_match');
 $ENV{'INPUT_LONGEST_WORD'} = 5;
 $ENV{'INPUT_SHORTEST_WORD'} = '';
 CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
-is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4);
-is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:[A-Z]|[a-z]|\'){3,5}\b)');
+is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4, 'load dictionary with ongest=5');
+is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:[A-Z]|[a-z]|\'){3,5}\b)', 'word_match');
 my $directory = tempdir();
 open $fh, '>:utf8', "$directory/words";
 print $fh 'bar
@@ -91,21 +91,21 @@ open(my $outputFH, '>', \$output_directory) or die; # This shouldn't fail
 my $oldFH = select $outputFH;
 CheckSpelling::UnknownWordSplitter::main($directory, ($filename));
 select $oldFH;
-ok($output_directory =~ /.*\n/);
+ok($output_directory =~ /.*\n/, 'output directory');
 chomp($output_directory);
-ok(-d $output_directory);
-check_output_file("$output_directory/name", $filename);
-check_output_file("$output_directory/stats", '{words: 2, unrecognized: 1, unknown: 1, unique: 2}');
+ok(-d $output_directory, 'output directory exists');
+check_output_file("$output_directory/name", $filename, 'name');
+check_output_file("$output_directory/stats", '{words: 2, unrecognized: 1, unknown: 1, unique: 2}', 'stats');
 check_output_file("$output_directory/unknown", 'Play
-');
+', 'unknown');
 check_output_file("$output_directory/warnings", ":3:8 ... 12: `Play`
-");
+", 'warnings');
 open $fh, '>:utf8', $filename;
 print $fh ("bar "x1000)."\n\n";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", 'average line width (4001) exceeds the threshold (1000) (minified-file)
-');
+', 'minified-file');
 open $fh, '>:utf8', $filename;
 print $fh "FooBar baz Bar elf baz bar supercalifragelisticexpialidocious
 FooBarBar
@@ -114,32 +114,32 @@ close $fh;
 $CheckSpelling::UnknownWordSplitter::forbidden_re='FooBarBar';
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 $CheckSpelling::UnknownWordSplitter::forbidden_re='$^';
-check_output_file("$output_dir/name", $filename);
-check_output_file("$output_dir/stats", '{words: 4, unrecognized: 3, unknown: 2, unique: 2}');
+check_output_file("$output_dir/name", $filename, 'name');
+check_output_file("$output_dir/stats", '{words: 4, unrecognized: 3, unknown: 2, unique: 2}', 'stats');
 check_output_file_sorted_lines("$output_dir/warnings", ":1:8 ... 11: `baz`
 :1:20 ... 23: `baz`
 :1:16 ... 19: `elf`
 :2:1 ... 10, Warning - `FooBarBar` matches a line_forbidden.patterns entry (forbidden-pattern)
-");
+", 'forbidden-pattern');
 check_output_file("$output_dir/unknown", 'baz
 elf
-');
+', 'unknown');
 
 $CheckSpelling::UnknownWordSplitter::largest_file = 1;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 $CheckSpelling::UnknownWordSplitter::forbidden_re='$^';
-check_output_file("$output_dir/name", $filename);
-check_output_file("$output_dir/stats", undef);
+check_output_file("$output_dir/name", $filename, 'name');
+check_output_file("$output_dir/stats", undef, 'stats');
 check_output_file("$output_dir/skipped", "size `72` exceeds limit `1` (large-file)
-");
+", 'skipped: large-file');
 $CheckSpelling::UnknownWordSplitter::largest_file = 1000000;
 $CheckSpelling::UnknownWordSplitter::patterns_re = 'i.';
 $ENV{'INPUT_LONGEST_WORD'} = 8;
 CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
-is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 1);
+is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 1, 'dictionary count');
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/name", $filename);
-check_output_file("$output_dir/stats", '{words: 0, unrecognized: 13, unknown: 8, unique: 0}');
+check_output_file("$output_dir/name", $filename, 'name');
+check_output_file("$output_dir/stats", '{words: 0, unrecognized: 13, unknown: 8, unique: 0}', 'stats');
 check_output_file_sorted_lines("$output_dir/warnings", ":1:1 ... 4: `Foo`
 :1:12 ... 15: `Bar`
 :1:16 ... 19: `elf`
@@ -153,7 +153,7 @@ check_output_file_sorted_lines("$output_dir/warnings", ":1:1 ... 4: `Foo`
 :2:1 ... 4: `Foo`
 :2:4 ... 7: `Bar`
 :2:7 ... 10: `Bar`
-");
+", 'warnings');
 check_output_file("$output_dir/unknown", 'Bar
 bar
 baz
@@ -162,7 +162,7 @@ exp
 Foo
 ragel
 supercal
-');
+', 'unknown');
 $CheckSpelling::UnknownWordSplitter::patterns_re = '$^';
 
 close $fh;
@@ -186,15 +186,15 @@ grape
 ";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/name", $filename);
-check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1], forbidden_lines: [3:7:12,2:7:20]}');
+check_output_file("$output_dir/name", $filename, 'name');
+check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1], forbidden_lines: [3:7:12,2:7:20]}', 'stats');
 check_output_file_sorted_lines("$output_dir/warnings", ":2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns entry: `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s` (forbidden-pattern)
 :3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
 :3:7 ... 12, Warning - `donut` matches a line_forbidden.patterns entry: `\\bdonut\\b` (forbidden-pattern)
 :4:6 ... 9: `ham`
-");
+", 'warnings');
 check_output_file("$output_dir/unknown", 'ham
-');
+', 'unknown');
 open $fh, '>', "$dirname/candidates.txt";
 print $fh '# grape
 grape
@@ -210,14 +210,14 @@ open($outputFH, '>', \$output_directory) or die; # This shouldn't fail
 $oldFH = select $outputFH;
 CheckSpelling::UnknownWordSplitter::main($directory, ($filename));
 select $oldFH;
-ok($output_directory =~ /.*\n/);
+ok($output_directory =~ /.*\n/, 'output directory');
 chomp($output_directory);
-ok(-d $output_directory);
-check_output_file("$output_directory/stats", '{words: 13, unrecognized: 1, unknown: 1, unique: 6, candidates: [0,1], candidate_lines: [0,4:6:9], forbidden: [0,0], forbidden_lines: [0,0]}');
+ok(-d $output_directory, 'output directory exists');
+check_output_file("$output_directory/stats", '{words: 13, unrecognized: 1, unknown: 1, unique: 6, candidates: [0,1], candidate_lines: [0,4:6:9], forbidden: [0,0], forbidden_lines: [0,0]}', 'stats');
 check_output_file_sorted_lines("$output_directory/warnings", ":4:6 ... 9: `ham`
-");
+", 'warnings');
 check_output_file("$output_directory/unknown", 'ham
-');
+', 'unknown');
 
 $dirname = tempdir();
 ($fh, $filename) = tempfile();
@@ -227,7 +227,7 @@ $ENV{INPUT_USE_MAGIC_FILE}=1;
 CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", "it appears to be a binary file (`inode/x-empty`) (binary-file)
-");
+", 'inode/x-empty');
 
 $dirname = tempdir();
 ($fh, $filename) = tempfile();
@@ -238,7 +238,7 @@ $CheckSpelling::UnknownWordSplitter::INPUT_LARGEST_FILE = 0;
 $CheckSpelling::UnknownWordSplitter::INPUT_LARGEST_FILE = undef;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", "it appears to be a binary file (`application/octet-stream`) (binary-file)
-");
+", "skipped application/octet-stream");
 
 my $hunspell_dictionary_path = tempdir();
 $ENV{'hunspell_dictionary_path'} = $hunspell_dictionary_path;
@@ -267,22 +267,22 @@ fa'ad
 ";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-is(-e "$output_dir/skipped", undef);
+is(-e "$output_dir/skipped", undef, 'not skipped');
 check_output_file("$output_dir/unknown", "fa'ad
 foad
 fooo'd
-");
+", 'unknown');
 check_output_file("$output_dir/warnings", ":3:1 ... 5: `foad`
 :4:1 ... 7: `fooo'd`
 :6:1 ... 6: `fa'ad`
-");
+", 'warnings');
 $dirname = tempdir();
 ($fh, $filename) = tempfile();
 print $fh "\x05"x5;
 close $fh;
 CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-is(-e "$output_dir/skipped", undef);
+is(-e "$output_dir/skipped", undef, 'not skipped');
 $dirname = tempdir();
 ($fh, $filename) = tempfile();
 print $fh "\x05"x512;
@@ -291,7 +291,7 @@ CheckSpelling::UnknownWordSplitter::init($dirname);
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 
 check_output_file("$output_dir/skipped", 'file only has a single line (single-line-file)
-');
+', 'single-line-file');
 
 $ENV{INPUT_USE_MAGIC_FILE}='';
 
@@ -300,19 +300,19 @@ sub test_invalid_quantifiers {
   print $fh ".{1,}*";
   close $fh;
   my $output = join "\n", CheckSpelling::UnknownWordSplitter::file_to_list($filename);
-  is($output, '(?:\$^ - skipped because bad-regex)');
+  is($output, '(?:\$^ - skipped because bad-regex)', 'bad-regex');
 }
 
 my ($stdout, $stderr, @result) = capture { test_invalid_quantifiers };
 is($stderr, "Nested quantifiers in regex; marked by <-- HERE in m/.{1,}* <-- HERE / at $filename line 1 (bad-regex)
-");
+", 'nested quanitifiers bad-regex');
 open $fh, '>:utf8', $filename;
 for (my $i = 0; $i < 1000; $i++) {
     print $fh "bar$i\r";
 }
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
-check_output_file("$output_dir/skipped", undef);
+check_output_file("$output_dir/skipped", undef, 'not skipped');
 open $fh, '>:utf8', $filename;
 my $long_line = 'bar 'x250;
 for (my $i = 0; $i < 10; $i++) {
@@ -321,11 +321,11 @@ for (my $i = 0; $i < 10; $i++) {
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/skipped", 'average line width (1002) exceeds the threshold (1000) (minified-file)
-');
+', 'minified-file');
 open $fh, '>:utf8', $filename;
 print $fh "======= ==== === a ==== ======\r\n"x127;
 print $fh "======= wrnog === a ==== ======\r\n";
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/warnings", ":128:9 ... 14: `wrnog`
-");
+", 'not minified');
