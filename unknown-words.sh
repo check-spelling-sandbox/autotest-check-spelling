@@ -1201,6 +1201,7 @@ define_variables() {
   patterns="$splitter_configuration/patterns.txt"
   forbidden_path="$splitter_configuration/forbidden.txt"
   candidates_path="$splitter_configuration/candidates.txt"
+  block_delimiters_path="$splitter_configuration/block-delimiters.list";
   excludes=${excludes:-$(mktemp)}
   temp_sandbox=$(mktemp -d)
   excludes_path="$temp_sandbox/excludes.txt"
@@ -2349,6 +2350,8 @@ set_up_files() {
     fi
     get_project_files line_forbidden.patterns "$forbidden_path"
     get_project_files candidate.patterns "$candidates_path"
+
+    get_project_files block-delimiters.list "$block_delimiters_path"
   else
     if [ -s "$check_extra_dictionaries_list" ]; then
       export INPUT_DICTIONARY_SOURCE_PREFIXES=$(cat "$dictionary_source_prefixes_json")
