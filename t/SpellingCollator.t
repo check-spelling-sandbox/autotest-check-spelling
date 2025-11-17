@@ -62,7 +62,7 @@ sub check_output_file {
 
 use_ok('CheckSpelling::SpellingCollator');
 
-my ($fh, $early_warnings, $warning_output, $more_warnings, $counter_summary, $forbidden_patterns, $forbidden_summary);
+my ($fh, $early_warnings, $warning_output, $more_warnings, $counter_summary, $forbidden_patterns, $forbidden_summary, $candidates_path);
 
 ($fh, $early_warnings) = tempfile;
 ($fh, $warning_output) = tempfile;
@@ -70,12 +70,14 @@ my ($fh, $early_warnings, $warning_output, $more_warnings, $counter_summary, $fo
 ($fh, $counter_summary) = tempfile;
 ($fh, $forbidden_patterns) = tempfile;
 ($fh, $forbidden_summary) = tempfile;
+($fh, $candidates_path) = tempfile;
 $ENV{'early_warnings'} = $early_warnings;
 $ENV{'warning_output'} = $warning_output;
 $ENV{'more_warnings'} = $more_warnings;
 $ENV{'counter_summary'} = $counter_summary;
 $ENV{'forbidden_path'} = $forbidden_patterns;
 $ENV{'forbidden_summary'} = $forbidden_summary;
+$ENV{'candidates_path'} = $candidates_path;
 
 my $directory = stage_test('empty.txt', '', '', '', '');
 run_test($directory);
@@ -318,7 +320,12 @@ $file_names:3:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-
 
 delete $ENV{'unknown_word_limit'};
 
-$directory = stage_test($file_names, '{words: 3, unrecognized: 5, unknown: 8, unique: 2}', '', "
+fill_file($candidates_path, '
+# fruit
+apple
+');
+
+$directory = stage_test($file_names, '{words: 3, unrecognized: 5, unknown: 8, unique: 2, candidates: [1], candidate_lines: [1:2:3]}', '', "
 :1:1 ... 4: `apple`
 :2:1 ... 4: `apple`
 :3:1 ... 4: `apple`
@@ -327,9 +334,12 @@ $directory = stage_test($file_names, '{words: 3, unrecognized: 5, unknown: 8, un
 :6:1 ... 4: `apple`
 ");
 ($output, $error_lines) = run_test($directory);
-check_output_file($warning_output, "$file_names:1:1 ... 1, Warning - Skipping `$file_names` because it seems to have more noise (8) than unique words (2) (total: 5 / 3). (noisy-file)
-", 'warning_output');
+check_output_file($warning_output, "$file_names:1:2 ... 3, Notice - Line matches candidate pattern (fruit) `apple` (candidate-pattern)
+$file_names:1:1 ... 1, Warning - Skipping `$file_names` because it seems to have more noise (8) than unique words (2) (total: 5 / 3). (noisy-file)
+", 'warning_output with candidates');
 check_output_file($more_warnings, "", 'more_warnings');
+
+truncate($candidates_path, 0);
 
 $ENV{'pr_title_file'} = $file_names;
 $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', "
