@@ -55,9 +55,9 @@ sub read_file {
 }
 
 sub check_output_file {
-  my ($file, $expected) = @_;
+  my ($file, $expected, $test) = @_;
   my $content = read_file($file);
-  is($content, $expected);
+  is($content, $expected, $test);
 }
 
 use_ok('CheckSpelling::SpellingCollator');
@@ -88,18 +88,18 @@ foz
 ";
 close $fd;
 CheckSpelling::SpellingCollator::load_expect($expect);
-is(CheckSpelling::SpellingCollator::expect_item('bar', 1), 0);
-is(CheckSpelling::SpellingCollator::expect_item('foo', 1), 1);
-is(CheckSpelling::SpellingCollator::expect_item('foo', 2), 2);
-is(CheckSpelling::SpellingCollator::expect_item('fooy', 2), 2);
-is(CheckSpelling::SpellingCollator::expect_item('foz', 2), 2);
-is($CheckSpelling::SpellingCollator::counters{'hi'}, undef);
+is(CheckSpelling::SpellingCollator::expect_item('bar', 1), 0, 'expect bar');
+is(CheckSpelling::SpellingCollator::expect_item('foo', 1), 1, 'expect foo 1');
+is(CheckSpelling::SpellingCollator::expect_item('foo', 2), 2, 'expect foo 2');
+is(CheckSpelling::SpellingCollator::expect_item('fooy', 2), 2, 'expect fooy 2');
+is(CheckSpelling::SpellingCollator::expect_item('foz', 2), 2, 'expect foz 2');
+is($CheckSpelling::SpellingCollator::counters{'hi'}, undef, 'counters hi');
 CheckSpelling::SpellingCollator::count_warning('(hi)');
-is($CheckSpelling::SpellingCollator::counters{'hi'}, 1);
+is($CheckSpelling::SpellingCollator::counters{'hi'}, 1, 'counters hi counted in parentheses');
 CheckSpelling::SpellingCollator::count_warning('hi');
-is($CheckSpelling::SpellingCollator::counters{'hi'}, 1);
+is($CheckSpelling::SpellingCollator::counters{'hi'}, 1, 'counters hi counted');
 CheckSpelling::SpellingCollator::count_warning('hello (hi)');
-is($CheckSpelling::SpellingCollator::counters{'hi'}, 2);
+is($CheckSpelling::SpellingCollator::counters{'hi'}, 2, 'counters hi counted in parentheses again');
 
 $directory = stage_test("hello.txt", '', "blah (skipped)\n", '', '');
 my $directories = "$directory
@@ -112,16 +112,16 @@ fill_file($early_warnings, "goose (animal)\n");
 my ($output, $error_lines) = run_test($directories);
 is($error_lines, 'Not a directory: /dev/null
 Could not find: /dev/no-such-dev
-');
+', 'error_lines for file and nonexistent file');
 check_output_file($warning_output, 'goose (animal)
 hello.txt:1:1 ... 1, Warning - Skipping `hello.txt` because blah (skipped)
-');
+', 'warning_output skipped');
 check_output_file($counter_summary, '{
 "animal": 1
 ,"skipped": 1
 }
-');
-check_output_file($more_warnings, '');
+', 'counter_summary animal+skipped');
+check_output_file($more_warnings, '', 'more_warnings');
 
 my $file_name='test.txt';
 $directory = stage_test($file_name, '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', ":2:3 ... 8: `something`
@@ -143,13 +143,13 @@ is($output, "hhhh (hhhh, hhhhed)
 jjjjjy (jjjjjy, jjjjjies)
 nnnnnnnnns
 xxxpaz (xxxpaz, xxxpazs)
-");
-is($error_lines, '');
+", 'output basic test collating');
+is($error_lines, '', 'error lines basic test');
 check_output_file($warning_output, q<test.txt:2:3 ... 8, Warning - `something` is not a recognized word (unrecognized-spelling)
->);
-check_output_file($counter_summary, '');
+>, 'warning_output');
+check_output_file($counter_summary, '', 'counter_summary');
 check_output_file($more_warnings, 'test.txt:10:4 ... 10, Warning - `something` is not a recognized word (unrecognized-spelling)
-');
+', 'more_warnings (overflow)');
 fill_file($expect, "
 AAA
 Bbb
@@ -199,8 +199,8 @@ hhh (HHH, Hhh)
 iii (III, Iii)
 Jjj
 lll
-");
-is($error_lines, '');
+", 'output');
+is($error_lines, '', 'error_lines');
 check_output_file($warning_output, q<case.txt:1:1 ... 1, Warning - `Aaa` is not a recognized word (unrecognized-spelling)
 case.txt:1:1 ... 1, Warning - `aaa` is not a recognized word (unrecognized-spelling)
 case.txt:1:1 ... 1, Warning - `bbb` is not a recognized word (unrecognized-spelling)
@@ -211,9 +211,9 @@ case.txt:1:1 ... 1, Warning - `FFF` is not a recognized word (unrecognized-spell
 case.txt:1:1 ... 1, Warning - `Ggg` is not a recognized word (unrecognized-spelling)
 case.txt:1:1 ... 1, Warning - `Jjj` is not a recognized word (unrecognized-spelling)
 case.txt:1:1 ... 1, Warning - `lll` is not a recognized word (unrecognized-spelling)
->);
-check_output_file($counter_summary, '');
-check_output_file($more_warnings, '');
+>, 'warning_output');
+check_output_file($counter_summary, '', 'counter_summary');
+check_output_file($more_warnings, '', 'more_warnings');
 
 fill_file($expect, q<calloc
 alloc
@@ -235,22 +235,22 @@ malloc'd
 ($output, $error_lines) = run_test($directory);
 is($output, "calloc (calloc, a'calloc, calloc'd)
 malloc (malloc, malloc'd)
-");
-is($error_lines, '');
+", 'output');
+is($error_lines, '', 'punctuation error_lines');
 check_output_file($warning_output, q<punctuation.txt:1:1 ... 1, Warning - `a'calloc` is not a recognized word (unrecognized-spelling)
->);
-check_output_file($counter_summary, '');
-check_output_file($more_warnings, '');
+>, 'warning_output');
+check_output_file($counter_summary, '', 'counter_summary');
+check_output_file($more_warnings, '', 'more_warnings');
 
 $ENV{'INPUT_DISABLE_CHECKS'} = ",word-collating";
-($output, $error_lines) = run_test($directory);
+
 ($output, $error_lines) = run_test($directory);
 is($output, "a'calloc
 calloc
 calloc'd
 malloc
 malloc'd
-");
+", 'output');
 $ENV{'INPUT_DISABLE_CHECKS'} = ",ignored";
 
 my $file_names;
@@ -281,18 +281,18 @@ check_output_file($counter_summary, '{
 "check-file-path": 3
 ,"forbidden-pattern": 1
 }
-');
+', 'counter_summary');
 check_output_file($forbidden_summary, '#### please avoid starting lines with "pe" followed by a letter.
 ```
 ^pe.
 ```
 
-');
+', 'forbidden_summary');
 check_output_file($warning_output, 'apple:1:1 ... 5, Warning - `apple` is not a recognized word (check-file-path)
 pear:1:1 ... 4, Warning - `pear` is not a recognized word (check-file-path)
 pear:1:1 ... 3, Warning - `pea` matches a line_forbidden.patterns entry: `^pe.` (forbidden-pattern)
 1/pear:1:3 ... 6, Warning - `pear` is not a recognized word (check-file-path)
-');
+', 'warning_output');
 truncate($forbidden_patterns, 0);
 
 ($fh, $file_names) = tempfile;
@@ -311,10 +311,10 @@ $ENV{'unknown_word_limit'} = 3;
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
 $file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
-");
+", 'warning_output unrecognized-spelling');
 check_output_file($more_warnings, "$file_names:2:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
 $file_names:3:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling)
-");
+", 'more_warnings unrecognized-spelling');
 
 delete $ENV{'unknown_word_limit'};
 
@@ -328,8 +328,8 @@ $directory = stage_test($file_names, '{words: 3, unrecognized: 5, unknown: 8, un
 ");
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names:1:1 ... 1, Warning - Skipping `$file_names` because it seems to have more noise (8) than unique words (2) (total: 5 / 3). (noisy-file)
-");
-check_output_file($more_warnings, "");
+", 'warning_output');
+check_output_file($more_warnings, "", 'more_warnings');
 
 $ENV{'pr_title_file'} = $file_names;
 $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, unique: 2}', '', "
@@ -337,17 +337,17 @@ $directory = stage_test($file_names, '{words: 3, unrecognized: 2, unknown: 2, un
 ");
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
-");
+", 'warning_output');
 check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-pr-title)
-");
+", 'more_warnings');
 
 delete $ENV{'pr_title_file'};
 $ENV{'pr_description_file'} = $file_names;
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
-");
+", 'warning_output');
 check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-pr-description)
-");
+", 'more_warnings');
 
 my $commit_messages = tempdir();
 $file_names = "$commit_messages/sha";
@@ -360,6 +360,6 @@ $directory = stage_test("$commit_messages/sha", '{words: 3, unrecognized: 2, unk
 ");
 ($output, $error_lines) = run_test($directory);
 check_output_file($warning_output, "$file_names
-");
+", 'warning_output');
 check_output_file($more_warnings, "$file_names:1:1 ... 4, Warning - `apple` is not a recognized word (unrecognized-spelling-commit-message)
-");
+", 'more_warnings');
