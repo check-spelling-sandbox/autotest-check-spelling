@@ -3174,42 +3174,42 @@ spelling_body() {
     count_patterns() {
       perl -ne 'next '"$2"';next unless /\S/;print' "$1" | line_count
     }
-    if [ -s "$forbidden_summary" ]; then
-      forbidden_pattern_count=$(count_patterns "$forbidden_summary" "unless /^#### /")
-      output_forbidden_patterns="$(echo "
-        <details><summary>Forbidden patterns :no_good: ($forbidden_pattern_count)</summary>
+    maybe_wrap_in_details() {
+      section_heading="$1"
+      file="$2"
+      item_count_rule="$3"
+      hints="$4"
+      suffix="${5:+$n$5$n}"
+      item_count=$(count_patterns "$file" "$item_count_rule")
+      if [ $item_count -le 3 ]; then
+        section_head="### $section_heading ($item_count)"
+        section_foot="$n"
+      else
+        section_head="<details><summary>$section_heading ($item_count)</summary>"
+        section_foot="$n</details>"
+      fi
+      echo "
+        $section_head
 
-        In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
-
-        These forbidden patterns matched content:
+        $hints
 
         $(
-        cat "$forbidden_summary"
+        cat "$file"
         )
 
-        </details>
-      " | strip_lead)"
+        $suffix$section_foot
+      " | strip_lead
+    }
+    if [ -s "$forbidden_summary" ]; then
+      output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns :no_good:" "$forbidden_summary" "unless /^#### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
+
+        These forbidden patterns matched content:" "")"
     fi
     if [ -s "$candidate_summary" ]; then
-      pattern_suggestion_count=$(count_patterns "$candidate_summary" "if /^#/")
-      output_candidate_pattern_suggestions="$(echo "
-        <details><summary>Pattern suggestions :scissors: ($pattern_suggestion_count)</summary>
-
-        You could add these patterns to $b$new_patterns_file$b:
+      output_candidate_pattern_suggestions="$(maybe_wrap_in_details "Pattern suggestions :scissors:" "$candidate_summary" "if /^#/" "You could add these patterns to $b$new_patterns_file$b:
         $B
-        # Automatically suggested patterns
-
-        $(
-        cat "$candidate_summary"
-        )
-
-        $B
-
-        Alternatively, if a pattern suggestion doesn't make sense for this project, add a ${b}#${b}
-        to the beginning of the line in the candidates file with the pattern to stop suggesting it.
-
-        </details>
-      " | strip_lead)"
+        # Automatically suggested patterns" "Alternatively, if a pattern suggestion doesn't make sense for this project, add a ${b}#${b}
+        to the beginning of the line in the candidates file with the pattern to stop suggesting it.")"
     fi
     if [ -n "$patch_add" ]; then
       can_offer_to_apply=1
