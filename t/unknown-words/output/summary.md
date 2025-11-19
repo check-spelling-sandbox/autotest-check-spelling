@@ -107,7 +107,7 @@ check_extra_dictionaries: ""
 
 </details>
 
-<details><summary>Forbidden patterns :no_good: (1)</summary>
+<details><summary>Forbidden patterns :no_good: (4)</summary>
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
@@ -118,6 +118,21 @@ These forbidden patterns matched content:
 \bsample\.file\b
 ```
 
+#### Should be `documentation.pdf`
+```
+\bdocumentation\.file\b
+```
+
+#### Should be `logo.png`
+```
+\blogo\.ico\b
+```
+
+#### Should be `good news`
+```
+(?i)\bbad news\b
+```
+
 </details>
 
 <details><summary>Errors, Warnings, and Notices :x: (4)</summary>
@@ -126,7 +141,7 @@ These forbidden patterns matched content:
 
 [:x: Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
-[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
+[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
 [:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
 [:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
@@ -141,6 +156,9 @@ See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 note|path
 -|-
 `+` matches a line_forbidden.patterns rule: Expect entries should not include non-word characters - `(?![A-Z]\|[a-z]\|'\|\s\|=).` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
+`Bad news` matches a line_forbidden.patterns rule: Should be `good news` - `(?i)\bbad news\b` | unknown-words/input/sample.file:7
+`documentation.file` matches a line_forbidden.patterns rule: Should be `documentation.pdf` - `\bdocumentation\.file\b` | unknown-words/input/sample.file:5
+`logo.ico` matches a line_forbidden.patterns rule: Should be `logo.png` - `\blogo\.ico\b` | unknown-words/input/sample.file:7
 `sample.file` matches a line_forbidden.patterns rule: Should be `sample-file.txt` - `\bsample\.file\b` | unknown-words/input/sample.file:1
 </details>
 
