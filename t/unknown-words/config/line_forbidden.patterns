@@ -1,2 +1,11 @@
 # Should be `sample-file.txt`
 \bsample\.file\b
+
+# Should be `documentation.pdf`
+\bdocumentation\.file\b
+
+# Should be `logo.png`
+\blogo\.ico\b
+
+# Should be `good news`
+(?i)\bbad news\b
