@@ -232,7 +232,7 @@ dispatcher() {
               event_aliases: {$Q$GITHUB_EVENT_NAME$Q:${Q}supported_event_name${Q}}
 
           Future versions may support this feature." \
-        | perl -pe 's/^ {10}//'
+        | strip_leading 10
       )"
       echo "$body" >&2
       github_step_summary_likely_fatal_event 'Unsupported event name' "$body" 'unsupported-configuration-event'
@@ -1003,7 +1003,7 @@ handle_comment() {
          permissions:
         +  actions: read
         $B
-        " | perl -pe 's/^ {8}//')"
+        " | strip_leading 8)"
       fi
       confused_comment "$trigger_comment_url" "$(echo "Unexpected error retrieving action metadata for $GITHUB_REPOSITORY. Please file a bug.
 
@@ -3063,7 +3063,7 @@ spelling_body() {
 
         </details>
 
-        " | perl -pe 's/^ {8}//')"
+        " | strip_leading 8)"
     fi
     if [ -s "$should_exclude_file" ]; then
       calculate_exclude_patterns
