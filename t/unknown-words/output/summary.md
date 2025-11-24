@@ -113,22 +113,22 @@ In order to address this, you could change the content to not match the forbidde
 
 These forbidden patterns matched content:
 
-#### Should be `sample-file.txt`
+##### Should be `sample-file.txt`
 ```
 \bsample\.file\b
 ```
 
-#### Should be `documentation.pdf`
+##### Should be `documentation.pdf`
 ```
 \bdocumentation\.file\b
 ```
 
-#### Should be `logo.png`
+##### Should be `logo.png`
 ```
 \blogo\.ico\b
 ```
 
-#### Should be `good news`
+##### Should be `good news`
 ```
 (?i)\bbad news\b
 ```
