@@ -515,7 +515,7 @@ sub main {
         $details = "\n$details" if $details;
       }
       $context = 'Pattern' unless $context;
-      return "#### $context$details\n```\n$pattern\n```\n\n";
+      return "##### $context$details\n```\n$pattern\n```\n\n";
     },
     CheckSpelling::Util::get_file_from_env('forbidden_summary', '/dev/stderr'),
     \@forbidden,

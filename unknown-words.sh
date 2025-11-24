@@ -3184,7 +3184,7 @@ spelling_body() {
       suffix="${5:+$n$5$n}"
       item_count=$(count_patterns "$file" "$item_count_rule")
       if [ $item_count -le 3 ]; then
-        section_head="### $section_heading ($item_count)"
+        section_head="#### $section_heading ($item_count)"
         section_foot="$n"
       else
         section_head="<details><summary>$section_heading ($item_count)</summary>"
@@ -3203,7 +3203,7 @@ spelling_body() {
       " | strip_lead
     }
     if [ -s "$forbidden_summary" ]; then
-      output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns :no_good:" "$forbidden_summary" "unless /^#### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
+      output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns :no_good:" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
         These forbidden patterns matched content:" "")"
     fi
