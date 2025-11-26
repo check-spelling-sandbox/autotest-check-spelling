@@ -205,7 +205,7 @@ jobs:
         has_coverage_repository: ${{ vars.coverage_repository && secrets.coverage_repository_key && 1 || '' }}
     - name: store-coverage
       if: (success() || failure()) && (steps.coverage.outputs.ran == 1)
-      uses: actions/upload-artifact@v4
+      uses: ./actions/upload-artifact
       timeout-minutes: 5
       with:
         name: "check-spelling-coverage-${{ github.run_id }}"
@@ -264,7 +264,7 @@ jobs:
         grep -q '@check-spelling-bot Report' "$GITHUB_STEP_SUMMARY"
     - name: upload artifact
       id: upload-artifact
-      uses: actions/upload-artifact@v4
+      uses: ./actions/upload-artifact
       with:
         name: standalone-artifact
         path: |
