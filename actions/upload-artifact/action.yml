@@ -35,7 +35,7 @@ runs:
   - name: Upload Artifact
     id: action
     continue-on-error: true
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v6
     with:
       compression-level: ${{ inputs.compression-level }}
       if-no-files-found: ${{ inputs.if-no-files-found }}
