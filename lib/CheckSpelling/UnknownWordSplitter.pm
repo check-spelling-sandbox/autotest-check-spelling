@@ -485,7 +485,7 @@ sub split_file {
           if ($found_trigger_re) {
             my $description = $forbidden_re_descriptions{$found_trigger_re} || '';
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
-            my $quoted_trigger_re = CheckSpelling::Util::wrap_in_backticks($found_trigger_re);
+            my $quoted_trigger_re = CheckSpelling::Util::truncate_with_ellipsis(CheckSpelling::Util::wrap_in_backticks($found_trigger_re), 99);
             if ($description ne '') {
               print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns rule: $description - $quoted_trigger_re (forbidden-pattern)\n";
             } else {
