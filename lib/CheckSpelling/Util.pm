@@ -115,6 +115,12 @@ sub calculate_delay {
   return $delay;
 }
 
+sub truncate_with_ellipsis {
+  my ($text, $length) = @_;
+  $text =~ s/^(.{$length}).{6,}?(\s?`+|)$/$1$2&mldr;/;
+  return $text;
+}
+
 sub wrap_in_backticks {
   my ($a) = @_;
   my $longest = 0;

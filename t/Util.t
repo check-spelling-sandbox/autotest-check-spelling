@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 48;
+plan tests => 51;
 use_ok('CheckSpelling::Util');
 
 $ENV{'EMPTY_VAR'}='';
@@ -209,3 +209,8 @@ is(CheckSpelling::Util::wrap_in_backticks('`this'), '`` `this ``', 'leading back
 is(CheckSpelling::Util::wrap_in_backticks('this'), '`this`', 'basic string');
 is(CheckSpelling::Util::wrap_in_backticks('this `thing` is good'), '``this `thing` is good``', 'nested backticks');
 is(CheckSpelling::Util::wrap_in_backticks('this `thing` is ``very`` good'), '```this `thing` is ``very`` good```', 'many backticks');
+
+my $a10 = 'a'x10;
+is(CheckSpelling::Util::truncate_with_ellipsis($a10, 4), 'a'x4 . '&mldr;', 'truncate');
+is(CheckSpelling::Util::truncate_with_ellipsis(CheckSpelling::Util::wrap_in_backticks($a10), 4), '`'.'a'x3 . '`&mldr;', 'truncate in backticks');
+is(CheckSpelling::Util::truncate_with_ellipsis($a10, 10), $a10, 'no truncation');
