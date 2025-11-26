@@ -3447,31 +3447,31 @@ trim_commit_comment() {
 
 minimize_comment_body() {
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment 'Script' '(<details><summary>)To accept.* these unrecognized.*?</summary>().*?(?=</details>\n)' 'Script unavailable</summary>\n\n'
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment 'Stale words' '(<details><summary>These words are not needed and should be removed.*?</summary>)(.*?)(?=</details>)' '\n\n'
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment 'Available dictionaries' '(<details><summary>Available dictionaries.*?</summary>\n*)(.*?)(?=</details>)' ''
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment 'Unrecognized words' '(<details><summary>Unrecognized words.*?</summary>\n*)\`\`\`(.*?)\`\`\`'
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment 'Files' '(<details><summary>Some files were automatically ignored.*</summary>)\n.*?\`\`\`(.*?)\`\`\`.*?(?=</details>)' '\n\n'
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   trim_commit_comment '' '(\nSee the [^\n]*\n)(.*)$' '\n\n'
   if [ $payload_size -le $github_comment_size_limit ]; then
-    return 0
+    return
   fi
   cat "$BODY"
   body_to_payload
@@ -3647,6 +3647,7 @@ post_summary() {
   fi
   cat "$step_summary_draft" >> "$GITHUB_STEP_SUMMARY"
 }
+
 post_commit_comment() {
   if [ -z "$OUTPUT" ]; then
     return
