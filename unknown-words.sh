@@ -531,24 +531,22 @@ should_patch_head() {
   if [ ! -d "$bucket/$project" ]; then
     # if there is no directory in the merged state, then adding files into it
     # will not result in a merge conflict
-    true
-  else
-    # if there is a directory in the merged state, then we don't want to
-    # suggest changes to the directory if it doesn't exist in the branch,
-    # because that would almost certainly result in merge conflicts.
-    # If people want to talk to the bot, they should rebase first.
-    pull_request_url="$(get_pull_request_url)"
-    if [ -z "$pull_request_url" ]; then
-      false
-    else
-      pull_request_sha="$(get_pr_sha_from_url "$pull_request_url")"
-      git fetch origin "$pull_request_sha" >&2
-      if git ls-tree "$pull_request_sha" -- "$bucket/$project" 2> /dev/null | grep -q tree; then
-        return 0
-      fi
-      return 1
-    fi
+    return
   fi
+
+  # if there is a directory in the merged state, then we don't want to
+  # suggest changes to the directory if it doesn't exist in the branch,
+  # because that would almost certainly result in merge conflicts.
+  # If people want to talk to the bot, they should rebase first.
+  pull_request_url="$(get_pull_request_url)"
+  if [ -z "$pull_request_url" ]; then
+    false
+    return
+  fi
+
+  pull_request_sha="$(get_pr_sha_from_url "$pull_request_url")"
+  git fetch origin "$pull_request_sha" >&2
+  git ls-tree "$pull_request_sha" -- "$bucket/$project" 2> /dev/null | grep -q tree
 }
 
 offer_quote_reply() {
