@@ -429,7 +429,7 @@ sub main {
                 my $pattern = (split /\n/,$candidates[$i])[-1];
                 my $position = $lines[$i];
                 $position =~ s/:(\d+)$/ ... $1/;
-                my $wrapped = CheckSpelling::Util::wrap_in_backticks($pattern);
+                my $wrapped = CheckSpelling::Util::truncate_with_ellipsis(CheckSpelling::Util::wrap_in_backticks($pattern), 99);
                 my $candidate_label = '';
                 if ($candidates[$i] =~ /^#\s+(\S.+)/) {
                   $candidate_label = " ($1)";
