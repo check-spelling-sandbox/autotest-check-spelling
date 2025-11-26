@@ -1,6 +1,7 @@
 #! -*-perl-*-
 
 use v5.20;
+use utf8;
 use feature 'unicode_strings';
 
 package CheckSpelling::Util;
@@ -113,6 +114,12 @@ sub calculate_delay {
   $delay = 5 unless defined $delay && $delay > 0;
 
   return $delay;
+}
+
+sub truncate_with_ellipsis {
+  my ($text, $length) = @_;
+  $text =~ s/^(.{$length}).{4,}?(\s?`+|)$/$1$2…/;
+  return $text;
 }
 
 sub wrap_in_backticks {
