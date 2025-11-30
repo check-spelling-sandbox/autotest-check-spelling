@@ -4,6 +4,8 @@ use 5.022;
 use feature 'unicode_strings';
 use strict;
 use warnings;
+use utf8;
+
 use Encode qw/decode_utf8 FB_DEFAULT/;
 use Cwd 'abs_path';
 use File::Basename;
