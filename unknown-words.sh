@@ -1473,7 +1473,7 @@ get_project_files_deprecated() {
       else
         note=""
       fi
-      echo "::error file=$example::deprecation: please rename '$2'$note to '$1' (deprecated-feature)" >> "$early_warnings"
+      echo "::error file=$example::👎 Deprecation: please rename '$2'$note to '$1' (deprecated-feature)" >> "$early_warnings"
     else
       append_to="$save_append_to"
     fi
