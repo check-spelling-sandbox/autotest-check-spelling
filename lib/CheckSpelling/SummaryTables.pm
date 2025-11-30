@@ -1,6 +1,7 @@
 #! -*-perl-*-
 package CheckSpelling::SummaryTables;
 
+use utf8;
 use Cwd 'abs_path';
 use File::Basename;
 use File::Temp qw/ tempfile tempdir /;
@@ -36,6 +37,7 @@ sub github_blame {
 }
 
 sub main {
+    binmode(STDOUT, ":encoding(UTF-8)");
     my $budget = CheckSpelling::Util::get_val_from_env("summary_budget", "");
     print STDERR "Summary Tables budget: $budget\n";
     my $summary_tables = tempdir();
@@ -65,7 +67,7 @@ sub main {
         my ($file, $line, $column, $endColumn, $severity, $message, $code) = ($1, $2, $3, $4, $5, $6, $7);
         my $table_file = "$summary_tables/$code";
         push @tables, $code unless -e $table_file;
-        open $table, ">>", $table_file;
+        open $table, ">>:encoding(UTF-8)", $table_file;
         $message =~ s/\|/\\|/g;
         my $blame = CheckSpelling::SummaryTables::github_blame($file, $line);
         print $table "$message | $blame\n";
@@ -74,7 +76,7 @@ sub main {
     return unless @tables;
 
     my ($details_prefix, $footer, $suffix, $need_suffix) = (
-        "<details><summary>Details :mag_right:</summary>\n\n",
+        "<details><summary>Details 🔎</summary>\n\n",
         "</details>\n\n",
         "\n</details>\n\n",
         0
@@ -85,7 +87,7 @@ sub main {
         print STDERR "Summary Tables budget reduced to: $budget\n";
     }
     for $table_file (sort @tables) {
-        my $header = "<details><summary>:open_file_folder: $table_file</summary>\n\n".
+        my $header = "<details><summary>📂 $table_file</summary>\n\n".
             "note|path\n".
             "-|-\n";
         my $header_length = length $header;
@@ -95,7 +97,7 @@ sub main {
             print STDERR "::warning title=summary-table::Details for '$table_file' too big to include in Step Summary (summary-table-skipped)\n";
             next;
         }
-        open $table, "<", $file_path;
+        open $table, "<:encoding(UTF-8)", $file_path;
         my @entries;
         my $real_cost = $header_length + $footer_length;
         foreach my $line (<$table>) {
