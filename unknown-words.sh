@@ -190,7 +190,7 @@ dispatcher() {
           github_step_summary_likely_fatal \
             'Unsafe Permissions' \
             'This workflow configuration is unsafe.' \
-            ':information_source: Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
+            'ℹ️ Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
           quit 5
         fi
       fi
@@ -727,11 +727,11 @@ show_github_actions_push_disclaimer() {
   else
     OWNER_TEXT='Users with the Admin role'
   fi
-  OUTPUT="## :hourglass: check-spelling changes applied
+  OUTPUT="## ⌛ check-spelling changes applied
 
   As [configured](https://docs.check-spelling.dev/Feature:-Update-expect-list#githubtoken), the commit pushed by @check-spelling-bot to GitHub doesn't trigger GitHub workflows due to a limitation of the @github-actions system.
 
-  <details><summary>$OWNER_TEXT can address this for future interactions :magic_wand:</summary>
+  <details><summary>$OWNER_TEXT can address this for future interactions 🪄</summary>
 
   ### Create a deploy key and secret
   $B sh
@@ -752,7 +752,7 @@ show_github_actions_push_disclaimer() {
   </details>
 
   <!--$n$report_header$n-->
-  To trigger another validation round and hopefully a :white_check_mark:, please add a blank line, e.g. to [$expect_file]($GITHUB_SERVER_URL/$repository_edit_branch/$expect_file?pr=$pr_path_escaped) and commit the change."
+  To trigger another validation round and hopefully a ✅, please add a blank line, e.g. to [$expect_file]($GITHUB_SERVER_URL/$repository_edit_branch/$expect_file?pr=$pr_path_escaped) and commit the change."
   echo "$OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY" > "$BODY"
   body_to_payload
   COMMENTS_URL="$(jq -r '.issue.comments_url' "$GITHUB_EVENT_PATH")"
@@ -1055,7 +1055,7 @@ handle_comment() {
   if git remote get-url origin | grep -q ^https://; then
     show_github_actions_push_disclaimer
   else
-    echo "## :white_check_mark: check-spelling changes applied" >> "$GITHUB_STEP_SUMMARY"
+    echo "## ✅ check-spelling changes applied" >> "$GITHUB_STEP_SUMMARY"
   fi
   echo "
   ### Metadata updates
@@ -1521,7 +1521,7 @@ github_step_summary_likely_fatal() {
 }
 
 github_step_summary_likely_fatal_event() {
-  github_step_summary_likely_fatal "$1" "$2" ":warning: $(more_info_message "$3")"
+  github_step_summary_likely_fatal "$1" "$2" "⚠️ $(more_info_message "$3")"
 }
 
 github_step_summary_dictionaries_failed() {
@@ -1534,7 +1534,7 @@ github_step_summary_dictionaries_failed() {
   if [ "$1" = extra ]; then
     github_step_summary_likely_fatal_event 'Dictionary not found' "$message" "$dictionary_not_found"
   else
-    github_step_summary_warning 'Dictionary not found' "$message" ":warning: $(more_info_message "$dictionary_not_found")"
+    github_step_summary_warning 'Dictionary not found' "$message" "⚠️ $(more_info_message "$dictionary_not_found")"
   fi
 }
 
@@ -2885,13 +2885,13 @@ get_action_log() {
 repo_clone_note() {
   echo "
         ... in a clone of the [$remote_url_ssh]($remote_url_https) repository
-        ${remote_ref:+"on the $b$remote_ref$b branch"} ([:information_source: how do I use this?](
+        ${remote_ref:+"on the $b$remote_ref$b branch"} ([ℹ️ how do I use this?](
         https://docs.check-spelling.dev/Accepting-Suggestions)):
   "
 }
 
 spelling_warning() {
-  OUTPUT="## :red_circle: $1
+  OUTPUT="## 🔴 $1
 "
   spelling_body "$2" "$3" "$4"
   if [ -n "$OUTPUT" ]; then
@@ -2924,14 +2924,14 @@ spelling_body() {
   err="$3"
   action_log_url="$(get_action_log)"
   if [ -n "$action_log_url" ]; then
-    action_log_markdown="the [:scroll:action log]($action_log_url)"
+    action_log_markdown="the [📜action log]($action_log_url)"
   else
     action_log_markdown=""
   fi
   if [ -e "$job_id_ref" ]; then
-    memo="[:memo: job summary]($jobs_summary_link#summary-$(cat "$job_id_ref" 2>/dev/null))"
+    memo="[📝 job summary]($jobs_summary_link#summary-$(cat "$job_id_ref" 2>/dev/null))"
   else
-    memo=':memo: job summary'
+    memo='📝 job summary'
   fi
   if to_boolean "$INPUT_USE_SARIF"; then
     pr_number=$(jq -r '.pull_request.number // empty' "$GITHUB_EVENT_PATH")
@@ -2940,7 +2940,7 @@ spelling_body() {
     else
       sarif_report_query="branch:${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
     fi
-    sarif_report="[:angel: SARIF report]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/code-scanning?query=is:open+tool:check-spelling+$sarif_report_query),"
+    sarif_report="[👼 SARIF report]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/code-scanning?query=is:open+tool:check-spelling+$sarif_report_query),"
     # check-spelling here corresponds to the uses github/codeql-action/upload-sarif / with / category
     code_scanning_results_run=$(
       github_codeql_app_id=57789
@@ -2951,7 +2951,7 @@ spelling_body() {
     if [ -n "$code_scanning_results_run" ]; then
       code_scanning_results_url=$(GH_TOKEN="$GITHUB_TOKEN" gh api "$code_scanning_results_run" -q '.html_url // empty' || true)
       if [ -n "$code_scanning_results_url" ]; then
-        sarif_report="$sarif_report [:rotating_light: alerts]($code_scanning_results_url),"
+        sarif_report="$sarif_report [🚨 alerts]($code_scanning_results_url),"
       fi
     fi
   fi
@@ -3037,10 +3037,10 @@ spelling_body() {
                   extra_dictionaries: |'
       fi
       if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
-        warn_about_pull_request_target=":information_source: Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
+        warn_about_pull_request_target="ℹ️ Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
       fi
       output_dictionaries="$(echo "
-        <details><summary>Available :books: dictionaries could cover words$expect_head not in the :blue_book: dictionary</summary>
+        <details><summary>Available 📚 dictionaries could cover words$expect_head not in the 📘 dictionary</summary>
 
         $expect_details
 
@@ -3072,7 +3072,7 @@ spelling_body() {
         set_output_variable should_exclude_patterns "$should_exclude_patterns"
         exclude_files_text="update file exclusions"
         output_excludes="$(echo "
-          <details><summary>Some files were automatically ignored :see_no_evil:</summary>
+          <details><summary>Some files were automatically ignored 🙈</summary>
 
           These sample patterns would exclude them:
           $B
@@ -3103,19 +3103,19 @@ spelling_body() {
       get_has_errors
       if [ -n "$has_notices" ]; then
         event_title_notices='Notices'
-        event_icon=':information_source:'
+        event_icon='ℹ️'
       else
         event_title_notices=''
       fi
       if [ -n "$has_warnings" ]; then
         event_title_warnings='Warnings'
-        event_icon=':warning:'
+        event_icon='⚠️'
       else
         event_title_warnings=''
       fi
       if [ -n "$has_errors" ]; then
         event_title_errors='Errors'
-        event_icon=':x:'
+        event_icon='❌'
       else
         event_title_errors=''
       fi
@@ -3128,7 +3128,7 @@ spelling_body() {
           [$event_icon ${event_title}](https://docs.check-spelling.dev/Event-descriptions) | Count
           -|-
           $(
-            jq -r 'to_entries[] | "[:information_source: \(.key)](https://docs.check-spelling.dev/Event-descriptions#\(.key)) | \(.value)"' "$counter_summary_file" |
+            jq -r 'to_entries[] | "[ℹ️ \(.key)](https://docs.check-spelling.dev/Event-descriptions#\(.key)) | \(.value)"' "$counter_summary_file" |
             NOTICES_LIST="$(
               echo "$INPUT_NOTICES" | events_to_regular_expression
             )" WARNINGS_LIST="$(
@@ -3138,9 +3138,9 @@ spelling_body() {
             my $warnings=$ENV{WARNINGS_LIST};
             while (<>) {
               if (/$warnings/) {
-                s/information_source/warning/;
+                s/ℹ️/⚠️/;
               } elsif (!/$notices/) {
-                s/information_source/x/;
+                s/ℹ️/❌/;
               }
               print;
             }
@@ -3200,12 +3200,12 @@ spelling_body() {
       " | strip_lead
     }
     if [ -s "$forbidden_summary" ]; then
-      output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns :no_good:" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
+      output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns 🙅" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
         These forbidden patterns matched content:" "")"
     fi
     if [ -s "$candidate_summary" ]; then
-      output_candidate_pattern_suggestions="$(maybe_wrap_in_details "Pattern suggestions :scissors:" "$candidate_summary" "if /^#/" "
+      output_candidate_pattern_suggestions="$(maybe_wrap_in_details "Pattern suggestions ✂️" "$candidate_summary" "if /^#/" "
         You could add these patterns to $b$new_patterns_file$b:
         $B
         # Automatically suggested patterns" "$B
