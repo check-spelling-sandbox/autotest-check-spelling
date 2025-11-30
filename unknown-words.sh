@@ -2958,7 +2958,7 @@ spelling_body() {
 
   case "$GITHUB_EVENT_NAME" in
     pull_request|pull_request_target)
-      details_note="See the [:open_file_folder: files]($(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")/files/) view, $action_log_markdown, $sarif_report or $memo for details.";;
+      details_note="See the [📂 files]($(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")/files/) view, $action_log_markdown, $sarif_report or $memo for details.";;
     push)
       if [ -n "$action_log_markdown" ]; then
         details_note="See $action_log_markdown${sarif_report:+", $sarif_report"} or $memo for details."
