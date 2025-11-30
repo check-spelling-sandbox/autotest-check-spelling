@@ -1,8 +1,8 @@
 
 # @check-spelling-bot Report
 
-## :red_circle: Please review
-### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
+## 🔴 Please review
+### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 ### Unrecognized words (6)
 
@@ -21,7 +21,7 @@ youu
 
 
 ... in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository
-([:information_source: how do I use this?](
+([ℹ️ how do I use this?](
 https://docs.check-spelling.dev/Accepting-Suggestions)):
  =
 ```sh
@@ -75,7 +75,7 @@ And `git push` ...
 you could run the following commands</summary>
 
 ... in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository
-([:information_source: how do I use this?](
+([ℹ️ how do I use this?](
 https://docs.check-spelling.dev/Accepting-Suggestions)):
 
 ``` sh
@@ -84,7 +84,7 @@ git commit -m 'Update check-spelling metadata'
 ```
 </details>
 
-<details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
+<details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
 This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (6)
 
@@ -106,7 +106,7 @@ check_extra_dictionaries: ""
 
 </details>
 
-<details><summary>Forbidden patterns :no_good: (4)</summary>
+<details><summary>Forbidden patterns 🙅 (4)</summary>
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
@@ -134,18 +134,18 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors, Warnings, and Notices :x: (4)</summary>
+<details><summary>Errors, Warnings, and Notices ❌ (4)</summary>
 
-#### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
+#### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-[:x: Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
+[❌ Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
-[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
-[:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
-[:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
-[:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
+[❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
+[⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
+[⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
+[ℹ️ unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
 
-See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
+See [❌ Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
 </details>
 <details><summary>Details 🔎</summary>
