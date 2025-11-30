@@ -12,6 +12,7 @@ use feature 'unicode_strings';
 use strict;
 use warnings;
 no warnings qw(experimental::vlb);
+use utf8;
 use Encode qw/decode_utf8 encode FB_DEFAULT/;
 use File::Basename;
 use Cwd 'abs_path';
