@@ -26,8 +26,8 @@ Preparing a comment for push
 
 # @check-spelling-bot Report
 
-## :red_circle: Please review
-### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
+## 🔴 Please review
+### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 ### Unrecognized words (7)
 
@@ -47,7 +47,7 @@ youu
 you could run the following commands</summary>
 
 ... in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository
-on the `GITHUB_BRANCH` branch ([:information_source: how do I use this?](
+on the `GITHUB_BRANCH` branch ([ℹ️ how do I use this?](
 https://docs.check-spelling.dev/Accepting-Suggestions)):
 
 ``` sh
@@ -60,7 +60,7 @@ git commit -m 'Update check-spelling metadata'
 ```
 </details>
 
-<details><summary>Available :books: dictionaries could cover words (expected and unrecognized) not in the :blue_book: dictionary</summary>
+<details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
 This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (7)
 
@@ -82,7 +82,7 @@ check_extra_dictionaries: ""
 
 </details>
 
-#### Forbidden patterns :no_good: (1)
+#### Forbidden patterns 🙅 (1)
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
@@ -93,18 +93,18 @@ These forbidden patterns matched content:
 \bsample\.file\b
 ```
 
-<details><summary>Errors and Warnings :x: (4)</summary>
+<details><summary>Errors and Warnings ❌ (4)</summary>
 
-#### See the [:scroll:action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or :memo: job summary for details.
+#### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-[:x: Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
+[❌ Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
-[:warning: bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
-[:x: forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
-[:warning: ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
-[:warning: non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
+[⚠️ bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
+[❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
+[⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
+[⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
 
-See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
+See [❌ Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
 </details>
 ::endgroup::
