@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use File::Copy;
 use File::Temp qw/ tempfile tempdir /;
