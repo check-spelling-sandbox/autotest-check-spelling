@@ -5,6 +5,8 @@ use warnings;
 no warnings 'once';
 no warnings 'redefine';
 
+use utf8;
+
 use Cwd qw();
 use Test::More;
 use File::Temp qw/ tempfile tempdir /;
