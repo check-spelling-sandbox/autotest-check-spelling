@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 use Cwd qw/ abs_path realpath /;
 use File::Copy;
