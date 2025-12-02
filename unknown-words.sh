@@ -3199,6 +3199,23 @@ spelling_body() {
         $suffix$section_foot
       " | strip_lead
     }
+    unrecognized_support_items=$(
+      build-english-list $(
+        jq -r 'keys|.[]' "$counter_summary_file" |
+        perl -ne 'next unless s/^unrecognized-spelling-//; print' |
+        xargs
+      )
+    )
+    if [ -n "$unrecognized_support_items" ]; then
+      output_unrecognized_support="$(
+      echo "
+      #### Additional unrecognized items
+
+      Items were found in $unrecognized_support_items.
+      "'
+      For the specific items, see Details 🔎 in the 📝 job summary. If they are acceptable, you will need to add them to `allow.txt` or mask them with `patterns.txt`.
+      ' | strip_lead)"
+    fi
     if [ -s "$forbidden_summary" ]; then
       output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns 🙅" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
@@ -3256,7 +3273,7 @@ spelling_body() {
       details_heading=""
     fi
     step_summary_warnings="$(flush_step_summary_warnings)"
-    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
+    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_unrecognized_support$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
       " | perl -pe 's/^\s+$/\n/;'| uniq)
 }
 
