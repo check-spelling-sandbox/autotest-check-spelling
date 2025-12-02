@@ -1232,6 +1232,7 @@ define_variables() {
   used_config_files="$data_dir/used-config-files.list"
   seen_config_files="$data_dir/seen-config-files.list"
   tokens_file="$data_dir/tokens.txt"
+  add_to_allow="$data_dir/add_to_allow.txt"
   remove_words="$data_dir/remove_words.txt"
   action_log_ref="$data_dir/action_log_ref.txt"
   action_log_file_name="$data_dir/action_log_file_name.txt"
@@ -3200,6 +3201,40 @@ spelling_body() {
         $suffix$section_foot
       " | strip_lead
     }
+    unrecognized_support_items=$(
+      build-english-list $(
+        jq -r 'keys|.[]' "$counter_summary_file" |
+        perl -ne 'next unless s/^unrecognized-spelling-//; print' |
+        xargs
+      )
+    )
+    if [ -n "$unrecognized_support_items" ]; then
+      tokens="$tokens_file" warnings="$warning_output" perl -e '
+        my %words;
+        open my $warnings, "<:encoding(UTF-8)", $ENV{warnings};
+        while (<$warnings>) {
+          next unless /- `(.*)` .*\(unrecognized-spelling-[-\w]+\)$/;
+          $words{$1} = 1;
+        }
+        close $warnings;
+        open my $tokens, "<:encoding(UTF-8)", $ENV{tokens};
+        while (<$tokens>) {
+          chomp;
+          delete $words{$_}
+        }
+        close $tokens;
+        for my $token (keys %words) {
+          print "- $token\n";
+        }
+      ' > "$add_to_allow"
+      if [ -s "$add_to_allow" ]; then
+        output_unrecognized_support="$(maybe_wrap_in_details "Additional unrecognized items" "$add_to_allow" 'unless /- /' "
+        Items were found in $unrecognized_support_items.
+        " '
+        For the specific items, see Details 🔎 in the 📝 job summary. If they are acceptable, you will need to add them to `allow.txt` or mask them with `patterns.txt`.
+        ')"
+      fi
+    fi
     if [ -s "$forbidden_summary" ]; then
       output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns 🙅" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
@@ -3257,7 +3292,7 @@ spelling_body() {
       details_heading=""
     fi
     step_summary_warnings="$(flush_step_summary_warnings)"
-    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
+    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_unrecognized_support$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
       " | perl -pe 's/^\s+$/\n/;'| uniq)
 }
 
@@ -3467,6 +3502,10 @@ minimize_comment_body() {
     return
   fi
   trim_commit_comment 'Files' '(<details><summary>Some files were automatically ignored.*</summary>)\n.*?\`\`\`(.*?)\`\`\`.*?(?=</details>)' '\n\n'
+  if [ $payload_size -le $github_comment_size_limit ]; then
+    return
+  fi
+  trim_commit_comment 'Additional unrecognized items' '<details><summary>Additional unrecognized items.*</summary>)\n\nItems were found in .*\n\n.*?(?<=</details>)' '\n\'
   if [ $payload_size -le $github_comment_size_limit ]; then
     return
   fi
