@@ -380,6 +380,10 @@ get_comment_url_from_id() {
 
 comment_task() {
   set_up_files
+  if [ -s "$severity_list" ]; then
+    q="$q" perl -pi -e '$_ = "" unless /^INPUT_[A-Z]+=$ENV{q}(?:\$\^|[-|a-z]+)$ENV{q}$/' "$severity_list"
+    . "$severity_list"
+  fi
 
   if [ -n "$INPUT_INTERNAL_STATE_DIRECTORY" ]; then
     if [ -z "$NEW_TOKENS" ]; then
@@ -2627,8 +2631,6 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   begin_group 'Spell check'
   warning_output="$(mktemp -d)/warnings.txt"
   more_warnings="$data_dir/more_warnings.txt"
-  severity_level="$data_dir/severity_level.txt"
-  severity_list="$data_dir/severity_list.txt"
   cat "$file_list" |\
   env -i \
     SHELL="$SHELL" \
