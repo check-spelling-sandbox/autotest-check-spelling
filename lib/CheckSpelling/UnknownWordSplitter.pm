@@ -459,6 +459,7 @@ sub split_file {
       if (defined $patterns_re) {
         s/($patterns_re)/"="x length($1)/ge;
       }
+      my $initial_line_state = $_;
       my $previous_line_state = $_;
       my $line_flagged;
       if ($forbidden_re) {
@@ -497,6 +498,7 @@ sub split_file {
           }
           $previous_line_state = $_;
         }
+        $_ = $initial_line_state;
       }
       # This is to make it easier to deal w/ rules:
       s/^/ /;
@@ -539,9 +541,9 @@ sub split_file {
         }
       }
       if ($line_flagged && $candidates_re) {
-        $_ = $previous_line_state;
+        $_ = $previous_line_state = $initial_line_state;
         s/($candidates_re)/"="x length($1)/ge;
-        if ($_ ne $previous_line_state) {
+        if ($_ ne $initial_line_state) {
           $_ = $previous_line_state;
           for my $i (0 .. $#candidates_re_list) {
             my $candidate_re = $candidates_re_list[$i];
