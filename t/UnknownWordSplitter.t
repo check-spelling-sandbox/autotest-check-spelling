@@ -122,7 +122,7 @@ $CheckSpelling::UnknownWordSplitter::forbidden_re='FooBarBar';
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 $CheckSpelling::UnknownWordSplitter::forbidden_re='$^';
 check_output_file("$output_dir/name", $filename, 'name');
-check_output_file("$output_dir/stats", '{words: 4, unrecognized: 3, unknown: 2, unique: 2}', 'stats');
+check_output_file("$output_dir/stats", '{words: 7, unrecognized: 3, unknown: 2, unique: 2}', 'stats');
 check_output_file_sorted_lines("$output_dir/warnings", ":1:8 ... 11: `baz`
 :1:20 ... 23: `baz`
 :1:16 ... 19: `elf`
@@ -197,7 +197,7 @@ grape
 close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/name", $filename, 'name');
-check_output_file("$output_dir/stats", '{words: 9, unrecognized: 1, unknown: 1, unique: 5, forbidden: [2,1,1], forbidden_lines: [3:7:12,2:7:20,1:15:26]}', 'stats');
+check_output_file("$output_dir/stats", '{words: 13, unrecognized: 1, unknown: 1, unique: 6, forbidden: [2,1,1], forbidden_lines: [3:7:12,2:7:20,1:15:26]}', 'stats');
 check_output_file_sorted_lines("$output_dir/warnings", ":1:15 ... 26, Warning - `a b c d e f` matches a line_forbidden.patterns entry: `\\ba b c d e f\\b` (forbidden-pattern)
 :2:7 ... 20, Warning - ` fruit fruit ` matches a line_forbidden.patterns rule: Flag duplicated \"words\" - `\\s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\\s\\g{-1}\\s` (forbidden-pattern)
 :3:19 ... 24, Warning - `donut` matches a line_forbidden.patterns rule: forbidden - `\\bdonut\\b` (forbidden-pattern)
