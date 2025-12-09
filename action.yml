@@ -375,7 +375,7 @@ runs:
         echo '::error ::This version of nektos/act is broken. See https://docs.check-spelling.dev/Breaking-Change:-Dropping-support-for-broken-act'
         exit 1
     - name: act-windows-shim
-      if: env.ACT
+      if: runner.os == 'Windows' && env.ACT
       shell: bash
       run: |
         : Try to help act on Windows
