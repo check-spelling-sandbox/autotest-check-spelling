@@ -4,12 +4,13 @@
 ## 🔴 Please review
 ### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-### Unrecognized words (6)
+### Unrecognized words (7)
 
 Aiglos
 Alqua
 diid
 fixx
+ico
 thiss
 youu
 
@@ -36,20 +37,21 @@ check-spelling run (push) for HEAD
 Signed-off-by: check-spelling-bot <check-spelling-bot@users.noreply.github.com>
 on-behalf-of: @check-spelling <check-spelling-bot@check-spelling.dev>
 ---
- t/unknown-words/config/expect/GITHUB_SHA.txt | 6 ++++++
+ t/unknown-words/config/expect/GITHUB_SHA.txt | 7 +++++++
  t/unknown-words/config/expect/other.txt                                    | 1 -
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/t/unknown-words/config/expect/GITHUB_SHA.txt b/t/unknown-words/config/expect/GITHUB_SHA.txt
 new file mode 100644
 index GIT_DIFF_NEW_FILE
 --- /dev/null
 +++ b/t/unknown-words/config/expect/GITHUB_SHA.txt
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,7 @@
 +Aiglos
 +Alqua
 +diid
 +fixx
++ico
 +thiss
 +youu
 diff --git a/t/unknown-words/config/expect/other.txt b/t/unknown-words/config/expect/other.txt
@@ -86,7 +88,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (6)
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (7)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
@@ -183,6 +185,7 @@ note|path
 `Alqua` is not a recognized word | unknown-words/input/sample.file:3
 `diid` is not a recognized word | unknown-words/input/sample.file:2
 `fixx` is not a recognized word | unknown-words/input/sample.file:2
+`ico` is not a recognized word | unknown-words/input/sample.file:7
 `thiss` is not a recognized word | unknown-words/input/sample.file:2
 `youu` is not a recognized word | unknown-words/input/sample.file:2
 </details>

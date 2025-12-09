@@ -12,3 +12,4 @@ unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized 
 unknown-words/input/sample.file:5:9 ... 27, Error - `documentation.file` matches a line_forbidden.patterns rule: Should be `documentation.pdf` - `\bdocumentation\.file\b` (forbidden-pattern)
 unknown-words/input/sample.file:7:1 ... 9, Error - `Bad news` matches a line_forbidden.patterns rule: Should be `good news` - `(?i)\bbad news\b` (forbidden-pattern)
 unknown-words/input/sample.file:7:18 ... 26, Error - `logo.ico` matches a line_forbidden.patterns rule: Should be `logo.png` - `\blogo\.ico\b` (forbidden-pattern)
+unknown-words/input/sample.file:7:23 ... 26, Error - `ico` is not a recognized word (unrecognized-spelling)
