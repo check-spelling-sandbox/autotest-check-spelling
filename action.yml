@@ -401,8 +401,7 @@ runs:
         ) >> "$GITHUB_ENV"
         if ! ln -s "$THIS_ACTION_PATH"/actions ../check-spelling-actions; then
           mkdir -p ../check-spelling-actions
-          rsync --delete -a "$THIS_ACTION_PATH"/actions/ ../check-spelling-actions/
-          echo "USE_RSYNC_FOR_LOCAL_CHECK_SPELLING_ACTIONS=1" >> "$GITHUB_ENV"
+          cp -R "$THIS_ACTION_PATH"/actions/ ../check-spelling-actions/
         fi
         echo "$THIS_ACTION_PATH/wrappers" >> "$GITHUB_PATH"
         echo "THIS_GITHUB_JOB_ID=$THIS_GITHUB_JOB_ID" >> "$GITHUB_ENV"
