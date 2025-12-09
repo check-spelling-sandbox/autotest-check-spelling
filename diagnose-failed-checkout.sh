@@ -61,6 +61,114 @@ summarize_gh_api_output() {
   echo "</details>"
 }
 
+check_github_outage() {
+  github_http_log=$(mktemp)
+  http_request="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/"
+  response=$(curl -s -o "$github_http_log" -w "%{http_code}" "$http_request")
+  case $response in
+  500)
+    cat "$github_http_log"
+    echo '</response>'
+    ;;
+  200|404)
+    rm -f "$github_http_log"
+    ;;
+  *)
+    echo "Unexpected response $response"
+    cat "$github_http_log"
+    echo '</response>'
+    ;;
+  esac
+  github_ssh_log=$(mktemp)
+  github_host=${GITHUB_SERVER_URL##*/}
+  github_ssh_session="git@$github_host"
+  if ssh "$github_ssh_session" 2>&1 |
+    tee "$github_ssh_log" |
+    grep -q -E 'GitHub does not provide shell access|Permission denied'; then
+    rm -f "$github_ssh_log"
+  fi
+  if [ -s "$github_http_log" ] || [ -s "$github_ssh_log" ]; then
+    (
+      echo '## Checkout Failed: GitHub Outage?'
+      if [ -s "$github_http_log" ]; then
+        echo "### GitHub HTTP $http_request ($response)"
+        echo '```html'
+        cat "$github_http_log"
+        echo '```'
+        echo
+      fi
+      if [ -s "$github_ssh_log" ]; then
+        echo "### GitHub SSH ($github_ssh_session)"
+        echo '```sh'
+        cat "$github_ssh_log"
+        echo '```'
+        echo
+      fi
+      if [ "$github_host" = github.com ]; then
+        github_status=$(mktemp)
+        curl -s -o "$github_status" https://www.githubstatus.com/history.atom || true
+        if [ -s "$github_status" ]; then
+          echo '### GitHub Status'
+          perl -e '
+            my $log = q<>;
+            my $state = 0;
+            my ($id, $published, $updated, $title, $link, $content);
+            while (<>) {
+              if (m{^\s*<entry>}) {
+                $log = q<>;
+                $state = 1;
+                $id = $published = $updated = $title = $link = $content = "";
+                next;
+              };
+              if (m{^\s*</entry>}) {
+                $state = 0;
+                $updated = "(updated $updated) " if $updated;
+                print "#### [$title]($link) <details><summary>$published $updated</summary>$content</details>\n";
+                next;
+              }
+              next unless $state == 1;
+              if (m{<id>(.*)</id>}) {
+                $id = $1;
+                next;
+              }
+              if (m{<published>(.*)</published>}) {
+                $published = $1;
+                next;
+              }
+              if (m{<updated>(.*)</updated>}) {
+                $updated = $1;
+                next;
+              }
+              if (m{<title>(.*)</title>}) {
+                $title = $1;
+                next;
+              }
+              if (m{<content type="html">(.*)</content>}) {
+                $content = $1;
+                $content =~ s/&lt;/</g;
+                $content =~ s/&gt;/>/g;
+                $content =~ s#</?small>##g;
+                $content =~ s#<strong>(.*?)</strong>#**$1**#g;
+                $content =~ s#<var data-var=[^>]*>(.*?)</var>#$1#g;
+                $content =~ s/</&lt;/g;
+                $content =~ s/>/&gt;/g;
+                $content =~ s#\*\*(.*?)\*\*#<b>$1</b>#g;
+                next;
+              }
+              if (m{<link .* type="text/html" href="(.*)"/>}) {
+                $link = $1;
+                next;
+              }
+            }
+          ' "$github_status" | head -10 | perl -pe 's{(</?details>)}{\n$1\n}g;s{&lt;br */?&gt;}{\n}g;s{&lt;/?p&gt;}{\n\n}g'
+          echo
+        fi
+      fi
+    ) >> "$GITHUB_STEP_SUMMARY"
+    exit 1
+  fi
+}
+
 check_ssh_key() {
   if [ -n "$ssh_key" ]; then
     ssh_key_file=$(mktemp)
@@ -218,6 +326,7 @@ check_repository_existence
 check_repository_read_permission
 check_for_not_our_ref "$GITHUB_SHA"
 check_for_submodules
+check_github_outage
 
 (
   echo '## Checkout Failed'
