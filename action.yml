@@ -334,6 +334,9 @@ inputs:
     description: "Check sub-repositories (with `checkout` this will automatically check out subrepositories, without it assumes they're already checked out)"
     required: false
     default: ""
+  ignore-next-line:
+    description: "Pattern to cause next line to be ignored"
+    required: false
 
 outputs:
   unknown_words:
