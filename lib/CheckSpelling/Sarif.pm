@@ -130,12 +130,14 @@ sub parse_warnings {
         my $directory = dirname($file);
         unless (defined $directoryToProvenanceInsertion{$directory}) {
             my $provenanceString = collectVersionControlProvenance($file);
-            if (defined $provenanceStringToIndex{$provenanceString}) {
-                $directoryToProvenanceInsertion{$directory} = $provenanceStringToIndex{$provenanceString};
-            } else {
-                $provenanceStringToIndex{$provenanceString} = $provenanceInsertion;
-                $directoryToProvenanceInsertion{$directory} = $provenanceInsertion;
-                ++$provenanceInsertion;
+            if ($provenanceString) {
+                if (defined $provenanceStringToIndex{$provenanceString}) {
+                    $directoryToProvenanceInsertion{$directory} = $provenanceStringToIndex{$provenanceString};
+                } else {
+                    $provenanceStringToIndex{$provenanceString} = $provenanceInsertion;
+                    $directoryToProvenanceInsertion{$directory} = $provenanceInsertion;
+                    ++$provenanceInsertion;
+                }
             }
         }
         # single-slash-escape `"` and `\`
@@ -250,6 +252,7 @@ sub get_runs_from_sarif {
 sub collectVersionControlProvenance {
     my ($file) = @_;
     my ($parsed_file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev($file);
+    return '' unless $remote_url;
     my $base = substr $parsed_file, 0, length($file);
     my $provenance = [$remote_url, $rev, $branch, $git_base_dir];
     return JSON::PP::encode_json($provenance);
