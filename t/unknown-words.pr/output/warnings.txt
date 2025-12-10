@@ -9,4 +9,5 @@ unknown-words/input/sample.file:2:17 ... 21, Error - `fixx` is not a recognized 
 unknown-words/input/sample.file:2:22 ... 27, Error - `thiss` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:6:1 ... 10, Error - `Cowabunga` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:7:23 ... 26, Error - `ico` is not a recognized word (unrecognized-spelling)

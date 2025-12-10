@@ -130,7 +130,7 @@ sub extra_cleanup {
 }
 
 sub test {
-my ($sandbox, $instance) = @_;
+my ($sandbox, $instance, $ignoreNextLine) = @_;
 
 my $config = "$sandbox/t/$instance/config";
 
@@ -157,6 +157,7 @@ my $input = {
   "extra_dictionaries" => " ",
   "" => "ignored-empty",
   "ignoredEmpty" => "",
+  "$ignoreNextLine" => "skip-next-line",
   "ignoredValue" => "github_pat_ignored",
   "ignored_key" => "ignored",
   "ignored item" => "ignored",
@@ -279,12 +280,12 @@ is($stale, $expected_stale_words, "$instance: stale_words");
 
 }
 
-test($sandbox, 'unknown-words');
+test($sandbox, 'unknown-words', 'ignore-next-line');
 
 $ENV{GITHUB_HEAD_REF} = 'some-head';
 $ENV{GITHUB_BASE_REF} = 'some-base';
 
-test($sandbox, 'unknown-words.pr');
+test($sandbox, 'unknown-words.pr', 'whatever');
 
 system(qw(git config --unset user.email));
 system(qw(git config --unset user.name));
