@@ -2648,6 +2648,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     INPUT_NOT_LOWER_PATTERN="$INPUT_NOT_LOWER_PATTERN" \
     INPUT_NOT_UPPER_OR_LOWER_PATTERN="$INPUT_NOT_UPPER_OR_LOWER_PATTERN" \
     INPUT_PUNCTUATION_PATTERN="$INPUT_PUNCTUATION_PATTERN" \
+    INPUT_IGNORE_NEXT_LINE="$INPUT_IGNORE_NEXT_LINE" \
     dict="$dict" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
     check_file_names="$check_file_names" \
