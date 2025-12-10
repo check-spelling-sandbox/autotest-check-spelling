@@ -33,6 +33,7 @@ my $base_dict;
 my %unique;
 my %unique_unrecognized;
 my ($last_file, $words, $unrecognized) = ('', 0, 0);
+my ($ignore_next_line_pattern);
 
 my $disable_flags;
 
@@ -261,6 +262,9 @@ sub init {
   our $disable_minified_file = $disable_flags =~ /(?:^|,|\s)minified-file(?:,|\s|$)/;
   our $disable_single_line_file = $disable_flags =~ /(?:^|,|\s)single-line-file(?:,|\s|$)/;
 
+  our $ignore_next_line_pattern = CheckSpelling::Util::get_file_from_env('INPUT_IGNORE_NEXT_LINE', '');
+  $ignore_next_line_pattern =~ s/\s+/|/g;
+
   our $check_file_names = CheckSpelling::Util::get_file_from_env('check_file_names', '');
 
   our $use_magic_file = CheckSpelling::Util::get_val_from_env('INPUT_USE_MAGIC_FILE', '');
@@ -353,8 +357,11 @@ sub split_file {
     @forbidden_re_list, $patterns_re, %dictionary,
     $candidates_re, @candidates_re_list, $check_file_names, $use_magic_file, $disable_minified_file,
     $disable_single_line_file,
+    $ignore_next_line_pattern,
     $sandbox,
   );
+  $ignore_next_line_pattern = '$^' unless $ignore_next_line_pattern =~ /./;
+
   our %forbidden_re_descriptions;
   our ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
 
@@ -435,6 +442,7 @@ sub split_file {
     local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
     alarm $timeout;
 
+    my $ignore_next_line = 0;
     my $offset = 0;
     while (<FILE>) {
       if ($. == 1) {
@@ -454,6 +462,10 @@ sub split_file {
       s/^\x{FEFF}// if $. == 1;
       next unless /./;
       my $raw_line = $_;
+
+      my $ignore_this_line = $ignore_next_line;
+      $ignore_next_line = ($_ =~ /$ignore_next_line_pattern/);
+      next if $ignore_this_line;
 
       # hook for custom line based text exclusions:
       if (defined $patterns_re) {
