@@ -285,9 +285,13 @@ foad
 fooo'd
 fo'od
 fa'ad
+p-u-z-z-l-e
+piece
 ";
 close $fh;
+$CheckSpelling::UnknownWordSplitter::ignore_next_line_pattern = 'p-u-z-z-l-e';
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
+$CheckSpelling::UnknownWordSplitter::ignore_next_line_pattern = '';
 is(-e "$output_dir/skipped", undef, 'not skipped');
 check_output_file("$output_dir/unknown", "fa'ad
 foad
