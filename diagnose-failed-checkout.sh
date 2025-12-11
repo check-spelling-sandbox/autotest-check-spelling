@@ -169,25 +169,33 @@ check_github_outage() {
   fi
 }
 
+bad_ssh_key() {
+  (
+    echo "## Checkout Failed: Bad SSH Key$1"
+    echo 'Look for `with:`/`ssh_key: ...`'
+    echo 'It should be something like `${{ secrets.CHECK_SPELLING }}`'
+    echo '* If it is, you might be able to delete the secret and then follow the talk-to-the-bot instructions.'
+    echo '* Otherwise, you probably need to regenerate your deploy key (or non deploy key) and recreate the secret containing the private key.'
+    echo '```'
+    cat "$out" "$err"
+    echo '```'
+  ) >> "$GITHUB_STEP_SUMMARY"
+  exit 1
+}
+
 check_ssh_key() {
   if [ -n "$ssh_key" ]; then
     ssh_key_file=$(mktemp)
     chmod 0600 "$ssh_key_file"
     echo "$ssh_key" > "$ssh_key_file"
+    if ! ssh-keygen -y -f "$ssh_key_file" > "$out" 2> "$err"; then
+      rm -f "$ssh_key_file"
+      bad_ssh_key ''
+    fi
     ssh -i "$ssh_key_file" "$ssh_account" > "$out" 2> "$err" || true
     rm -f "$ssh_key_file"
     if grep -q "^$ssh_account" "$err"; then
-      (
-        echo '## Checkout Failed: Bad SSH Key?'
-        echo 'Look for `with:`/`ssh_key: ...`'
-        echo 'It should be something like `${{ secrets.CHECK_SPELLING }}`'
-        echo '* If it is, you might be able to delete the secret and then follow the talk-to-the-bot instructions.'
-        echo '* Otherwise, you probably need to regenerate your deploy key (or non deploy key) and recreate the secret containing the private key.'
-        echo '```'
-        cat "$out" "$err"
-        echo '```'
-      ) >> "$GITHUB_STEP_SUMMARY"
-      exit 1
+      bad_ssh_key '?'
     fi
   fi
 }
