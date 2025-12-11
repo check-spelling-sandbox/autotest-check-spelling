@@ -41,6 +41,7 @@ $ENV{GITHUB_RUN_ID} = 7515;
 $ENV{GITHUB_REPOSITORY} = $github_repository;
 $ENV{GITHUB_REPOSITORY_OWNER} = $repository_owner;
 $ENV{GITHUB_REPOSITORY_NAME} = $github_repository_name;
+$ENV{GH_ACTION_REF} = 'dummy';
 
 system(qw(git config user.email check-spelling-bot@users.noreply.github.com));
 system(qw(git config user.name check-spelling-bot));
