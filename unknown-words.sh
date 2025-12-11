@@ -1231,6 +1231,7 @@ define_variables() {
   get_commits_for_check_commit_message="$spellchecker/get-commits-for-check-commit-message.pl"
   scope_files="$spellchecker/wrappers/exclude"
   calculate_delay="$spellchecker/wrappers/calculate-delay"
+  insert_into_summary="$spellchecker/wrappers/insert-into-summary"
   dictionary_coverage="$spellchecker/wrappers/dictionary-coverage"
   suggest_excludes="$spellchecker/wrappers/suggest-excludes"
   run_output="$temp_sandbox/unknown.words.txt"
@@ -3625,7 +3626,7 @@ generate_sample_commit_help() {
     cat "$git_apply_commit"
     echo "$delim$n$B$N"
     echo 'And `git push` ...'
-    echo "</details>$N**OR**$N"
+    echo "</details>"
   else
     (
       echo "git commit failed ($git_commit_status)..."
@@ -3664,17 +3665,7 @@ post_summary() {
     echo 'generate_sample_commit_help failed, please file a bug' >&2
   if [ -s "$sample_commit" ]; then
     draft_with_commit="$(mktemp)"
-    base="$step_summary_draft" insert="$sample_commit" perl -e '
-      open BASE, "<", $ENV{base};
-      while (<BASE>){
-        if (!$found && $_=~/To accept /){
-          $found=1;
-          $/=undef;
-          open INSERT, "<", $ENV{insert};
-          print <INSERT>;
-        }
-        print;
-      }' > "$draft_with_commit"
+    base="$step_summary_draft" insert="$sample_commit" "$insert_into_summary" > "$draft_with_commit"
     cp "$draft_with_commit" "$step_summary_draft"
   fi
   if [ -n "$INPUT_SUMMARY_TABLE" ] && [ -s "$warning_output" ]; then
