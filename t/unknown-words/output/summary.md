@@ -70,8 +70,8 @@ GIT_VERSION
 And `git push` ...
 </details>
 
-**OR**
 
+**OR**
 
 <details><summary>To accept these unrecognized words as correct and remove the previously acknowledged and now absent words,
 you could run the following commands</summary>
