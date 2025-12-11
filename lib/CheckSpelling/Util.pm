@@ -91,6 +91,30 @@ sub maybe_str2time {
   return $time if $time;
 }
 
+sub print_insert {
+  open INSERT, "<", $ENV{insert};
+  local $/=undef;
+  print <INSERT>;
+  print "\n\n";
+  close INSERT;
+}
+
+sub insert_into_summary {
+  my $found=0;
+  open BASE, "<", $ENV{base};
+  while (<BASE>){
+    if (!$found) {
+      if (/To accept /){
+        $found=1;
+        print_insert();
+        print "**OR**\n\n";
+      }
+    }
+    print;
+  }
+  close BASE;
+}
+
 sub calculate_delay {
   my (@lines) = @_;
   my $now_stamp = time;
