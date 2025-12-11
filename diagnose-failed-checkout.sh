@@ -192,7 +192,7 @@ check_ssh_key() {
       rm -f "$ssh_key_file"
       bad_ssh_key ''
     fi
-    ssh -i "$ssh_key_file" "$ssh_account" > "$out" 2> "$err" || true
+    ssh -T -i "$ssh_key_file" "$ssh_account" > "$out" 2> "$err" || true
     rm -f "$ssh_key_file"
     if grep -q "^$ssh_account" "$err"; then
       bad_ssh_key '?'
