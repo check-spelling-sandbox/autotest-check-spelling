@@ -197,6 +197,33 @@ check_ssh_key() {
     if grep -q "^$ssh_account" "$err"; then
       bad_ssh_key '?'
     fi
+    user_of_token=$(perl -pe 's/Hi ([^!]+)!.*/$1/' "$err")
+    case "$user_of_token" in
+    '')
+      ;;
+    */*)
+      if [ "$GITHUB_REPOSITORY" != "$user_of_token" ]; then
+        (
+          echo "## Checkout Failed: Key is for another repository"
+          echo "Expected a key for [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY), but found one for [$user_of_token]($GITHUB_SERVER_URL/$user_of_token)"
+          echo '```'
+          cat "$out" "$err"
+          echo '```'
+        ) >> "$GITHUB_STEP_SUMMARY"
+        exit 1
+      fi
+      ;;
+    *)
+      (
+        echo "## Checkout Failed: User does not have access"
+        echo "Expected a key with access to '$GITHUB_REPOSITORY', but key for '$user_of_token' does not have access."
+        echo '```'
+        cat "$out" "$err"
+        echo '```'
+      ) >> "$GITHUB_STEP_SUMMARY"
+      exit 1
+      ;;
+    esac
   fi
 }
 
