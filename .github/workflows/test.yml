@@ -170,10 +170,11 @@ jobs:
           echo '</details>'
         ) >> "$GITHUB_STEP_SUMMARY"
         echo ::endgroup::
+        echo 'ran=1' >> "$GITHUB_OUTPUT"
         exit $failed
     - name: calculate coverage
       id: coverage
-      if: success() || failure()
+      if: steps.test.outputs.ran == 1 && (success() || failure())
       run: |
         : Calculate coverage
         cover_command=`command -v cover`
