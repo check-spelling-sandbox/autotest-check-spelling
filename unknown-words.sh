@@ -37,6 +37,11 @@ basic_setup() {
   . "$spellchecker/common.sh"
 }
 
+workflow_skipped() {
+  echo "# ⏭️ Workflow skipped$N$1" >> "$GITHUB_STEP_SUMMARY"
+  exit 0
+}
+
 dispatcher() {
   if [ -n "$INPUT_EVENT_ALIASES" ]; then
     GITHUB_EVENT_NAME="$(echo "$INPUT_EVENT_ALIASES" | jq -r ".$GITHUB_EVENT_NAME // $Q$GITHUB_EVENT_NAME$Q")"
@@ -146,7 +151,6 @@ dispatcher() {
                 ) >> "$GITHUB_STEP_SUMMARY"
               fi
               echo "::notice title=Workflow skipped::See ${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow in PR #$open_pr_number. $workflow_run_link $checks_link"
-              echo "# ⏭️ Workflow skipped$n${n}See $prefix_workflow_link_text${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow$suffix_workflow_link_text in PR [#$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number).$n$n$checks_link" >> "$GITHUB_STEP_SUMMARY"
               if [ -n "$ACT" ]; then
                 matched_yaml_key_value=$(
                   REPORT_MATCHING_YAML=1 \
@@ -159,6 +163,7 @@ dispatcher() {
                 echo
                 echo "${matched_yaml_key_value:-"        suppress_push_for_open_pull_request: $INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST"}"
               fi
+              workflow_skipped "See $prefix_workflow_link_text${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow$suffix_workflow_link_text in PR [#$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number).$n$n$checks_link"
             ) >&2
             exit 0
           fi
@@ -177,21 +182,32 @@ dispatcher() {
       if [ -z "$INPUT_TASK" ]; then
         INPUT_TASK=spelling
       fi
-      if [ "$INPUT_TASK" = spelling ] && [ "$(are_head_and_base_in_same_repo "$GITHUB_EVENT_PATH" '.pull_request')" != 'true' ]; then
-        api_output=$(mktemp)
-        api_error=$(mktemp)
-        GH_TOKEN="$GITHUB_TOKEN" gh api --method POST -H "Accept: application/vnd.github+json" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/${GITHUB_BASE_REF:-$GITHUB_REF_NAME}/rename" > "$api_output" 2> "$api_error" || true
-        if ! grep -Eq 'not authorized|not accessible' "$api_output"; then
-          if to_boolean "$INPUT_USE_SARIF"; then
-            INPUT_USE_SARIF=
-            set_up_reporter
+      if [ "$INPUT_TASK" = spelling ]; then
+        if [ "$(are_head_and_base_in_same_repo "$GITHUB_EVENT_PATH" '.pull_request')" != 'true' ]; then
+          api_output=$(mktemp)
+          api_error=$(mktemp)
+          GH_TOKEN="$GITHUB_TOKEN" gh api --method POST -H "Accept: application/vnd.github+json" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/${GITHUB_BASE_REF:-$GITHUB_REF_NAME}/rename" > "$api_output" 2> "$api_error" || true
+          if ! grep -Eq 'not authorized|not accessible' "$api_output"; then
+            if to_boolean "$INPUT_USE_SARIF"; then
+              INPUT_USE_SARIF=
+              set_up_reporter
+            fi
+            echo '::error title=Unsafe Permissions: check-spelling::This workflow configuration is unsafe. Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
+            github_step_summary_likely_fatal \
+              'Unsafe Permissions' \
+              'This workflow configuration is unsafe.' \
+              'ℹ️ Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
+            quit 5
           fi
-          echo '::error title=Unsafe Permissions: check-spelling::This workflow configuration is unsafe. Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
-          github_step_summary_likely_fatal \
-            'Unsafe Permissions' \
-            'This workflow configuration is unsafe.' \
-            'ℹ️ Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
-          quit 5
+        fi
+        if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
+          expected_workflow_path=$(get_workflow_path)
+          if [ -n "$expected_workflow_path" ] &&
+            [ ! -e "$expected_workflow_path" ]; then
+            workflow_skipped 'This workflow is running on `pull_request_target` but the workflow is not present on the base branch.'$n\
+            'See [GitHub docs](https://github.com/github/docs/commit/bcff1fea9a3d7138e0707246e0ace5a3b183e33b) for some information about this feature from 2025-Dec.'$n \
+            'As the workflow is not present on the branch, it does not make sense to complain about the state of the world there.'
+          fi
         fi
       fi
       ;;
