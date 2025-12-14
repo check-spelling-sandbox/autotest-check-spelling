@@ -40,27 +40,77 @@ sub run_apply {
 
 my $expired_artifacts = "$temp.artifacts";
 my $expired_artifacts_log = "$temp.artifacts.log";
-my $gh_api_call = '/repos/check-spelling/check-spelling/actions/artifacts?name=check-spelling-comment';
 my $expired_artifact = '';
-`gh api '$gh_api_call' > '$expired_artifacts' 2> '$expired_artifacts_log'`;
-if ($?) {
-  print STDERR "gh api $gh_api_call failed: ".`cat '$expired_artifacts_log'`;
-} else {
-  my $jq_expired_artifacts_log = "$temp.jq.artifacts.log";
-  my $jq_expression = '.artifacts | map(select (.expired == true))[0].workflow_run.id // empty';
-  $expired_artifact = `jq -r '$jq_expression' '$expired_artifacts' 2> '$jq_expired_artifacts_log'`;
-  if ($?) {
-    print STDERR "jq $jq_expression failed: ".`cat '$jq_expired_artifacts_log'`;
-  } else {
-    chomp $expired_artifact;
-    ($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", 'check-spelling/check-spelling', $expired_artifact);
+my $expired_artifact_repo = 'check-spelling/check-spelling';
+my $state = 0;
+my $api_url = 'https://api.github.com/repos/check-spelling-sandbox/autotest-check-spelling/actions/artifacts?name=check-spelling-comment';
+my $jq_expired_artifacts_log = "$temp.jq.artifacts.log";
+my $jq_expression = '.artifacts | map(select (.expired == true))[0].workflow_run.id // empty';
 
-    my $sandbox_name = basename $sandbox;
-    my $temp_name = basename $temp;
-    is($stdout, "SPELLCHECKER/apply.pl: GitHub Run Artifact expired. You will need to trigger a new run.\n", 'apply.pl (stdout) expired');
-    is($stderr, '', 'apply.pl (stderr) expired');
-    is($result, 1, 'apply.pl (exit code) expired');
+my $retries = 0;
+my $GH_TOKEN = $ENV{GH_TOKEN};
+
+# three possible passes (not counting retries for rate limits):
+# 1. parse for artifact id
+# 2. repository renamed (need to store updated repository id)
+# 3. artifacts paginated
+while ($state < 4) {
+  `curl -s -H "Authorization: token $GH_TOKEN" -v '$api_url' > '$expired_artifacts' 2> '$expired_artifacts_log'`;
+  if (-s $expired_artifacts) {
+    $expired_artifact = `grep -q '"artifacts":' '$expired_artifacts' && jq -r '$jq_expression' '$expired_artifacts' 2> '$jq_expired_artifacts_log' || touch '$jq_expired_artifacts_log'`;
+    if ($?) {
+      print STDERR "jq $jq_expression failed: ".`cat '$jq_expired_artifacts_log'`;
+    } else {
+      if ($expired_artifact =~ /^(\d+).*/) {
+        $expired_artifact = $1;
+        my $expired_artifact_url = `jq -r '.artifacts[] | select (.workflow_run.id==$expired_artifact) | .url' '$expired_artifacts'`;
+        if ($expired_artifact_url =~ m{([^/]+/[^/]+)/actions/artifacts/\d+$}) {
+          $expired_artifact_repo = $1;
+        }
+        last;
+      }
+    }
   }
+  if (open(my $expired_artifacts_log_fh, '<', $expired_artifacts_log)) {
+    my $http_state=0;
+    while (<$expired_artifacts_log_fh>) {
+      if (/^< location: (.*)/) {
+        $api_url = $1;
+        $state++;
+        last;
+      }
+      if (s/< link:\s+//) {
+        s/,\s*/\n/g;
+        if (/<(.*?)>; rel="last"/) {
+          $api_url = $1;
+          $state++;
+          last;
+        }
+      }
+      if (m{^< HTTP/2 403}) {
+        $http_state=403;
+        ++$retries;
+        last if $retries == 3;
+      } elsif ($http_state == 403 && m/< x-ratelimit-remaining: 0/) {
+        my $sleep_delay=10+(rand(10) | 0);
+        print STDERR "Hit rate limit. Sleeping $sleep_delay seconds\n";
+        sleep $sleep_delay;
+        last;
+      }
+    }
+    close($expired_artifacts_log_fh);
+  }
+}
+
+SKIP: {
+  skip 'could not find an expired artifact', 3 unless $expired_artifact;
+  ($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", $expired_artifact_repo, $expired_artifact);
+
+  my $sandbox_name = basename $sandbox;
+  my $temp_name = basename $temp;
+  is($stdout, "SPELLCHECKER/apply.pl: GitHub Run Artifact expired. You will need to trigger a new run.\n", 'apply.pl (stdout) expired');
+  is($stderr, '', 'apply.pl (stderr) expired');
+  is($result, 1, 'apply.pl (exit code) expired');
 }
 
 ($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", "https://localhost/check-spelling/imaginary-repository/actions/runs/$expired_artifact/attempts/1");
