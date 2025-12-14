@@ -1,18 +1,20 @@
 \b[0-9a-f]{40}\b
+
+# README patterns examples
 ^(?:https\??|data):\S*[*+]$
-^..:0.Xx\S*}\\b$
-catching 'templatesz'
-\\templates(?![a-z])
-# action.yml check_extra_dictionaries
-      cspell:\w+/[\w/]+\.txt$
+
 # perl include flags
 -Ilib\b
+
 # dig flags
  \+no
+
 # META.json
 "author"  : ".*"
+
 # cspell action.yml entries
 ^\s*cspell:.*\.txt$
+
 # githubusercontent
 /[-a-z0-9]+\.githubusercontent\.com/[-a-zA-Z0-9?&=_\/.]*
 
@@ -21,9 +23,6 @@ catching 'templatesz'
 
 # GitHub SHAs (markdown)
 (?:\[`?[0-9a-f]+`?\]\(https:/|)/(?:www\.|)github\.com(?:/[^/\s"]+){2,}(?:/[^/\s")]+)(?:[0-9a-f]+(?:[-0-9a-zA-Z/#.]*|)\b|)
-
-# GitHub header
-\bx-served-by: cache-[a-z]+-[a-z]+\d+
 
 # regex
 \\b
@@ -46,14 +45,8 @@ https://perldoc\.perl\.org/.*
 # Perl warnings
 \bexperimental::[a-z_]+\b
 
-# tar arguments
-\b(?:\\n|)g?tar(?:\.exe|)(?:(?:\s+--[-a-zA-Z]+|\s+-[a-zA-Z]+|\s[ABGJMOPRSUWZacdfh-pr-xz]+\b)(?:=[^ ]*|))+
-
 # README markdown links
 \]\(#[-a-z]+\)
-
-# gh-release-downloader usage
-gh-release-downloader.*<.*>
 
 # partial fingerprint
 "cs0": ".*?"
