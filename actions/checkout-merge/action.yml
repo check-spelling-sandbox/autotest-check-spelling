@@ -3,7 +3,7 @@ description: 'Generate a merge commit'
 inputs:
   base_ref:
     description:
-    default: ${{ github.event.pull_request.base.ref }}
+    default: ${{ github.event.pull_request.base.sha }}
     required: false
   head_ref:
     description:
