@@ -17,7 +17,7 @@ jobs:
                 git config --global user.email "check-spelling-autotest@check-spelling.dev"
                 git config --global user.name "check-spelling autotest"
           - name: Set up git for publishing
-            uses: actions/checkout@v4
+            uses: actions/checkout@v6
             with:
                 ssh-key: "${{ secrets.AUTO_TEST }}"
           - name: Generate consumer workflows
