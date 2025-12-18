@@ -425,6 +425,10 @@ sub get_artifacts {
             print "$program: The referenced repository ($repo) may not exist, perhaps you do not have permission to see it. If the repository is hosted by GitHub Enterprise, check-spelling does not know how to integrate with it.\n";
             exit 8;
         }
+        if ($gh_err_text =~ m{dial tcp \S+:\d+: i/o timeout$}) {
+            print "$program: Timeout connecting to GitHub this is probably an outage of sorts.\nCheck https://www.githubstatus.com/history\nTry again later.";
+            exit 9;
+        }
         unless ($gh_err_text =~ /HTTP 403: API rate limit exceeded for .*?./) {
             print "$program: Unknown error, please file a bug to https://github.com/check-spelling/check-spelling/issues/new\n";
             print $gh_err_text;
