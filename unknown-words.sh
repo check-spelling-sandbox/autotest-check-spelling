@@ -3212,6 +3212,28 @@ spelling_body() {
       #### Additional unrecognized items
 
       Items were found in $unrecognized_support_items.
+
+      $B
+      $(
+      tokens="$tokens_file" warnings="$warning_output" perl -e '
+        my %words;
+        open my $warnings, "<:encoding(UTF-8)", $ENV{warnings};
+        while (<$warnings>) {
+          next unless /- `(.*)` .*\(unrecognized-spelling-[-\w]+\)$/;
+          $words{$1} = 1;
+        }
+        close $warnings;
+        open my $tokens, "<:encoding(UTF-8)", $ENV{tokens};
+        while (<$tokens>) {
+          chomp;
+          delete $words{$_}
+        }
+        close $tokens;
+        for my $token (keys %words) {
+          print "$token\n";
+        }
+      ')
+      $B
       "'
       For the specific items, see Details 🔎 in the 📝 job summary. If they are acceptable, you will need to add them to `allow.txt` or mask them with `patterns.txt`.
       ' | strip_lead)"
