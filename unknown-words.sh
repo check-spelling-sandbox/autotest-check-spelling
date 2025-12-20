@@ -1145,6 +1145,7 @@ define_variables() {
   fi
   mv "$early_warnings" "$data_dir/early_warnings.txt"
   early_warnings="$data_dir/early_warnings.txt"
+  add_to_allow="$data_dir/add_to_allow.txt"
 
   bucket="${INPUT_BUCKET:-"$bucket"}"
   project="${INPUT_PROJECT:-"$project"}"
@@ -3207,14 +3208,6 @@ spelling_body() {
       )
     )
     if [ -n "$unrecognized_support_items" ]; then
-      output_unrecognized_support="$(
-      echo "
-      #### Additional unrecognized items
-
-      Items were found in $unrecognized_support_items.
-
-      $B
-      $(
       tokens="$tokens_file" warnings="$warning_output" perl -e '
         my %words;
         open my $warnings, "<:encoding(UTF-8)", $ENV{warnings};
@@ -3230,13 +3223,14 @@ spelling_body() {
         }
         close $tokens;
         for my $token (keys %words) {
-          print "$token\n";
+          print "- $token\n";
         }
-      ')
-      $B
-      "'
+      ' > "$add_to_allow"
+      output_unrecognized_support="$(maybe_wrap_in_details "Additional unrecognized items" "$add_to_allow" 'unless /- /' "
+      Items were found in $unrecognized_support_items.
+      " '
       For the specific items, see Details 🔎 in the 📝 job summary. If they are acceptable, you will need to add them to `allow.txt` or mask them with `patterns.txt`.
-      ' | strip_lead)"
+      ')"
     fi
     if [ -s "$forbidden_summary" ]; then
       output_forbidden_patterns="$(maybe_wrap_in_details "Forbidden patterns 🙅" "$forbidden_summary" "unless /^##### /" "In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
