@@ -1145,7 +1145,8 @@ define_variables() {
   fi
   mv "$early_warnings" "$data_dir/early_warnings.txt"
   early_warnings="$data_dir/early_warnings.txt"
-  add_to_allow="$data_dir/add_to_allow.txt"
+  severity_level="$data_dir/severity_level.txt"
+  severity_list="$data_dir/severity_list.txt"
 
   bucket="${INPUT_BUCKET:-"$bucket"}"
   project="${INPUT_PROJECT:-"$project"}"
@@ -1233,6 +1234,7 @@ define_variables() {
   used_config_files="$data_dir/used-config-files.list"
   seen_config_files="$data_dir/seen-config-files.list"
   tokens_file="$data_dir/tokens.txt"
+  add_to_allow="$data_dir/add_to_allow.txt"
   remove_words="$data_dir/remove_words.txt"
   action_log_ref="$data_dir/action_log_ref.txt"
   action_log_file_name="$data_dir/action_log_file_name.txt"
