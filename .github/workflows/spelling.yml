@@ -88,7 +88,10 @@ jobs:
     env:
       workflow_check_commit_messages: commits
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event_name, 'pull_request') || github.event_name == 'push' }}
+    if: ${{
+      contains(github.event_name, 'pull_request') ||
+      github.event_name == 'push'
+      }}
     concurrency:
       group: spelling-${{ github.event.pull_request.number || github.ref }}
       # note: If you use only_check_changed_files, you do not want cancel-in-progress
@@ -124,7 +127,7 @@ jobs:
           post_comment: 0
           use_magic_file: 1
           report-timing: 1
-          experimental_apply_changes_via_bot: 1
+          experimental_apply_changes_via_bot: ${{ github.repository_owner != 'check-spelling' && 1 || '' }}
           use_sarif: ${{ (!github.event.pull_request || (github.event.pull_request.head.repo.full_name == github.repository)) && 1 }}
           extra_dictionary_limit: 10
           # this repository doesn't use php, but the dictionary has fairly good coverage
@@ -149,7 +152,12 @@ jobs:
     needs: spelling
     permissions:
       contents: write
-    if: (success() || failure()) && needs.spelling.outputs.followup && github.event_name == 'push'
+    if: ${{
+      (success() || failure()) &&
+      needs.spelling.outputs.followup &&
+      github.repository_owner != 'check-spelling' &&
+      github.event_name == 'push'
+      }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -170,7 +178,12 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
+    if: ${{
+      (success() || failure()) &&
+      needs.spelling.outputs.followup &&
+      github.repository_owner != 'check-spelling' &&
+      contains(github.event_name, 'pull_request')
+      }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -192,6 +205,7 @@ jobs:
       actions: read
     runs-on: ubuntu-latest
     if: ${{
+      github.repository_owner != 'check-spelling' &&
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '@check-spelling-bot apply')
