@@ -1,0 +1,8 @@
+this:
+  that: |
+    x
+
+    y
+
+  another:
+    something
