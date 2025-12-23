@@ -288,7 +288,7 @@ load_env() {
   cat "$spellchecker/action.yml" |
     "$yaml_to_json" \
     > "$action_yml_json"
-  action_yml_json="$action_yml_json" "$spellchecker/load-env.pl" > "$input_variables"
+  action_yml_json="$action_yml_json" "$spellchecker/wrappers/load-env" > "$input_variables"
   . "$input_variables"
 }
 
