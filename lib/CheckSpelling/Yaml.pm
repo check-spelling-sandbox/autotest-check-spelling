@@ -69,16 +69,22 @@ sub get_yaml_value {
   }
   close $yaml;
   return $line_result unless @result;
-  $mode =~ /([-+])/;
-  my $newlines = $1;
+  my $newlines = '';
+  $newlines = $1 if $mode =~ /([-+])/;
   $mode =~ /([|>]?)/;
   $mode = $1;
-  my $suffix;
+  my $suffix = '';
   if ($newlines eq '') {
     $suffix = "\n";
+  } elsif ($newlines =~ /-/) {
+    $suffix = ' ';
   }
+  my $empty_lines = 0;
   unless ($newlines eq '+') {
-    pop @result while ($result[$#result] eq '');
+    while ($result[$#result] eq '') {
+      ++$empty_lines;
+      pop @result;
+    }
   }
   if ($mode eq '') {
     return (join ' ', @result).$suffix;
@@ -95,7 +101,7 @@ sub get_yaml_value {
         push @output, $tentative;
         $tentative = '';
       } else {
-        $tentative .= $line;
+        $tentative .= $suffix . $line;
       }
     }
     push @output, $tentative;
