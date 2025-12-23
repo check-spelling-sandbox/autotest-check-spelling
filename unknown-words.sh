@@ -2232,8 +2232,7 @@ set_up_files() {
           exit 1
         fi
         (
-          echo 'This script was run without essential configuration'
-          echo 'Please ensure `INPUT_DICTIONARY_URL` is set'
+          echo 'This script was run without essential configuration. Please ensure `INPUT_DICTIONARY_URL` is set. (broken-configuration)'
         ) >&2
         exit 1
       fi
