@@ -20,9 +20,17 @@ jobs:
       uses: actions/checkout@v6
       with:
         ref: refs/pull/${{github.event.pull_request.number}}/merge
+      env:
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
     - name: checkout
       if: github.event_name == 'push'
       uses: actions/checkout@v6
+      env:
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
     - name: perl configuration
       id: perl-config
       run: |
@@ -46,6 +54,9 @@ jobs:
       env:
         required_perl_modules: ${{ steps.perl-config.outputs.perl-modules }}
         GH_TOKEN: ${{ github.token }}
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
       run: |
         : Dependencies
         (
@@ -132,6 +143,10 @@ jobs:
         destination: ${{ steps.depedencies.outputs.gh-location }}
         file-re: bin/
         trace: 1
+      env:
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
 
     - name: test
       id: test
@@ -251,9 +266,17 @@ jobs:
       uses: actions/checkout@v6
       with:
         ref: refs/pull/${{github.event.pull_request.number}}/merge
+      env:
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
     - name: checkout
       if: github.event_name == 'push'
       uses: actions/checkout@v6
+      env:
+        GIT_CURL_VERBOSE: True
+        GIT_TRACE: True
+        GIT_SSH_COMMAND: ssh -v -v -v
     - name: test
       id: test
       shell: bash
