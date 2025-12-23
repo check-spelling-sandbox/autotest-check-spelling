@@ -108,6 +108,10 @@ jobs:
         with:
           fetch-depth: ${{ !contains(env.workflow_check_commit_messages, 'commits') && '1' || '0' }}
           filter: ${{ contains(env.workflow_check_commit_messages, 'commits') && 'tree:0' || '' }}
+        env:
+          GIT_CURL_VERBOSE: True
+          GIT_TRACE: True
+          GIT_SSH_COMMAND: ssh -v -v -v
       - name: test-clean
         shell: bash
         run: |
@@ -119,6 +123,10 @@ jobs:
         uses: ./actions/checkout-merge
         with:
           path: introspected
+        env:
+          GIT_CURL_VERBOSE: True
+          GIT_TRACE: True
+          GIT_SSH_COMMAND: ssh -v -v -v
       - name: check-spelling
         if: env.MERGE_FAILED != '1'
         id: spelling
