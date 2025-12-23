@@ -11,7 +11,7 @@ use Cwd qw();
 use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 
-plan tests => 31;
+plan tests => 32;
 use_ok('CheckSpelling::Yaml');
 
 is(CheckSpelling::Yaml::get_yaml_value(
@@ -25,6 +25,8 @@ is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.largest_file.defaul
 is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.shortest_word.default'), '"3"');
 
 like(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.event_aliases.description'), qr{\. If}, 'multiline >-');
+
+is(CheckSpelling::Yaml::get_yaml_value('t/yaml/test.yml', 'this.that'), "x\n\ny\n", 'multiline |');
 
 open my $oldin, '<&', \*STDIN or die "Can't dup STDIN:$!";
 
