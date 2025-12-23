@@ -34,7 +34,7 @@ sub get_yaml_value {
     next if /^\s*#/;
     if (/^(\s*)(\S.*)/) {
       my ($prefix, $remainder) = ($1, $2);
-      while ($level && length $prefix < length $prefixes[$level - 1]) {
+      while ($level && length $prefix <= length $prefixes[$level - 1]) {
         delete $prefixes[$level--];
       }
       if (@result && $level < scalar @path_split) {
