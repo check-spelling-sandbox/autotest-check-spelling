@@ -1,0 +1,7 @@
+{
+    "new": "world",
+    "base": "level",
+    "next": "time",
+    "trusted": "origin",
+    "far": "out"
+}
