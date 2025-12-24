@@ -35,6 +35,7 @@ jobs:
           Capture::Tiny
           Hash::Merge
           Text::Hunspell
+          YAML::PP
           " |sort|xargs)"
         (
           echo "perl-modules=$perl_modules"
