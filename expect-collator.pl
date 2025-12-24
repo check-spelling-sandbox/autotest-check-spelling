@@ -18,7 +18,7 @@ my $pattern = '\`(?:'.join('|', map { quotemeta($_) } @words).')`';
 open SOURCES, '<', $notes;
 while (<SOURCES>) {
   if ($_ =~ /$pattern/) {
-    $print = 0;
+    my $print = 0;
     $print = 1 if s/not a recognized word/ignored by check-spelling because another more general variant is also in expect/;
     $print = 1 if s/unrecognized-spelling/ignored-expect-variant/;
     next unless $print;
