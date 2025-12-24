@@ -337,6 +337,19 @@ inputs:
   ignore-next-line:
     description: "Pattern to cause next line to be ignored"
     required: false
+  load-config-from:
+    description: "Map for fields to load from config.json"
+    required: false
+    default: |
+      {
+        "pr-base-keys": [
+          ""
+        ],
+        "pr-trusted-keys": [
+          ""
+        ],
+        "": []
+      }
 
 outputs:
   unknown_words:
