@@ -11,6 +11,7 @@ unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized w
 unknown-words/input/sample.file:2:12 ... 16, Error - `youu` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:2:17 ... 21, Error - `fixx` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:2:22 ... 27, Error - `thiss` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:2:31 ... 36, Error - `Thiss` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:7:23 ... 26, Error - `ico` is not a recognized word (unrecognized-spelling)
