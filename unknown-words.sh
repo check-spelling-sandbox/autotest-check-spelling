@@ -259,7 +259,7 @@ dispatcher() {
 
 load_env() {
   input_variables="$(mktemp)"
-  action_yml_json="$(mktemp_json)"
+  yaml_to_json="$spellchecker/yaml-to-json.pl"
   if [ -z "$INPUTS" ] && [ -n "$workflow_path" ]; then
     export INPUTS="$(
       steps=$(
@@ -285,10 +285,7 @@ load_env() {
       echo "$check_spelling_with"
     )"
   fi
-  cat "$spellchecker/action.yml" |
-    "$yaml_to_json" \
-    > "$action_yml_json"
-  action_yml_json="$action_yml_json" "$spellchecker/load-env.pl" > "$input_variables"
+  action_yml="$spellchecker/action.yml" "$spellchecker/wrappers/load-env" > "$input_variables"
   . "$input_variables"
 }
 
@@ -1114,7 +1111,6 @@ define_variables() {
     return
   fi
   . "$spellchecker/update-state.sh"
-  yaml_to_json="$spellchecker/yaml-to-json.pl"
   action_workflow_path_file="$(mktemp)"
   workflow_path=$(get_workflow_path)
   load_env
@@ -1266,6 +1262,7 @@ define_variables() {
   check_extra_dictionaries_list="$data_dir/check_extra_dictionaries.list"
   extra_dictionaries_list="$data_dir/extra_dictionaries.list"
   export sarif_overlay_path="$data_dir/overlay.sarif.json"
+  export config_json_path="$data_dir/config.json"
   file_list="$data_dir/checked_files.lst"
   BODY="$data_dir/comment.md"
   delay_step_summary_warnings="$(mktemp)"
@@ -2372,6 +2369,7 @@ set_up_files() {
   fi
   get_project_files advice.md "$advice_path"
   get_project_files sarif.json "$sarif_overlay_path"
+  get_project_files config.json "$config_json_path"
 
   if [ -n "$debug" ]; then
     echo "Clean up from previous run"
