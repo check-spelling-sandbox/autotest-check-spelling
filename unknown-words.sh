@@ -259,7 +259,7 @@ dispatcher() {
 
 load_env() {
   input_variables="$(mktemp)"
-  action_yml_json="$(mktemp_json)"
+  yaml_to_json="$spellchecker/yaml-to-json.pl"
   if [ -z "$INPUTS" ] && [ -n "$workflow_path" ]; then
     export INPUTS="$(
       steps=$(
@@ -285,10 +285,7 @@ load_env() {
       echo "$check_spelling_with"
     )"
   fi
-  cat "$spellchecker/action.yml" |
-    "$yaml_to_json" \
-    > "$action_yml_json"
-  action_yml_json="$action_yml_json" "$spellchecker/load-env.pl" > "$input_variables"
+  action_yml="$spellchecker/action.yml" "$spellchecker/wrappers/load-env" > "$input_variables"
   . "$input_variables"
 }
 
@@ -1114,7 +1111,6 @@ define_variables() {
     return
   fi
   . "$spellchecker/update-state.sh"
-  yaml_to_json="$spellchecker/yaml-to-json.pl"
   action_workflow_path_file="$(mktemp)"
   workflow_path=$(get_workflow_path)
   load_env
