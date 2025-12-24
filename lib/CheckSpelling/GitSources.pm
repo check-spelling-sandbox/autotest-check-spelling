@@ -69,12 +69,12 @@ sub git_source_and_rev {
                 my $git_dir_path = <$git_dir_file>;
                 close $git_dir_file;
                 if ($git_dir_path =~ /^gitdir: (.*)$/) {
-                    $git_roots{$dir} = abs_path("$dir/$1");
+                    $last_git_dir = $git_roots{$dir} = abs_path("$dir/$1");
                 }
             }
         }
     }
-    $last_git_dir = $git_roots{$dir};
+    $last_git_dir ||= $git_roots{$dir};
     my $length = scalar @children - 1;
     for (my $i = 0; $i < $length; $i++) {
         $dir .= "/$children[$i]";
@@ -140,7 +140,8 @@ sub git_source_and_rev {
 
         $github_urls{$last_git_dir} = [$prefix, $remote_url, $rev, $branch];
     }
-    return $file, dirname($last_git_dir), @{$github_urls{$last_git_dir}};
+    my $real_last_git_dir = basename($last_git_dir) eq '.git' ? dirname($last_git_dir) : $last_git_dir;
+    return $file, $real_last_git_dir, @{$github_urls{$last_git_dir}};
 }
 
 1;
