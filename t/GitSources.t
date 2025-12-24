@@ -3,12 +3,12 @@
 use strict;
 use warnings;
 
-use Cwd qw(getcwd);
+use Cwd qw(abs_path getcwd);
 use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
-plan tests => 17;
+plan tests => 21;
 use_ok('CheckSpelling::GitSources');
 
 is(CheckSpelling::GitSources::github_repo(
@@ -48,6 +48,14 @@ mkdir next; touch a b next/c; git add a b next/c; git $git_configs commit -m a;
 is($?, 0, 'git child1 init worked');
 
 chdir $git_root;
+
+my $spell_check_this_url = 'https://github.com/check-spelling/spell-check-this/';
+`
+set -e
+git submodule add -q '$spell_check_this_url'
+`;
+is($?, 0, 'git submodule add worked');
+
 my ($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("a");
 is($file, 'a', "git_root file");
 is($remote_url, $git_root_url, "git_root remote_url");
@@ -66,4 +74,11 @@ is($git_base_dir, 'child1', "child1 git_base_dir");
 is($file, 'next/c', "child1 file");
 is($remote_url, $child1_url, "child1 next/c");
 is($git_base_dir, 'child1', "child1 git_base_dir");
+
+($file, $git_base_dir, $prefix, $remote_url, $rev, $branch) = CheckSpelling::GitSources::git_source_and_rev("spell-check-this/.github/workflows/spelling.yml");
+is($file, 'spell-check-this/.github/workflows/spelling.yml', "spell-check-this: spelling.yml");
+is($remote_url, $spell_check_this_url, "spell-check-this url");
+my $abs_git_root = abs_path($git_root);
+is($git_base_dir, "$abs_git_root/.git/modules/spell-check-this", "spell-check-this git_base_dir");
+
 chdir $working_directory;
