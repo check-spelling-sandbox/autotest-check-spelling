@@ -8,8 +8,9 @@ use Cwd qw/ abs_path /;
 
 use Test::More;
 use Capture::Tiny ':all';
+use File::Temp qw/ tempfile tempdir /;
 
-plan tests => 3;
+plan tests => 6;
 
 my $spellchecker = abs_path(dirname(dirname(__FILE__)));
 $ENV{spellchecker} = $spellchecker;
@@ -24,3 +25,20 @@ world' |
 is($stdout, "hello\nworld\n", 'strip-word-collator-suffix out');
 is($stderr, '', 'strip-word-collator-suffix err');
 is((join ':', @results), '0', 'strip-word-collator-suffix result');
+
+my ($fd, $name) = tempfile;
+print $fd "hello (Hello, hello)\n";
+close ($fd);
+my $collated = $name;
+($fd, $name) = tempfile;
+print $fd "`hello` not a recognized word (unrecognized-spelling)\n";
+print $fd "`Hello` not a recognized word (unrecognized-spelling)\n";
+close ($fd);
+
+($stdout, $stderr, @results) = capture {
+  system("$ENV{spellchecker}/expect-collator.pl $collated $name");
+};
+
+is($stdout, q<`Hello` ignored by check-spelling because another more general variant is also in expect (ignored-expect-variant)>."\n", 'expect-collator out');
+is($stderr, '', 'expect-collator err');
+is((join ':', @results), '0', 'expect-collator result');
