@@ -186,6 +186,7 @@ note|path
 `diid` is not a recognized word | unknown-words/input/sample.file:2
 `fixx` is not a recognized word | unknown-words/input/sample.file:2
 `ico` is not a recognized word | unknown-words/input/sample.file:7
+`Thiss` is not a recognized word | unknown-words/input/sample.file:2
 `thiss` is not a recognized word | unknown-words/input/sample.file:2
 `youu` is not a recognized word | unknown-words/input/sample.file:2
 </details>
