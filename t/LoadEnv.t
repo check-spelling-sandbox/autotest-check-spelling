@@ -58,8 +58,8 @@ $ENV{INPUTS} = '{"hello":"world"}';
 $ENV{action_yml} = 'action.yml';
 my $parsed_input = CheckSpelling::LoadEnv::parse_inputs();
 my %parsed_inputs = %{$parsed_input};
-my $input_map = $parsed_inputs{'input_map'};
+my $inputs = $parsed_inputs{'inputs'};
 
-like($input_map->{'DICTIONARY_URL'}, qr{https://}, 'dictionary url');
-like((join ", ", (sort keys %{$input_map})), qr{CHECK_EXTRA_DICTIONARIES.*, HELLO, .*WARNINGS}, 'input_map');
+like($inputs->{'DICTIONARY_URL'}, qr{https://}, 'dictionary url');
+like((join ", ", (sort keys %{$inputs})), qr{CHECK_EXTRA_DICTIONARIES.*, HELLO, .*WARNINGS}, 'input_map');
 is(CheckSpelling::LoadEnv::get_json_config_path($parsed_input), '.github/actions/spelling/config.json', 'json_config_path');
