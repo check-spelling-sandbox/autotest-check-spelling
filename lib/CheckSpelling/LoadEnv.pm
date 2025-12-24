@@ -40,7 +40,7 @@ sub parse_inputs {
         %raw_inputs = %{decode_json(Encode::encode_utf8($input))};
     }
 
-    my %input_map;
+    my %inputs;
     for my $key (keys %raw_inputs) {
         next unless $key;
         my $val = $raw_inputs{$key};
@@ -62,12 +62,12 @@ sub parse_inputs {
             $var =~ s/-/_/g;
         }
         ($var, $val) = escape_var_val($var, $val);
-        $input_map{$var} = $val;
+        $inputs{$var} = $val;
     }
 
     my $parsed_inputs = {
         maybe_load_inputs_from => $maybe_load_inputs_from,
-        input_map => \%input_map,
+        inputs => \%inputs,
     };
     parse_action_config($parsed_inputs);
     return $parsed_inputs;
@@ -80,29 +80,29 @@ sub parse_action_config {
 
     my $action = YAML::PP::LoadFile($action_yml_path);
     return unless defined $action->{inputs};
-    my %input_map = %{$parsed_inputs->{'inputs'}};
+    my %inputs = %{$parsed_inputs->{'inputs'}};
     my %action_inputs = %{$action->{inputs}};
     for my $key (sort keys %action_inputs) {
         my %ref = %{$action_inputs{$key}};
         next unless defined $ref{default};
-        next if defined $input_map{$key};
+        next if defined $inputs{$key};
         my $var = $key;
         next if $var =~ /[-_](?:key|token)$/i;
         if ($var =~ s/-/_/g) {
-            next if defined $input_map{$var};
+            next if defined $inputs{$var};
         }
         my $val = $ref{default};
         next if $val eq '';
         ($var, $val) = escape_var_val($var, $val);
-        next if defined $input_map{$var};
-        $input_map{$var} = $val;
+        next if defined $inputs{$var};
+        $inputs{$var} = $val;
     }
-    $parsed_inputs->{'input_map'} = \%input_map;
+    $parsed_inputs->{'inputs'} = \%inputs;
 }
 
 sub get_json_config_path {
     my ($parsed_inputs) = @_;
-    my $config = $parsed_inputs->{'input_map'}{'config'} || '.github/actions/spelling';
+    my $config = $parsed_inputs->{'inputs'}{'config'} || '.github/actions/spelling';
     return "$config/config.json";
 }
 
