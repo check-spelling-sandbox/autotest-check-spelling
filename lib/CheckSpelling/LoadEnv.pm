@@ -35,15 +35,15 @@ sub parse_config_file {
 
 sub parse_inputs {
     my $input = $ENV{INPUTS};
-    my %inputs;
+    my %raw_inputs;
     if ($input) {
-        %inputs = %{decode_json(Encode::encode_utf8($input))};
+        %raw_inputs = %{decode_json(Encode::encode_utf8($input))};
     }
 
     my %input_map;
-    for my $key (keys %inputs) {
+    for my $key (keys %raw_inputs) {
         next unless $key;
-        my $val = $inputs{$key};
+        my $val = $raw_inputs{$key};
         next unless $val ne '';
         my $var = $key;
         if ($val =~ /^github_pat_/) {
@@ -52,12 +52,12 @@ sub parse_inputs {
         }
         next if $var =~ /\s/;
         next if $var =~ /[-_](?:key|token)$/;
-        if ($var =~ /-/ && $inputs{$var} ne '') {
+        if ($var =~ /-/ && $raw_inputs{$var} ne '') {
             my $var_pattern = $var;
             $var_pattern =~ s/-/[-_]/g;
-            my @vars = grep { /^${var_pattern}$/ && ($var ne $_) && $inputs{$_} ne '' && $inputs{$var} ne $inputs{$_} } keys %inputs;
+            my @vars = grep { /^${var_pattern}$/ && ($var ne $_) && $raw_inputs{$_} ne '' && $raw_inputs{$var} ne $raw_inputs{$_} } keys %raw_inputs;
             if (@vars) {
-                print STDERR 'Found conflicting inputs for '.$var." ($inputs{$var}): ".join(', ', map { "$_ ($inputs{$_})" } @vars)." (migrate-underscores-to-dashes)\n";
+                print STDERR 'Found conflicting inputs for '.$var." ($raw_inputs{$var}): ".join(', ', map { "$_ ($raw_inputs{$_})" } @vars)." (migrate-underscores-to-dashes)\n";
             }
             $var =~ s/-/_/g;
         }
