@@ -7,12 +7,7 @@ open WARNINGS, ">>:encoding(UTF-8)", $ENV{early_warnings};
 $extension = '.orig';
 LINE: while (<>) {
   if ($ARGV ne $oldargv) {
-    if ($extension !~ /\*/) {
-      $backup = $ARGV . $extension;
-    }
-    else {
-      ($backup = $extension) =~ s/\*/$ARGV/g;
-    }
+    $backup = $ARGV . $extension;
     rename($ARGV, $backup);
     open(ARGVOUT, ">$ARGV");
     select(ARGVOUT);
