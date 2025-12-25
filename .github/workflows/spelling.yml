@@ -92,10 +92,6 @@ jobs:
       contains(github.event_name, 'pull_request') ||
       github.event_name == 'push'
       }}
-    concurrency:
-      group: spelling-${{ github.event.pull_request.number || github.ref }}
-      # note: If you use only_check_changed_files, you do not want cancel-in-progress
-      cancel-in-progress: true
     steps:
       - name: Suppress git default branch message
         id: quiet
