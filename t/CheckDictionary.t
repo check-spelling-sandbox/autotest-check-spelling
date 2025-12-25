@@ -80,7 +80,7 @@ SKIP: {
   skip 'could not create symlink', 3 unless $symlink_exists;
 
   open $fh, '>', $filepath;
-  print $fh $multiline_text;
+  print $fh $multiline_text.'yip';
   close $fh;
 
   ($stdout, $stderr, @results) = capture {
