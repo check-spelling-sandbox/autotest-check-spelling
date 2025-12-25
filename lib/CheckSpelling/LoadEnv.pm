@@ -175,7 +175,7 @@ sub get_supported_key_list {
 
 sub get_json_config_path {
     my ($parsed_inputs) = @_;
-    my $config = $parsed_inputs->{'inputs'}{'config'} || '.github/actions/spelling';
+    my $config = $ENV{INPUT_CONFIG} || $parsed_inputs->{'inputs'}{'CONFIG'} || '.github/actions/spelling';
     return "$config/config.json";
 }
 
@@ -186,7 +186,6 @@ sub read_project_config {
 
 sub load_untrusted_config {
     my ($parsed_inputs, $event_name) = @_;
-    my %inputs = %{$parsed_inputs->{'inputs'}};
     my $maybe_load_inputs_from = $parsed_inputs->{'maybe_load_inputs_from'};
     my $load_config_from_key = $parsed_inputs->{'load_config_from_key'};
 
@@ -216,7 +215,7 @@ sub load_untrusted_config {
         if (%use_pr_base_key_map) {
             print STDERR "need to read base file\n";
         }
-        my $experimental_path = $inputs{'experimental_path'} || '.';
+        my $experimental_path = $parsed_inputs->{'inputs'}{'EXPERIMENTAL_PATH'} || '.';
 
         my $github_head_sha;
         open my $github_event_file, '<:encoding(UTF-8)', $ENV{GITHUB_EVENT_PATH};
@@ -224,7 +223,7 @@ sub load_untrusted_config {
             local $/ = undef;
             my $github_event_data = <$github_event_file>;
             close $github_event_file;
-            my $github_event = decode_json $github_event_data;
+            my $github_event = decode_json ($github_event_data || '{}');
             $github_head_sha = $github_event->{'pull_request'}->{'base'}->{'sha'} if ($github_event->{'pull_request'} && $github_event->{'pull_request'}->{'base'});
         }
 
@@ -243,7 +242,7 @@ sub load_untrusted_config {
                     my $val = $dangerous_config{$key};
                     ($key, $val) = escape_var_val($key, $val);
                     print STDERR "Trusting '$key': $val\n";
-                    $inputs{$key} = $val;
+                    $parsed_inputs->{'inputs'}{$key} = $val;
                 } else {
                     print STDERR "Ignoring '$key' from $local_config config\n";
                 }
@@ -255,25 +254,22 @@ sub load_untrusted_config {
                     my ($var, $val);
                     ($var, $val) = escape_var_val($key, $base_config{$key});
                     print STDERR "Using '$key': $val\n";
-                    $inputs{$var} = $val;
+                    $parsed_inputs->{'inputs'}{$var} = $val;
                 } else {
                     print STDERR "Ignoring '$key' from base config\n";
                 }
             }
         }
     }
-    $parsed_inputs->{'inputs'} = \%inputs;
 }
 
 sub load_trusted_config {
     my ($parsed_inputs) = @_;
     my %project_config = %{read_project_config($parsed_inputs)};
-    my %inputs = %{$parsed_inputs->{'inputs'}};
     for my $key (keys %project_config) {
         my ($var, $val) = escape_var_val($key, $project_config{$key});
-        $inputs{$var} = $val;
+        $parsed_inputs->{'inputs'}{$var} = $val;
     }
-    $parsed_inputs->{'inputs'} = \%inputs;
 }
 
 1;
