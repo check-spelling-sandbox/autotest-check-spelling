@@ -52,14 +52,14 @@ sub number_biased :prototype($$) ($a, $b) {
       return $aNumber cmp $bUnchecked if defined $aNumber;
       return $aUnchecked cmp $bNumber if defined $bNumber;
       my ($aLetters, $bLetters);
-      if ($aUnchecked =~ m/^(\D+)(.*)/) {
-        $aLetters = $1;
-        $aUnchecked = $2;
-      }
-      if ($bUnchecked =~ m/^(\D+)(.*)/) {
-        $bLetters = $1;
-        $bUnchecked = $2;
-      }
+      $aUnchecked =~ m/^(\D+)(.*)/;
+      $aLetters = $1;
+      $aUnchecked = $2;
+
+      $bUnchecked =~ m/^(\D+)(.*)/;
+      $bLetters = $1;
+      $bUnchecked = $2;
+
       return case_biased($aLetters, $bLetters) if (defined $aLetters && defined $bLetters && !($aLetters eq $bLetters));
     }
   }
