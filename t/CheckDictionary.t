@@ -16,29 +16,29 @@ use_ok('CheckSpelling::CheckDictionary');
 $ENV{comment_char} = '#';
 $ENV{INPUT_IGNORE_PATTERN} = "[^A-Za-z']";
 
-my $temp_dir = tempdir();
-my ($fh, $filepath) = tempfile();
-my $multiline_text = "world!567
-hello\rcruel\r\nworld\n
-";
-print $fh $multiline_text;
-close $fh;
-my $filename = basename $filepath;
-my $test_path = "$temp_dir/$filename";
-rename($filepath, $test_path);
-$filepath = $test_path;
-
 my ($line, $warning);
 $. = 10;
-($line, $warning) = CheckSpelling::CheckDictionary::process_line($filepath, "hello#123");
+($line, $warning) = CheckSpelling::CheckDictionary::process_line('ignored', "hello#123");
 is($warning, '', 'valid entry (warning)');
 is($line, 'hello', 'valid entry (result)');
 
 $ENV{comment_char} = '$';
-($line, $warning) = CheckSpelling::CheckDictionary::process_line($filepath, "hello#123");
-is($warning, "$filepath:10:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
+($line, $warning) = CheckSpelling::CheckDictionary::process_line('file-path', "hello#123");
+is($warning, "file-path:10:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 ", 'invalid entry (warning)');
 is($line, '', 'invalid entry (result)');
+
+my $temp_dir = tempdir();
+my ($fh, $filepath) = tempfile();
+close $fh;
+my $multiline_text = "world!567
+hello\rcruel\r\nworld\n
+";
+
+my $filename = basename $filepath;
+my $test_path = "$temp_dir/$filename";
+rename($filepath, $test_path);
+$filepath = $test_path;
 
 open $fh, '>', $filepath;
 print $fh $multiline_text;
