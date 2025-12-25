@@ -10,7 +10,7 @@ use Test::More;
 use Capture::Tiny ':all';
 use File::Temp qw/ tempfile tempdir /;
 
-plan tests => 14;
+plan tests => 17;
 
 my $spellchecker = abs_path(dirname(dirname(__FILE__)));
 $ENV{spellchecker} = $spellchecker;
@@ -72,3 +72,14 @@ like($stdout, qr<::error ::Configuration files must not live within `\.git/`\.\.
 like($stdout, qr<::error ::Unfortunately, file .*/\.git/config appears to\.>, 'cleanup-file out appears to');
 is($stderr, '', 'cleanup-file .git err');
 is($results[0] >> 8, 4, 'cleanup-file .git result');
+
+($stdout, $stderr, @results) = capture {
+  system('
+patterns_file=$(mktemp)
+cp "$spellchecker/t/unknown-words.pr/config/patterns.txt" "$patterns_file"
+early_warnings=/dev/stderr file=something "$spellchecker/wrappers/check-pattern-file" "$patterns_file"');
+};
+is($stdout, '', 'check-pattern-file out');
+is($stderr, "something:1:1 ... 2, Warning - Quantifier follows nothing: `+` (bad-regex)
+", 'check-pattern-file err');
+is($results[0], 0, 'check-pattern-file result');
