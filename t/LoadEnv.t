@@ -1,13 +1,14 @@
-#!/usr/bin/env -S perl -T -w -Ilib
+#!/usr/bin/env -S perl -w -Ilib
 
 use strict;
 use warnings;
 use utf8;
-
-use Test::More;
+use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
-plan tests => 40;
+use Test::More;
+
+plan tests => 72;
 use_ok('CheckSpelling::LoadEnv');
 
 {
@@ -100,13 +101,146 @@ $ENV{INPUTS} = '{"hello":"world"}';
 $ENV{action_yml} = 'action.yml';
 my $load_config_from_key = 'load-config-from';
 my $parsed_input = CheckSpelling::LoadEnv::parse_inputs($load_config_from_key);
-my %parsed_inputs = %{$parsed_input};
-my $maybe_load_inputs_from = $parsed_inputs{'maybe_load_inputs_from'};
-my $load_config_from = $parsed_inputs{'load_config_from_key'};
-my $inputs = $parsed_inputs{'inputs'};
+my $maybe_load_inputs_from = $parsed_input->{'maybe_load_inputs_from'};
+my $load_config_from = $parsed_input->{'load_config_from_key'};
+my $inputs = $parsed_input->{'inputs'};
 
 like($inputs->{'DICTIONARY_URL'}, qr{https://}, 'dictionary url');
 is($maybe_load_inputs_from, undef, 'maybe_load_inputs_from');
 is($load_config_from, $load_config_from_key, 'load_config_from_key');
 like((join ", ", (sort keys %{$inputs})), qr{CHECK_EXTRA_DICTIONARIES.*, HELLO, .*WARNINGS}, 'inputs');
 is(CheckSpelling::LoadEnv::get_json_config_path($parsed_input), '.github/actions/spelling/config.json', 'json_config_path');
+
+$ENV{INPUT_CONFIG} = 't/load-event';
+is($inputs->{'NEW'}, undef, 'pre-merged');
+CheckSpelling::LoadEnv::load_trusted_config($parsed_input);
+$inputs = $parsed_input->{'inputs'};
+like($inputs->{'DICTIONARY_URL'}, qr{https://}, 'dictionary url');
+is($inputs->{'NEW'}, 'world', 'merged');
+
+sub clear {
+    my ($inputs) = @_;
+    for $a (qw( NEW BASE NEXT TRUSTED FAR )) {
+        delete $inputs->{$a};
+    }
+}
+
+clear($inputs);
+is($inputs->{'NEW'}, undef, 'pre-merged');
+$parsed_input->{'maybe_load_inputs_from'} = {
+    'pr-base-keys' => ['base','next'],
+    'pr-trusted-keys' => ['untrustworthy','warnings']
+};
+
+my $sandbox = tempdir;
+$ENV{'sandbox'} = $sandbox;
+my $email = 'user@example.com';
+my $sandbox_config = "$sandbox/config";
+mkdir $sandbox_config;
+`
+cp t/load-event/config.json '$sandbox/config';
+git -c init.defaultBranch=main init '$sandbox';
+git -C '$sandbox' add config/config.json;
+git -C '$sandbox' -c user.name=example -c user.email='$email' commit -m 'add config';
+`;
+
+sub get_sha {
+    my $sha = `git -C "$sandbox" rev-parse HEAD`;
+    chomp $sha;
+    return $sha;
+}
+
+my $base_sha = get_sha;
+$email = 'other@example.com';
+`
+cp t/load-event-untrusted/config.json '$sandbox/config';
+git -C '$sandbox' add config/config.json;
+git -C '$sandbox' -c user.name=other -c user.email='$email' commit -m 'change config';
+`;
+my $head_sha = get_sha;
+
+my ($fd, $github_event_file) = tempfile;
+$ENV{GITHUB_EVENT_PATH} = $github_event_file;
+print $fd qq<{
+    "pull_request": {
+        "base": {
+            "sha": "$base_sha"
+        },
+        "head": {
+            "sha": "$head_sha"
+        }
+    }
+}
+>;
+close $fd;
+$ENV{PATH} = '/usr/bin:/bin';
+like($inputs->{'WARNINGS'}, qr {^(?:(?!otherwise).)+$}, 'pre untrusted_config');
+$ENV{INPUT_CONFIG} = 'config';
+chdir $sandbox;
+
+($stdout, $stderr, @result) = capture {
+    CheckSpelling::LoadEnv::load_untrusted_config($parsed_input, 'pull_request_target');
+};
+is($stdout, '', 'load_untrusted_config pull_request_target out');
+is($stderr, q<'untrustworthy' cannot be set in pr-trusted-keys of load-config-from (unsupported-configuration)
+need to read base file
+will read live file (dangerous)
+Ignoring 'base' from attacker config
+Ignoring 'new' from attacker config
+Ignoring 'next' from attacker config
+Ignoring 'untrustworthy' from attacker config
+Trusting 'WARNINGS': otherwise
+Using 'base': level
+Ignoring 'far' from base config
+Ignoring 'new' from base config
+Using 'next': time
+Ignoring 'trusted' from base config
+>, 'load_untrusted_config pull_request_target err');
+is($result[0], '', 'load_untrusted_config pull_request_target result');
+
+$inputs = $parsed_input->{'inputs'};
+is($inputs->{'WARNINGS'}, 'otherwise', 'untrusted_config pull_request_target warnings');
+is($inputs->{'NEW'}, undef, 'untrusted_config pull_request_target new');
+is($inputs->{'BASE'}, 'level', 'untrusted_config pull_request_target base');
+is($inputs->{'NEXT'}, 'time', 'untrusted_config pull_request_target next');
+is($inputs->{'UNTRUSTWORTHY'}, undef, 'untrusted_config pull_request_target untrustworthy');
+is($inputs->{'WARNINGS'}, 'otherwise', 'untrusted_config pull_request_target warnings');
+is($inputs->{'FAR'}, undef, 'untrusted_config pull_request_target far');
+
+($stdout, $stderr, @result) = capture {
+    CheckSpelling::LoadEnv::load_untrusted_config($parsed_input, 'pull_request');
+};
+is($stdout, '', 'load_untrusted_config pull_request out');
+is($stderr, q<'untrustworthy' cannot be set in pr-trusted-keys of load-config-from (unsupported-configuration)
+need to read base file
+will read live file
+Ignoring 'base' from local config
+Ignoring 'new' from local config
+Ignoring 'next' from local config
+Ignoring 'untrustworthy' from local config
+Trusting 'WARNINGS': otherwise
+Using 'base': level
+Ignoring 'far' from base config
+Ignoring 'new' from base config
+Using 'next': time
+Ignoring 'trusted' from base config
+>, 'load_untrusted_config pull_request err');
+is($result[0], '', 'load_untrusted_config pull_request result');
+
+$inputs = $parsed_input->{'inputs'};
+is($inputs->{'WARNINGS'}, 'otherwise', 'untrusted_config pull_request warnings');
+is($inputs->{'NEW'}, undef, 'untrusted_config pull_request new');
+is($inputs->{'BASE'}, 'level', 'untrusted_config pull_request base');
+is($inputs->{'NEXT'}, 'time', 'untrusted_config pull_request next');
+is($inputs->{'UNTRUSTWORTHY'}, undef, 'untrusted_config pull_request untrustworthy');
+is($inputs->{'WARNINGS'}, 'otherwise', 'untrusted_config pull_request warnings');
+is($inputs->{'FAR'}, undef, 'untrusted_config pull_request far');
+CheckSpelling::LoadEnv::load_trusted_config($parsed_input);
+$inputs = $parsed_input->{'inputs'};
+is($inputs->{'WARNINGS'}, 'otherwise', 'trusted_config warnings');
+is($inputs->{'NEW'}, 'world', 'trusted_config new');
+is($inputs->{'BASE'}, 'level', 'trusted_config level');
+is($inputs->{'NEXT'}, 'time', 'trusted_config next');
+is($inputs->{'UNTRUSTWORTHY'}, 'origin', 'trusted_config untrustworthy');
+is($inputs->{'WARNINGS'}, 'otherwise', 'trusted_config warnings');
+is($inputs->{'FAR'}, undef, 'trusted_config far');
