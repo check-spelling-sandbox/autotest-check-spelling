@@ -10,14 +10,17 @@ use File::Temp qw/ tempfile tempdir /;
 use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
-plan tests => 12;
+plan tests => 13;
 use_ok('CheckSpelling::CheckDictionary');
 
 $ENV{comment_char} = '#';
-$ENV{INPUT_IGNORE_PATTERN} = "[^A-Za-z']";
+delete $ENV{INPUT_IGNORE_PATTERN};
 
 my ($line, $warning);
 $. = 10;
+
+($line, $warning) = CheckSpelling::CheckDictionary::process_line('ignored', 'hello?#123');
+is($line, 'hello?', 'valid entry (result)');
 
 my $hello = "hello#123";
 $ENV{INPUT_IGNORE_PATTERN} = "[^A-Za-z']";
