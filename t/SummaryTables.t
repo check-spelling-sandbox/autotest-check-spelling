@@ -15,7 +15,7 @@ binmode $builder->output,         ":utf8";
 binmode $builder->failure_output, ":utf8";
 binmode $builder->todo_output,    ":utf8";
 
-plan tests => 16;
+plan tests => 17;
 use_ok('CheckSpelling::SummaryTables');
 
 is(CheckSpelling::SummaryTables::file_ref(
@@ -50,6 +50,7 @@ git commit -m blank;
 
 $ref = `git rev-parse HEAD`;
 chomp $ref;
+is(CheckSpelling::SummaryTables::github_blame("http://example.com/file", 2), 'http://example.com/file:2', 'github_blame url');
 is(CheckSpelling::SummaryTables::github_blame(
     'README.md', 1), "https://github.com/owner/example/blame/$ref/README.md#L1",
     'github_blame root');
