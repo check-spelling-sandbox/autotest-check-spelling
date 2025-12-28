@@ -3009,9 +3009,9 @@ spelling_body() {
       expected_item_count="$(line_count < "$expect_path")"
       if [ $expected_item_count -gt 0 ]; then
         if [ $unknown_count -gt 0 ]; then
-          expect_details_unknown=" and **unrecognized words** ($unknown_count)"
+          expect_details_unknown="and **unrecognized words** ($unknown_count)"
         fi
-        expect_details="This includes both **expected items** ($expected_item_count) from $expect_files$expect_details_unknown
+        expect_details="This includes both **expected items** ($expected_item_count) from $(echo "$expect_files" | tr '\n' ' ')$expect_details_unknown
         "
         expect_head=" (expected and unrecognized)"
       fi
