@@ -319,7 +319,7 @@ inputs:
     required: false
     default: "false"
   include-advice:
-    description: "When to include advice (`always`, has `error`, could update `metadata`)"
+    description: "When to include advice (`always`, has `error`, has `unrecognized-spelling`, could update `metadata`)"
     required: false
     default: "metadata"
   always-report-comment:
