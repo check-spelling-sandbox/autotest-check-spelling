@@ -433,7 +433,7 @@ sub get_artifacts {
                 exit 9;
             }
         } else {
-            print "$program: Unknown error, please file a bug to https://github.com/check-spelling/check-spelling/issues/new\n";
+            print "$program: Unknown error, please check the list of known issues https://github.com/check-spelling/check-spelling/issues?q=is%3Aissue%20apply.pl and file a bug to https://github.com/check-spelling/check-spelling/issues/new?title=%60apply.pl%60%20scenario&body=Please%20provide%20details+preferably%20including%20a%20link%20to%20a%20workflow%20run,%20the%20configuration%20of%20the%20repository,%20and%20anything%20else%20you%20may%20know%20about%20the%20problem%2e\n";
             print $gh_err_text;
             exit 4;
         }
