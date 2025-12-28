@@ -379,7 +379,8 @@ sub get_artifacts {
     if ($suffix) {
         $artifact_name .= "-$suffix";
     }
-    while (1) {
+    my $retries_remaining = 3;
+    while ($retries_remaining-- > 0) {
         ($gh_err_text, $ret) = capture_merged_system(
             'gh', 'run', 'download',
             '-D', $artifact_dir,
