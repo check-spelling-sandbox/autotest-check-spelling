@@ -170,6 +170,14 @@ jobs:
           echo '</details>'
         ) >> "$GITHUB_STEP_SUMMARY"
         echo ::endgroup::
+        for run in t/*/run; do
+          output=$(dirname $run)
+          diff -u $output/output $run || true
+        done |
+          perl -pe 's<^((?:diff -u|---|[+]{3}) t/[^/]+)/run(/\S+\s)><$1/output$2>;' > run.diff
+        if [ -s run.diff ]; then
+          echo "run-diff=1" >> "$GITHUB_OUTPUT"
+        fi
         exit $failed
     - name: calculate coverage
       id: coverage
@@ -194,6 +202,14 @@ jobs:
         name: "check-spelling-coverage-${{ github.run_id }}"
         path: |
           cover_db
+    - name: store-run-output
+      if: (success() || failure()) && (steps.test.outputs.run-diff == 1)
+      uses: ./actions/upload-artifact
+      timeout-minutes: 5
+      with:
+        name: "check-spelling-run-diff-${{ github.run_id }}"
+        path: |
+          run.diff
 
   standalone:
     name: Standalone
