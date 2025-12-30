@@ -157,6 +157,7 @@ $ENV{INPUTS} = qq<{
   "github_pat_ignored",
   "ignored_key": "ignored",
   "ignored item": "ignored",
+  "post_comment": "1",
   "unused": "unused",
   "conflicting-item": 1,
   "conflicting_item": 2
