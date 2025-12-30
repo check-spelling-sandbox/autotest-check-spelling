@@ -49,6 +49,9 @@ dispatcher() {
   INPUT_TASK="${INPUT_TASK:-"$INPUT_CUSTOM_TASK"}"
   case "$INPUT_TASK" in
     comment|collapse_previous_comment)
+      if ! to_boolean "$INPUT_POST_COMMENT"; then
+        INPUT_POST_COMMENT=1
+      fi
       comment_task
     ;;
     pr_head_sha)
