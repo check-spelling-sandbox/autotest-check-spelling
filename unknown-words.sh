@@ -1475,6 +1475,10 @@ get_project_files() {
           cat "$temp_file" >> "$dest"
         fi
       done <<< "$from_expanded"
+      if [ "$ext" = json ]; then
+        jq -s 'reduce .[] as $obj ({}; . * $obj)' "$dest" > "$dest".merged &&
+        mv "$dest".merged "$dest"
+      fi
       from="$from"/"$(basename "$from")"."$ext"
     else
       from_expanded="$from"."$ext"
