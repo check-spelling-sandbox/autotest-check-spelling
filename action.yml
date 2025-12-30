@@ -44,7 +44,7 @@ inputs:
   post_comment:
     description: "Post comment with report"
     required: false
-    default: "1"
+    default: "0"
   capture_output_unknown_words:
     description: ""
     required: false
