@@ -153,8 +153,7 @@ $ENV{INPUTS} = qq<{
   "extra_dictionaries": " ",
   "": "ignored-empty",
   "ignoredEmpty": "",
-  "ignoredValue":
-  "github_pat_ignored",
+  "ignoredValue": "github_pat_ignored",
   "ignored_key": "ignored",
   "ignored item": "ignored",
   "post_comment": "1",
