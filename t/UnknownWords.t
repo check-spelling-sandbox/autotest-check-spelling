@@ -10,6 +10,7 @@ use File::Copy;
 use File::Temp qw(tempfile tempdir);
 use File::Path qw(make_path);
 use Test::More;
+use JSON::PP;
 use Capture::Tiny ':all';
 
 plan tests => 22;
@@ -144,22 +145,26 @@ Duin
 ';
 close $elvish;
 
-$ENV{INPUTS} = qq<{
-  "check_file_names" : 1,
-  "config": "$config",
-  "dictionary_source_prefixes": "{\\"extra\\":\\"file://$extra_dictionaries_dir/\\"}",
-  "check_extra_dictionaries": " extra:elvish.txt",
-  "extra_dictionaries": " ",
-  "": "ignored-empty",
-  "ignoredEmpty": "",
-  "ignoredValue":
-  "github_pat_ignored",
-  "ignored_key": "ignored",
-  "ignored item": "ignored",
-  "unused": "unused",
-  "conflicting-item": 1,
-  "conflicting_item": 2
-}>;
+my $dictionary_source_prefixes = {
+  "extra" => "file://$extra_dictionaries_dir/",
+};
+
+my $input = {
+  "check_file_names" => 1,
+  "config" => $config,
+  "dictionary_source_prefixes" => encode_json($dictionary_source_prefixes),
+  "check_extra_dictionaries" => " extra:elvish.txt",
+  "extra_dictionaries" => " ",
+  "" => "ignored-empty",
+  "ignoredEmpty" => "",
+  "ignoredValue" => "github_pat_ignored",
+  "ignored_key" => "ignored",
+  "ignored item" => "ignored",
+  "unused" => "unused",
+  "conflicting-item" => 1,
+  "conflicting_item" => 2,
+};
+$ENV{'INPUTS'} = encode_json($input);
 
 my ($fh, $github_step_summary) = tempfile();
 close $fh;
