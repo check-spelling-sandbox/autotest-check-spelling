@@ -1504,7 +1504,12 @@ get_project_files_deprecated() {
       else
         note=""
       fi
-      echo "::error file=$example::👎 Deprecation: please rename '$2'$note to '$1' (deprecated-feature)" >> "$early_warnings"
+      if [ -e "$example" ]; then
+        first_line_length=$(( $(head -1 "$example" 2>/dev/null|wc -c) + 1 ))
+      else
+        first_line_length=1
+      fi
+      echo "$example:1:1 ... $first_line_length, Warning - Deprecation: please rename '$2'$note to '$1' (deprecated-feature)" >> "$early_warnings"
     else
       append_to="$save_append_to"
     fi
