@@ -248,7 +248,7 @@ dispatcher() {
           If you think it can, consider using:
 
             with:
-              event_aliases: {$Q$GITHUB_EVENT_NAME$Q:${Q}supported_event_name${Q}}
+              event_aliases: '{$Q$GITHUB_EVENT_NAME$Q:${Q}supported_event_name${Q}}'
 
           Future versions may support this feature." \
         | strip_leading 10
