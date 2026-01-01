@@ -362,6 +362,32 @@
               }
             },
             {
+              "id": "deprecated-feature",
+              "name": "DeprecatedFeature",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#deprecated-feature",
+              "shortDescription": {
+                "text": "Deprecated Feature"
+              },
+              "fullDescription": {
+                "text": "The described feature has been deprecated. Please migrate."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- See https://docs.check-spelling.dev/Deprecations.html for more information\n\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "medium",
+                "problem.severity": "recommendation",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "bad-regex",
               "name": "BadRegex",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#bad-regex",
