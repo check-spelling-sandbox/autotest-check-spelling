@@ -1446,8 +1446,8 @@ cleanup_file() {
 }
 
 get_project_files() {
-  ext="$(echo "$1" | sed -e 's/^.*\.//')"
-  file="$(echo "$1" | sed -e "s/\.$ext$//")"
+  ext="${1##*.}"
+  file="${1%.$ext}"
   dest="$2"
   type="$file"
   if [ -e "$dest" ]; then
@@ -1464,7 +1464,7 @@ get_project_files() {
     from_expanded="$from"
   else
     if [ ! -e "$from" ]; then
-      from="$(echo "$from" | sed -e "s/\.$ext$//")"
+      from="${from%.$ext}"
     fi
     if [ -d "$from" ]; then
       from_expanded="$(find "$from" -mindepth 1 -maxdepth 1 -name "*$ext" ! -name "*$n*" |sort)"
