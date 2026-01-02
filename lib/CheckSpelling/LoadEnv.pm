@@ -44,7 +44,6 @@ sub parse_inputs {
     for my $key (keys %raw_inputs) {
         next unless $key;
         my $val = $raw_inputs{$key};
-        next unless $val ne '';
         my $var = $key;
         if ($val =~ /^github_pat_/) {
             print STDERR "Censoring `$var` (unexpected-input-value)\n";
