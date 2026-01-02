@@ -7,7 +7,7 @@ use utf8;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 20;
+plan tests => 21;
 use_ok('CheckSpelling::LoadEnv');
 
 {
@@ -54,11 +54,13 @@ my $ref = CheckSpelling::LoadEnv::parse_config_file($fh);
 is(ref $ref, 'HASH', 'parse_config_file fallback is ref');
 is(keys %{$ref}, 0, 'parse_config_file fallback has no entries');
 
-$ENV{INPUTS} = '{"hello":"world"}';
+$ENV{INPUTS} = '{"hello":"world", "ignore-pattern":""}';
 $ENV{action_yml} = 'action.yml';
 my $parsed_input = CheckSpelling::LoadEnv::parse_inputs();
 my %parsed_inputs = %{$parsed_input};
 my $inputs = $parsed_inputs{'inputs'};
+
+is($inputs->{'IGNORE_PATTERN'}, '', 'ignore pattern (empty value should suppress fallback)');
 
 like($inputs->{'DICTIONARY_URL'}, qr{https://}, 'dictionary url');
 like((join ", ", (sort keys %{$inputs})), qr{CHECK_EXTRA_DICTIONARIES.*, HELLO, .*WARNINGS}, 'input_map');
