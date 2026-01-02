@@ -146,7 +146,7 @@ jobs:
           echo '-|-';
           perl -ne '
             $new_state = 0;
-            if (m<t/.*\.t \.+ ok|^---|^\s*Failed test:|^\s*Non-zero exit status:|\(Wstat>) {
+            if (m<t/.*\.t \.+ \w*$|^---|^\s*Failed test:|^\s*Non-zero exit status:|\(Wstat>) {
               $new_state = 1;
             }
             next unless ($new_state || $state);
@@ -158,7 +158,8 @@ jobs:
             $last_line = $_;
             s/ \.+ ok/|✅/ || s/ \.+ /|/;
             s/^\s+(.*):\s*/... $1|/;
-            s/\s+(\(Wstat)/|❌ $1/ unless /\|/;
+            s/^# (Looks like.*[^.])\.$/... $1|⚠️/;
+            s/\s+(\([Ww]stat)/|❌ $1/ unless /\|/;
             s/All tests successful\./All tests|✅/;
             print' "$cover_output"
           echo
