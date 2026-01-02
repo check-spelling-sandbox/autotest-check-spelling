@@ -148,7 +148,7 @@ jobs:
             $new_state = 0;
             my $no_such_file = "Could not open file (no-such-file)";
             while (<>) {
-            if (m<t/.*\.t \.+ ok|^---|^\s*Failed test:|^\s*Non-zero exit status:|\([W]stat>) {
+            if (m<t/.*\.t \.+ \w*$|^---|^\s*Failed test:|^\s*Non-zero exit status:|\([W]stat>) {
               $new_state = 1;
             }
             next unless ($new_state || $state);
@@ -157,11 +157,14 @@ jobs:
             next unless /\w/;
             next if $last_line eq $_;
             next if /\Q$no_such_file\E/;
+            next if /^Files=\d+, Tests=\d+,/;
             $last_line = $_;
             s/ \.+ ok/|✅/ || s/ \.+ /|/;
             s/^\s+(.*):\s*/... $1|/;
-            s/\s+(\(Wstat)/|❌ $1/ unless /\|/;
+            s/^# (Looks like.*[^.])\.$/... $1|⚠️/;
+            s/\s+(\([Ww]stat)/|❌ $1/ unless /\|/;
             s/All tests successful\./All tests|✅/;
+            s/\.($)/|😳$1/ if / at .* line \d+\./ && !/\|/;
             print;
             }' "$cover_output"
           echo
