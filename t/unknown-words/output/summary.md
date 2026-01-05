@@ -88,7 +88,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words/config/expect/expect.txt WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (7)
+This includes both **expected items** (3) from WORKSPACE/t/unknown-words/config/expect/expect.txt WORKSPACE/t/unknown-words/config/expect/other.txt and **unrecognized words** (7)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
