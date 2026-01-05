@@ -65,6 +65,7 @@ sub skip_item {
   my ($word) = @_;
   return 1 if expect_item($word, 1);
   my $key = lc $word;
+  $key =~ s/’/'/g;
   return 2 if expect_item($key, 2);
   if ($key =~ /.s$/) {
     if ($key =~ /ies$/) {
