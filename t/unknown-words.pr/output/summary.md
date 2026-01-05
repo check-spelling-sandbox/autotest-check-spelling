@@ -4,7 +4,7 @@
 ## 🔴 Please review
 ### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-### Unrecognized words (7)
+### Unrecognized words (8)
 
 Aiglos
 Alqua
@@ -12,6 +12,7 @@ diid
 fixx
 ico
 thiss
+would've
 youu
 
 <details><summary>These words are not needed and should be removed
@@ -41,14 +42,14 @@ check-spelling run (push) for some-base
 Signed-off-by: check-spelling-bot <check-spelling-bot@users.noreply.github.com>
 on-behalf-of: @check-spelling <check-spelling-bot@check-spelling.dev>
 ---
- t/unknown-words.pr/config/expect.txt | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ t/unknown-words.pr/config/expect.txt | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/t/unknown-words.pr/config/expect.txt b/t/unknown-words.pr/config/expect.txt
 index GIT_DIFF_CHANGED_FILE
 --- a/t/unknown-words.pr/config/expect.txt
 +++ b/t/unknown-words.pr/config/expect.txt
-@@ -1,3 +1,9 @@
+@@ -1,3 +1,10 @@
 +Aiglos
 +Alqua
 +diid
@@ -58,6 +59,7 @@ index GIT_DIFF_CHANGED_FILE
 +thiss
  Unexpectedlylong
 -unexpectedlylong
++would've
 +youu
 --=
 GIT_VERSION
@@ -91,7 +93,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (7)
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
@@ -178,6 +180,7 @@ note|path
 `ico` is not a recognized word | unknown-words/input/sample.file:7
 `Thiss` is not a recognized word | unknown-words/input/sample.file:2
 `thiss` is not a recognized word | unknown-words/input/sample.file:2
+`would’ve` is not a recognized word | unknown-words/input/sample.file:8
 `youu` is not a recognized word | unknown-words/input/sample.file:2
 </details>
 
