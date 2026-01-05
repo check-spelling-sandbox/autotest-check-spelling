@@ -19,7 +19,7 @@ unknown-words/input/sample.file
 ::endgroup::
 ::group::Check for extra dictionaries
 ::endgroup::
-::group::Unrecognized (7)
+::group::Unrecognized (8)
 ::group::Building summary table
 ::endgroup::
 Preparing a comment for push
@@ -29,7 +29,7 @@ Preparing a comment for push
 ## 🔴 Please review
 ### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-### Unrecognized words (7)
+### Unrecognized words (8)
 
 Aiglos
 Alqua
@@ -37,6 +37,7 @@ diid
 fixx
 ico
 thiss
+would've
 youu
 
 <details><summary>These words are not needed and should be removed
@@ -62,7 +63,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (7)
+This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-

@@ -38,6 +38,7 @@ sub maybe {
 my %expected = ();
 sub expect_item {
   my ($item, $value) = @_;
+  $item =~ s/’/'/g;
   our %expected;
   my $next;
   if (defined $expected{$item}) {

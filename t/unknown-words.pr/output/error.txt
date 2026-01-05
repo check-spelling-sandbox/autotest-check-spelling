@@ -15,6 +15,7 @@ unknown-words/input/sample.file:2:31 ... 36, Error - `Thiss` is not a recognized
 unknown-words/input/sample.file:3:1 ... 7, Error - `Aiglos` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:3:8 ... 13, Error - `Alqua` is not a recognized word (unrecognized-spelling)
 unknown-words/input/sample.file:7:23 ... 26, Error - `ico` is not a recognized word (unrecognized-spelling)
+unknown-words/input/sample.file:8:1 ... 9, Error - `would’ve` is not a recognized word (unrecognized-spelling)
 Summary Tables budget: INITIAL_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
