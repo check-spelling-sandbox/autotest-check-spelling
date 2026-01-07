@@ -46,7 +46,6 @@ dispatcher() {
   if [ -n "$INPUT_EVENT_ALIASES" ]; then
     GITHUB_EVENT_NAME="$(echo "$INPUT_EVENT_ALIASES" | jq -r ".$GITHUB_EVENT_NAME // $Q$GITHUB_EVENT_NAME$Q")"
   fi
-  INPUT_TASK="${INPUT_TASK:-"$INPUT_CUSTOM_TASK"}"
   case "$INPUT_TASK" in
     comment|collapse_previous_comment)
       if ! to_boolean "$INPUT_POST_COMMENT"; then
@@ -1279,7 +1278,6 @@ define_variables() {
   if [ -n "$INPUT_REPORT_TITLE_SUFFIX" ]; then
     report_header="$report_header $INPUT_REPORT_TITLE_SUFFIX"
   fi
-  INPUT_TASK="${INPUT_TASK:-"$INPUT_CUSTOM_TASK"}"
   if [ -z "$GITHUB_OUTPUT" ]; then
     GITHUB_OUTPUT=$(mktemp)
     GH_OUTPUT_STUB=1
