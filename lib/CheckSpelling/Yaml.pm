@@ -147,7 +147,7 @@ sub check_yaml_key_value {
     } elsif ($state == 1) {
       if (/^\s*(?:#.*|)$/) {
         $end += length $_;
-        continue;
+        next;
       }
       /^(\s*)(\S.*?)\s*$/;
       my ($spaces, $v) = ($1, $2);
