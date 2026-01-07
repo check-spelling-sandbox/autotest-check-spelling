@@ -172,11 +172,6 @@ inputs:
     description: "If set, only check files changed since the last push"
     required: false
     default: ""
-  custom_task:
-    description: 'Run an internal task instead of responding to a GitHub event. Values: "comment"'
-    # This will be superseded by task
-    required: false
-    default: ""
   internal_state_directory:
     description: "Used for passing internal state from the (default) check mode to the comment module"
     required: false
@@ -492,7 +487,7 @@ runs:
         diagnose-failed-checkout
     - name: checkout-merge
       id: checkout-merge
-      if: github.event.pull_request.number && (contains(github.event_name, 'pull_request')) && (inputs.checkout && fromJSON(inputs.checkout) && !inputs.custom_task && !inputs.task)
+      if: github.event.pull_request.number && (contains(github.event_name, 'pull_request')) && (inputs.checkout && fromJSON(inputs.checkout) && !inputs.task)
       uses: ./../check-spelling-actions/checkout-merge
       with:
         path: ${{ inputs.experimental_path }}
@@ -504,7 +499,7 @@ runs:
         remove-persisted-credentials
     - name: save sha
       id: save-sha
-      if: (contains(github.event_name, 'pull_request')) && (inputs.checkout && fromJSON(inputs.checkout) && !inputs.custom_task && !inputs.task) && steps.checkout-merge.outputs.message == ''
+      if: (contains(github.event_name, 'pull_request')) && (inputs.checkout && fromJSON(inputs.checkout) && !inputs.task) && steps.checkout-merge.outputs.message == ''
       shell: bash
       working-directory: ${{ inputs.experimental_path }}
       run: |
@@ -574,7 +569,7 @@ runs:
         unknown-words
     - name: store-comment
       if: env.MERGE_FAILED != '1' &&
-        inputs.custom_task != 'comment' &&
+        inputs.task != 'comment' &&
         steps.spelling.outputs.internal_state_directory &&
         !cancelled()
       uses: ./../check-spelling-actions/upload-artifact
