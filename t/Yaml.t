@@ -11,7 +11,7 @@ use Cwd qw();
 use Test::More;
 use File::Temp qw/ tempfile tempdir /;
 
-plan tests => 32;
+plan tests => 40;
 use_ok('CheckSpelling::Yaml');
 
 is(CheckSpelling::Yaml::get_yaml_value(
@@ -107,3 +107,32 @@ is($triggered, 0, 'should not call CheckSpelling::Yaml::report');
 close STDIN;
 
 open STDIN, '<&', $oldin;
+
+*CheckSpelling::Yaml::report = sub {
+    my ($file, $start_line, $start_pos, $end, $message, $match, $report_match) = @_;
+    is($file, 'a.yml', 'hello.real.world=news file');
+    is($start_line, 11, 'hello.real.world=news start line');
+    is($start_pos, 5, 'hello.real.world=news start pos');
+    is($end, 23, 'hello.real.world=news end');
+    is($message, 'something', 'hello.real.world=news message');
+    is($match, 'world: news', 'hello.real.world=news match');
+    is($report_match, 0, 'hello.real.world=news report match');
+    ++$main::triggered;
+};
+
+$triggered = 0;
+CheckSpelling::Yaml::check_yaml_key_value("hello\nreal\nworld", 'news', 'something', 0, 'a.yml', '
+when:
+  hello:
+    real:
+      world: news
+hello:
+  fake:
+    world: news
+  real:
+    there: is no hope
+    world: |
+      # ignored
+      news
+');
+is($triggered, 1, 'hello.real.world=news report');
