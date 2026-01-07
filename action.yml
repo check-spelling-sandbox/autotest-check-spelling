@@ -561,6 +561,7 @@ runs:
         DEBUG: ${{ inputs.debug }}
         GH_ACTION_REPOSITORY: ${{ github.action_repository || github.repository }}
         GH_ACTION_REF: ${{ github.action_ref || github.ref_name }}
+        JOB_CHECK_RUN_ID: ${{ job.check_run_id }}
       shell: bash
       run: |
         unknown-words
