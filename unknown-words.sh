@@ -47,6 +47,8 @@ dispatcher() {
     GITHUB_EVENT_NAME="$(echo "$INPUT_EVENT_ALIASES" | jq -r ".$GITHUB_EVENT_NAME // $Q$GITHUB_EVENT_NAME$Q")"
   fi
   case "$INPUT_TASK" in
+    '')
+      ;;
     comment|collapse_previous_comment)
       if ! to_boolean "$INPUT_POST_COMMENT"; then
         INPUT_POST_COMMENT=1
@@ -55,6 +57,25 @@ dispatcher() {
     ;;
     pr_head_sha)
       pr_head_sha_task
+    ;;
+    *)
+      (
+        unrecognized_task_message='Error - Unrecognized task (unsupported-task)'
+        if [ -e "$workflow_path" ]; then
+          workflow_path_for_input_task="$workflow_path"
+        else
+          workflow_path_for_input_task="$INPUT_INTERNAL_STATE_DIRECTORY/workflow.yml"
+        fi
+        if [ -s "$workflow_path_for_input_task" ]; then
+          KEY="jobs$n$THIS_GITHUB_JOB_ID${n}steps${n}with${n}task" \
+          VALUE="$INPUT_TASK" \
+          MESSAGE="$unrecognized_task_message" \
+          file="$workflow_path" \
+          check_yaml_key_value "$workflow_path_for_input_task"
+        else
+          echo "$workflow_path:0:0 ... 0, $unrecognized_task_message"
+        fi
+      ) >> "$early_warnings"
     ;;
   esac
   case "$GITHUB_EVENT_NAME" in
@@ -288,6 +309,22 @@ load_env() {
       fi
       echo "$check_spelling_with"
     )"
+  fi
+  repository_and_workflow_path_without_ref=${GITHUB_WORKFLOW_REF%%@*}
+  private_workflow_path=${repository_and_workflow_path_without_ref#*/*/}
+  if [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
+    default_branch=$(jq -r '.repository.default_branch // empty' "$GITHUB_EVENT_PATH")
+    if [ -n "$default_branch" ] &&
+      git fetch origin "$GITHUB_WORKFLOW_SHA:refs/private/workflow-ref" --depth 1; then
+      if [ -n "$private_workflow_path" ]; then
+        git show "refs/private/default-branch:$private_workflow_path" > "$retrieved_default_workflow_file" || true
+      fi
+    fi
+  fi
+  if [ ! -s "$retrieved_default_workflow_file" ] &&
+     [ -s "$private_workflow_path" ] &&
+     [ ! -L "$private_workflow_path" ]; then
+     cp "$private_workflow_path" "$retrieved_default_workflow_file"
   fi
   action_yml="$spellchecker/action.yml" "$spellchecker/wrappers/load-env" > "$input_variables"
   . "$input_variables"
@@ -1116,6 +1153,7 @@ define_variables() {
   fi
   . "$spellchecker/update-state.sh"
   action_workflow_path_file="$(mktemp)"
+  retrieved_default_workflow_file="$(mktemp)"
   workflow_path=$(get_workflow_path)
   load_env
   GITHUB_TOKEN="${GITHUB_TOKEN:-"$INPUT_GITHUB_TOKEN"}"
@@ -1170,6 +1208,12 @@ define_variables() {
   early_warnings="$data_dir/early_warnings.txt"
   severity_level="$data_dir/severity_level.txt"
   severity_list="$data_dir/severity_list.txt"
+  default_workflow_file="$data_dir/workflow.yml"
+
+  if  [ ! -s "$default_workflow_file" ] &&
+      [ -s "$retrieved_default_workflow_file" ]; then
+    cp "$retrieved_default_workflow_file" "$default_workflow_file"
+  fi
 
   bucket="${INPUT_BUCKET:-"$bucket"}"
   project="${INPUT_PROJECT:-"$project"}"
