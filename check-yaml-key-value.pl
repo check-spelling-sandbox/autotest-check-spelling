@@ -14,7 +14,7 @@ my $content;
   $content = <>;
 }
 CheckSpelling::Yaml::check_yaml_key_value(
-  quotemeta($key),
+  $key,
   quotemeta($value),
   $message,
   $report_match,
