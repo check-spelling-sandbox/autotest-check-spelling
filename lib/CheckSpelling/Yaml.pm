@@ -117,6 +117,9 @@ sub check_yaml_key_value {
   my ($start_line, $start_pod, $end);
   my @lines = split /\n/, $content;
   my $line = 0;
+  my @expected_key_path = split /\n/, $key;
+  my @current_key_path;
+  $key = quotemeta($key);
 
   for (@lines) {
     ++$line;
@@ -125,13 +128,27 @@ sub check_yaml_key_value {
       next;
     }
     if ($state == 0) {
-      next unless /^(\s*)\S+\s*:/;
-      my $spaces = $1;
-      my $len = length $spaces;
+      next unless /^(\s*)(-\s+|)(\S+)\s*:/;
+      my ($spaces, $array_element, $record) = ($1, $2, $3);
+      my $len = length "$spaces$array_element";
       while (scalar @nests && $len < $nests[$#nests]) {
         pop @nests;
       }
       push @nests, $len if (! scalar @nests || $len > $nests[$#nests]);
+      if ($#expected_key_path >= 1) {
+        $#current_key_path = $#nests;
+        $current_key_path[$#nests] = $record;
+        next if $#nests != $#expected_key_path;
+        my $unequal = 0;
+        for my $i (0 .. $#nests) {
+          if ($current_key_path[$i] ne $expected_key_path[$i]) {
+            $unequal = 1;
+            last;
+          }
+        }
+        next if $unequal;
+        $key = quotemeta($expected_key_path[$#nests]);
+      }
       if (/^\s*(($key)\s*:\s*([|>](?:[-+]\d*)?|\$\{\{.*|(?:"\s*|)$value))\s*$/) {
         $gh_yaml_mode = $3;
         ($start_line, $start_pos, $end, $match) = ($line, $-[2] + 1, $+[3] + 1, $1);
