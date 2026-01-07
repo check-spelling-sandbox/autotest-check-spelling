@@ -15,14 +15,14 @@ plan tests => 32;
 use_ok('CheckSpelling::Yaml');
 
 is(CheckSpelling::Yaml::get_yaml_value(
-    'no-such-action.yml', 'name'), '');
+    'no-such-action.yml', 'name'), '', 'no such file');
 
 is(CheckSpelling::Yaml::get_yaml_value(
-    'action.yml', 'name'), '"Check Spelling"');
+    'action.yml', 'name'), '"Check Spelling"', 'action name');
 
-is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.largest_file.default'), '"1048576"');
+is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.largest_file.default'), '"1048576"', 'inputs.largest_file.default');
 
-is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.shortest_word.default'), '"3"');
+is(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.shortest_word.default'), '"3"', 'inputs.shortest_word.default');
 
 like(CheckSpelling::Yaml::get_yaml_value('action.yml', 'inputs.event_aliases.description'), qr{\. If}, 'multiline >-');
 
@@ -51,13 +51,13 @@ our $triggered = 0;
 
 *CheckSpelling::Yaml::report = sub {
     my ($file, $start_line, $start_pos, $end, $message, $match, $report_match) = @_;
-    is($file, '-');
-    is($start_line, 10);
-    is($start_pos, 1);
-    is($end, 12);
-    is($message, 'Good work');
-    is($match, 'wine: white');
-    is($report_match, 1);
+    is($file, '-', 'report_match=1 (file)');
+    is($start_line, 10, 'report_match=1 (start line)');
+    is($start_pos, 1, 'report_match=1 (start pos)');
+    is($end, 12, 'report_match=1 (end)');
+    is($message, 'Good work', 'report_match=1 (message)');
+    is($match, 'wine: white', 'report_match=1 (match)');
+    is($report_match, 1, 'report_match=1 (report match)');
     ++$main::triggered;
 };
 
@@ -67,13 +67,13 @@ is($triggered, 1, 'should call CheckSpelling::Yaml::report (wine: white)');
 $triggered = 0;
 *CheckSpelling::Yaml::report = sub {
     my ($file, $start_line, $start_pos, $end, $message, $match, $report_match) = @_;
-    is($file, '-');
-    is($start_line, 11);
-    is($start_pos, 1);
-    is($end, 16);
-    is($message, 'Good night');
-    is($match, 'fruit: salad');
-    is($report_match, 0);
+    is($file, '-', 'report_match=0 (file)');
+    is($start_line, 11, 'report_match=0 (start line)');
+    is($start_pos, 1, 'report_match=0 (start pos)');
+    is($end, 16, 'report_match=0 (end)');
+    is($message, 'Good night', 'report_match=0 (message)');
+    is($match, 'fruit: salad', 'report_match=0 (match)');
+    is($report_match, 0, 'report_match=0 (report match)');
     ++$main::triggered;
 };
 
