@@ -908,6 +908,30 @@
               }
             },
             {
+              "id": "unsupported-task",
+              "name": "UnsupportedTask",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unsupported-task",
+              "shortDescription": {
+                "text": "Unsupported Task"
+              },
+              "fullDescription": {
+                "text": "The task is unsupported."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "precision": "very-high",
+                "problem": {
+                  "severity": "error"
+                }
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\nNormally tasks are automatically provided as an output from check-spelling, it's possible that the configuration for this has been corrupted. Check the workflow configuration.\nConfigure a supported task. Supported tasks are:- collapse_previous_comment\n- comment\n- hash-dictionaries\n- pr_head_sha\n- spelling\n- update\n\n"
+              }
+            },
+            {
               "id": "single-line-file",
               "name": "SingleLineFile",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#single-line-file",
