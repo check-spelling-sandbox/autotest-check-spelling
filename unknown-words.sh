@@ -3694,6 +3694,9 @@ generate_merge_instructions() {
 }
 
 generate_sample_commit_help() {
+  if ! git rev-parse HEAD > /dev/null 2> /dev/null; then
+    return
+  fi
   if [ ! -s "$tokens_file" ]; then
     return
   fi
