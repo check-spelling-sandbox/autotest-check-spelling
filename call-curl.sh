@@ -8,7 +8,7 @@ no_auth() {
 }
 
 curl_auth() {
-  if [ -z "$no_curl_auth" ]; then
+  if [ -z "$no_curl_auth" ] && [[ "$1" == "$GITHUB_API_URL"* ]]; then
     if [ -z "$AUTHORIZATION_HEADER" ]; then
       export AUTHORIZATION_HEADER=$(no_auth)
     fi
@@ -48,7 +48,7 @@ call_curl() {
       -D "$response_headers" \
       -A "$curl_ua" \
       -s \
-      -H "$(curl_auth)" \
+      -H "$(curl_auth "$curl_url")" \
       "$@" \
       -o "$response_body" \
       > "$curl_output"
