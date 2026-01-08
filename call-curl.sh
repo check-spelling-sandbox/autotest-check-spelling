@@ -26,6 +26,14 @@ dump_curl_response() {
   fi
 }
 
+get_link() {
+  link="$1" \
+  perl -ne 'next
+    unless s/^link:.*<([^>]*)>[^,]*$ENV{link}.*/$1/;
+    print
+  ' "$2"
+}
+
 call_curl() {
   curl_attempt=0
   response_headers="$(mktemp)"
