@@ -395,7 +395,7 @@ get_a_comment() {
     dir="$2"
     keep_headers=1 call_curl "$url" > "$pr_comments"
     # Subset of rfc8288#section-3
-    link="$(dir="$dir" perl -ne 'next unless s/^link:.*<([^>]*)>[^,]*$ENV{dir}.*/$1/; print' "$response_headers" )"
+    link="$(get_link "$dir" "$response_headers")"
     if [ -n "$link" ] && [ "$dir" = "last" ]; then
       get_page "$link" "prev"
       return
