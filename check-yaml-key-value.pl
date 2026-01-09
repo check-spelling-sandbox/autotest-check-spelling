@@ -13,11 +13,12 @@ my $content;
   $/ = undef;
   $content = <>;
 }
+my $file = CheckSpelling::Util::get_file_from_env('file', $ARGV);
 CheckSpelling::Yaml::check_yaml_key_value(
   $key,
   quotemeta($value),
   $message,
   $report_match,
-  $ARGV,
+  $file,
   $content,
 );
