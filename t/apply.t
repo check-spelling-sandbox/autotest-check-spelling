@@ -50,6 +50,10 @@ my $jq_expression = '.artifacts | map(select (.expired == true))[0].workflow_run
 
 my $retries = 0;
 my $GH_TOKEN = $ENV{GH_TOKEN};
+unless (defined $GH_TOKEN) {
+  $GH_TOKEN = `gh auth token`;
+  chomp $GH_TOKEN;
+}
 
 # three possible passes (not counting retries for rate limits):
 # 1. parse for artifact id
