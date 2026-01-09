@@ -1200,7 +1200,7 @@ define_variables() {
     data_dir="$(mktemp -d)"
   fi
   if [ -s "$data_dir/early_warnings.txt" ]; then
-    cat "$data_dir/early_warnings.txt" >> "$early_warnings"
+    cat "$data_dir/early_warnings.txt" | tee /dev/stderr >> "$early_warnings"
   fi
   mv "$early_warnings" "$data_dir/early_warnings.txt"
   early_warnings="$data_dir/early_warnings.txt"
