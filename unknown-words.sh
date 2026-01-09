@@ -2650,7 +2650,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     fi
   fi
   count="$(perl -e '$/="\0"; $count=0; while (<>) {s/\R//; $count++ if /./;}; print $count;' "$file_list")"
-  if [ "$count" = "0" ]; then
+  if [ "$count" = "0" ] && [ -z "$INPUT_TASK" ]; then
     (
       if ! to_boolean "$INPUT_CHECKOUT" && [ ! -d .git ]; then
         no_files_to_check_message='Error - No files to check. Did you forget to check out the repository? (missing-checkout)'
