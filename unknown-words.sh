@@ -1317,6 +1317,7 @@ check_yaml_key_value() {
     KEY="$KEY" \
     VALUE="$VALUE" \
     MESSAGE=${MESSAGE:+"$MESSAGE"} \
+    file="$file" \
     "$check_yaml_key_value" "$1"
   else
     echo "?:0:1, $MESSAGE"
