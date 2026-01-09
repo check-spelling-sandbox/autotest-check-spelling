@@ -570,6 +570,7 @@ runs:
     - name: store-comment
       if: env.MERGE_FAILED != '1' &&
         inputs.task != 'comment' &&
+        steps.retrieve-comment.conclusion == 'skipped' &&
         steps.spelling.outputs.internal_state_directory &&
         !cancelled()
       uses: ./../check-spelling-actions/upload-artifact
