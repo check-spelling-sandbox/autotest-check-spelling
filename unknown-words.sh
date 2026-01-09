@@ -2509,6 +2509,20 @@ build_file_list() {
 
 run_spell_check() {
   if [ "$INPUT_TASK" != 'spelling' ]; then
+    warning_output="$(mktemp)"
+    (
+      cat "$early_warnings" 2>/dev/null
+      warning_output_unsorted="$data_dir/warning_output_unsorted.txt"
+      if [ -s "$warning_output_unsorted" ]; then
+        cat "$data_dir/warning_output_unsorted.txt"
+      fi
+    ) |
+      warning_output="$warning_output" \
+      counter_summary="$counter_summary_file" \
+      candidate_summary="$candidate_summary" \
+      "$word_collator" |\
+      "$strip_word_collator_suffix" > "$run_output"
+    cat "$warning_output"
     return
   fi
   echo "started-at=$(perl -e 'use POSIX qw(strftime);
