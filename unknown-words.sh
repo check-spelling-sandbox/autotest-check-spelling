@@ -2393,6 +2393,7 @@ set_up_files() {
 
 welcome() {
   echo "Checking spelling..."
+  : > "$counter_summary_file"
   if to_boolean "$DEBUG"; then
     begin_group 'Excluded paths'
     if [ -e "$excludes" ]; then
