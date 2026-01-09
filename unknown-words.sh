@@ -2548,6 +2548,9 @@ build_file_list() {
 }
 
 run_spell_check() {
+  if [ "$INPUT_TASK" != 'spelling' ]; then
+    return
+  fi
   echo "started-at=$(perl -e 'use POSIX qw(strftime);
 my $now = time();
 print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
