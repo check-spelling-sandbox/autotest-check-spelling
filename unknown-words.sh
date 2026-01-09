@@ -2062,7 +2062,7 @@ set_up_files() {
         INPUT_ONLY_CHECK_CHANGED_FILES=$(jq -r ".only_check_changed_files // \"$INPUT_ONLY_CHECK_CHANGED_FILES\"" "$data_dir/apply.json")
       fi
     ;;
-    *)
+    ''|spelling)
       if [ ! -d "$bucket/$project/" ] && [ -n "$INPUT_SPELL_CHECK_THIS" ]; then
         spelling_config="$bucket/$project/"
         spell_check_this_repo=$(mktemp -d)
