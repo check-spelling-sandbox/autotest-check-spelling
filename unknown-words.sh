@@ -1163,6 +1163,9 @@ define_variables() {
   else
     data_dir="$(mktemp -d)"
   fi
+  if [ -s "$data_dir/early_warnings.txt" ]; then
+    cat "$data_dir/early_warnings.txt" >> "$early_warnings"
+  fi
   mv "$early_warnings" "$data_dir/early_warnings.txt"
   early_warnings="$data_dir/early_warnings.txt"
   severity_level="$data_dir/severity_level.txt"
