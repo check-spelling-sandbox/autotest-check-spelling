@@ -2637,11 +2637,27 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   fi
   count="$(perl -e '$/="\0"; $count=0; while (<>) {s/\R//; $count++ if /./;}; print $count;' "$file_list")"
   if [ "$count" = "0" ]; then
-    if ! to_boolean "$INPUT_CHECKOUT" && [ ! -d .git ]; then
-      echo "$workflow_path:0:0 ... 0, Error - No files to check. Did you forget to check out the repository? (missing-checkout)" >> "$early_warnings"
-    else
-      echo "$workflow_path:0:0 ... 0, Warning - No files to check (no-files-to-check)" >> "$early_warnings"
-    fi
+    (
+      if ! to_boolean "$INPUT_CHECKOUT" && [ ! -d .git ]; then
+        no_files_to_check_message='Error - No files to check. Did you forget to check out the repository? (missing-checkout)'
+      else
+        no_files_to_check_message='Warning - No files to check (no-files-to-check)'
+      fi
+      if [ -e "$workflow_path" ]; then
+        workflow_path_for_checkout="$workflow_path"
+      else
+        workflow_path_for_checkout="$INPUT_INTERNAL_STATE_DIRECTORY/workflow.yml"
+      fi
+      if [ -s "$workflow_path_for_checkout" ]; then
+        KEY="jobs$n$THIS_GITHUB_JOB_ID${n}steps${n}uses" \
+        VALUE="$GH_ACTION_REPOSITORY@$GH_ACTION_REF" \
+        MESSAGE="$no_files_to_check_message" \
+        file="$workflow_path" \
+        check_yaml_key_value "$workflow_path_for_checkout"
+      else
+        echo "$workflow_path:0:0 ... 0, $no_files_to_check_message"
+      fi
+    ) >> "$early_warnings"
   fi
   begin_group "Spell checking ($count) files"
   get_file_list
