@@ -887,6 +887,27 @@
               }
             },
             {
+              "id": "unsupported-configuration",
+              "name": "UnsupportedConfiguration",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#unsupported-configuration",
+              "shortDescription": {
+                "text": "Unsupported Configuration"
+              },
+              "fullDescription": {
+                "text": "The action configuration is unsupported."
+              },
+              "properties": {
+                "precision": "very-high",
+                "problem": {
+                  "severity": "warning"
+                }
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\nThis could be because:\n- Both `only_check_changed_files` and `use_sarif` are enabled\n- `use_sarif` is enabled but `security-events: write` is missing\n- `use_sarif` is enabled and the repository is private, but GitHub Advanced Security is not enabled\n- `use_sarif` is enabled and running under `act` without a `GITHUB_TOKEN`\n- Something else (see the documentation for other possibilities)\n\n"
+              }
+            },
+            {
               "id": "single-line-file",
               "name": "SingleLineFile",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#single-line-file",
