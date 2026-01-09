@@ -158,7 +158,8 @@ dispatcher() {
                   REPORT_MATCHING_YAML=1 \
                   KEY=suppress_push_for_open_pull_request \
                   VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
-                  check_yaml_key_value "$workflow_path"
+                  file="$workflow_path" \
+                  check_yaml_key_value "$validate_workflow_path"
                 )
                 echo
                 echo 'You appear to be running nektos/act, you should probably comment out:'
@@ -172,7 +173,8 @@ dispatcher() {
           KEY=suppress_push_for_open_pull_request \
           VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
           MESSAGE='Warning - Misconfigured workflow: missing on:/pull_request(_target) (missing-on-pull-request-event)' \
-          check_yaml_key_value "$workflow_path"
+          file="$workflow_path" \
+          check_yaml_key_value "$validate_workflow_path"
           INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST=''
         fi
       fi
@@ -1330,10 +1332,19 @@ check_input() {
     KEY="$1" \
     VALUE="$2" \
     MESSAGE="$3" \
-    check_yaml_key_value "$workflow_path"
+    file="$workflow_path" \
+    check_yaml_key_value "$validate_workflow_path"
   fi
 }
 check_inputs() {
+  if [ -e "$workflow_path" ]; then
+    validate_workflow_path="$workflow_path"
+  else
+    validate_workflow_path="$INPUT_INTERNAL_STATE_DIRECTORY/workflow.yml"
+    if [ ! -e "$validate_workflow_path" ]; then
+      validate_workflow_path=/dev/null
+    fi
+  fi
   check_input \
     use_sarif \
     "$WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE" \
@@ -1362,7 +1373,8 @@ check_inputs() {
     KEY=spell_check_this \
     VALUE="$INPUT_SPELL_CHECK_THIS" \
     MESSAGE='Warning - Unsupported repository: spell_check_this. Correct value or remove configuration (unsupported-repo-notation)' \
-    check_yaml_key_value "$workflow_path"
+    file="$workflow_path" \
+    check_yaml_key_value "$validate_workflow_path"
     INPUT_SPELL_CHECK_THIS=''
   fi
   if [ -n "$INPUT_EXTRA_DICTIONARIES" ]; then
@@ -1371,7 +1383,8 @@ check_inputs() {
       KEY=extra_dictionaries \
       VALUE="$duplicated_dictionary" \
       MESSAGE="Warning - \`$duplicated_dictionary\` appears multiple times in 'extra_dictionaries' (duplicate-extra-dictionary)" \
-      check_yaml_key_value "$workflow_path"
+      file="$workflow_path" \
+      check_yaml_key_value "$validate_workflow_path"
     done
     INPUT_EXTRA_DICTIONARIES="$(echo "$INPUT_EXTRA_DICTIONARIES" | uniq)"
   fi
@@ -2596,7 +2609,8 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
               KEY=check_commit_messages \
               VALUE="$INPUT_CHECK_COMMIT_MESSAGES" \
               MESSAGE="Warning - Only commits added after ${b}check_commit_messages${b} is changed will be checked (no-new-commits-to-check)" \
-              check_yaml_key_value "$workflow_path"
+              file="$workflow_path" \
+              check_yaml_key_value "$validate_workflow_path"
             fi
           fi
         fi
@@ -2733,11 +2747,14 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     }' "$warning_output" 2>&1
   )"
   if [ -n "$check_file_names_warning" ]; then
-    output="$more_warnings" \
-    KEY=check_file_names \
-    VALUE="$INPUT_CHECK_FILE_NAMES" \
-    MESSAGE="$check_file_names_warning" \
-    check_yaml_key_value "$workflow_path" >&2
+    (
+      output="$more_warnings" \
+      KEY=check_file_names \
+      VALUE="$INPUT_CHECK_FILE_NAMES" \
+      MESSAGE="$check_file_names_warning" \
+      file="$workflow_path" \
+      check_yaml_key_value "$validate_workflow_path"
+    ) >&2
   fi
   warning_output_unsorted="$data_dir/warning_output_unsorted.txt"
   mv "$warning_output" "$warning_output_unsorted"
