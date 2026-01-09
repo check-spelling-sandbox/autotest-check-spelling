@@ -460,7 +460,7 @@ runs:
         secpoll
     - name: checkout
       id: checkout
-      if: inputs.checkout && fromJSON(inputs.checkout) && !inputs.custom_task
+      if: inputs.checkout && fromJSON(inputs.checkout)
       uses: ./../check-spelling-actions/checkout
       with:
         show-progress: false
@@ -472,6 +472,9 @@ runs:
         submodules: ${{ inputs.submodules }}
         ref:
           ${{
+            inputs.task == 'comment' &&
+            github.event.issue.pull_request &&
+            github.event.pull_request.base.sha ||
             github.event_name == 'issue_comment' &&
             github.event.issue.pull_request &&
             github.event.pull_request.head.sha ||
