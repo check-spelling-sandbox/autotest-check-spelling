@@ -23,7 +23,7 @@ my @safe_path = qw(
 my $bin = glob("~/bin");
 push @safe_path, $bin if -d $bin;
 
-my $ua = 'check-spelling-agent/0.0.3';
+my $ua = 'check-spelling-agent/0.0.4';
 
 $ENV{'PATH'} = join ':', @safe_path unless defined $ENV{SYSTEMROOT};
 
@@ -57,6 +57,16 @@ sub check_basic_tools {
     needs_command_because('gh', 'interact with github');
     #needs_command_because('magic-magic', 'debugging');
 }
+
+sub get_token {
+    our $token;
+    return $token if defined $token && $token ne '';
+    $token = $ENV{'GH_TOKEN'} || $ENV{'GITHUB_TOKEN'};
+    return $token if defined $token && $token ne '';
+    $token = `gh auth token`;
+    chomp $token;
+    return $token;
+};
 
 sub download_with_curl {
     my ($url, $dest, $flags) = @_;
@@ -370,6 +380,132 @@ sub add_expect {
     system("git", "add", $new_expect_file);
 }
 
+sub get_artifact_metadata {
+    my ($url) = @_;
+    my $json_file = tempfile_name();
+    my ($curl_stdout, $curl_stderr, $curl_result);
+    my @curl_args = (
+        'curl',
+        $url,
+        '-A',
+        $ua,
+        '-s',
+        '--fail-with-body',
+    );
+    my $gh_token = get_token();
+    push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
+    push @curl_args, (
+        '-o',
+        $json_file
+    );
+    ($curl_stdout, $curl_stderr, $curl_result) = capture_system(
+        @curl_args
+    );
+    unless ($curl_result == 0) {
+        if ($curl_stdout eq '') {
+            local $/;
+            open my $error_fh, '<', $json_file;
+            $curl_stdout = <$error_fh>;
+            close $error_fh;
+        }
+        return (
+            out    => $curl_stdout,
+            err    => $curl_stderr,
+            result => $curl_result,
+        );
+    }
+    my $link;
+    open my $json_file_fh, '<', $json_file;
+    my ($id, $download_url, $count);
+    {
+        local $/;
+        my $content = <$json_file_fh>;
+        my $json = decode_json $content;
+        my $artifact = $json->{'artifacts'}->[0];
+        $id = $artifact->{'id'};
+        $download_url = $artifact->{'archive_download_url'};
+        $count = $json->{'total_count'};
+    }
+    close $json_file_fh;
+    return (
+        id       => $id,
+        download => $download_url,
+        count    => $count,
+    );
+}
+
+sub get_latest_artifact_metadata {
+    my ($artifact_dir, $repo, $run, $artifact_name) = @_;
+    my $page = 1;
+    my $url = "$ENV{GITHUB_API_URL}/repos/$repo/actions/runs/$run/artifacts?name=$artifact_name&per_page=1&page=";
+    my %first = get_artifact_metadata($url.$page);
+    $page = $first{'count'};
+    if (defined $page) {
+        my %second = get_artifact_metadata($url.$page);
+        my ($id_1, $id_2) = ($first{'id'}, $second{'id'});
+        if (defined $id_1 && defined $id_2) {
+            if ($id_2 > $id_1) {
+                return (
+                    download => $second{'download'},
+                );
+            }
+        }
+    }
+    my $download = $first{'download'};
+    if (defined $download) {
+        return (
+            download => $download,
+        );
+    }
+    return %first;
+}
+
+sub download_latest_artifact {
+    my %maybe_download = get_latest_artifact_metadata(@_);
+    my $download = $maybe_download{'download'};
+    my $zip_file = tempfile_name();
+    if (defined $download) {
+        my @curl_args = (
+            'curl',
+            $download,
+            '-L',
+            '-A',
+            $ua,
+            '-s',
+            '--fail-with-body',
+        );
+        my $gh_token = get_token();
+        push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
+        push @curl_args, (
+            '-o',
+            $zip_file
+        );
+        ($curl_stdout, $curl_stderr, $curl_result) = capture_system(
+            @curl_args
+        );
+        if ($curl_result != 0) {
+            if ($curl_stdout eq '') {
+                local $/;
+                open my $error_fh, '<', $zip_file;
+                $curl_stdout = <$error_fh>;
+                close $error_fh;
+            }
+            return ("$curl_stdout\n$curl_stderr", $curl_result);
+        }
+        my ($artifact_dir, $repo, $run, $artifact_name) = @_;
+        ($out, $err, $result) = capture_system(
+            'unzip',
+            '-q',
+            $zip_file,
+            '-d',
+            $artifact_dir,
+            );
+        return ("$out\n$err", $result);
+    }
+    my ($out, $err, $result) = ($maybe_download{'out'}, $maybe_download{'err'}, $maybe_download{'result'});
+    return ("$out\n$err", $result);
+}
+
 sub get_artifacts {
     my ($repo, $run, $suffix) = @_;
     our $program;
@@ -381,17 +517,16 @@ sub get_artifacts {
     }
     my $retries_remaining = 3;
     while ($retries_remaining-- > 0) {
-        ($gh_err_text, $ret) = capture_merged_system(
-            'gh', 'run', 'download',
-            '-D', $artifact_dir,
-            '-R', $repo,
+        ($gh_err_text, $ret) = download_latest_artifact(
+            $artifact_dir,
+            $repo,
             $run,
-            '-n', $artifact_name
+            $artifact_name
         );
         return glob("$artifact_dir/artifact*.zip") unless ($ret >> 8);
 
         die_with_message($gh_err_text);
-        if ($gh_err_text =~ /no valid artifacts found to download/) {
+        if ($gh_err_text =~ /no valid artifacts found to download|"Artifact has expired"/) {
             my $expired_json = run_pipe(
                 'gh', 'api',
                 "/repos/$repo/actions/runs/$run/artifacts",
@@ -422,7 +557,7 @@ sub get_artifacts {
             print "If you don't think anyone deleted the artifact, please file a bug to https://github.com/check-spelling/check-spelling/issues/new including as much information about how you triggered this error as possible.\n";
             exit 3;
         }
-        if ($gh_err_text =~ /HTTP 404: Not Found/) {
+        if ($gh_err_text =~ /HTTP 404: Not Found|"status":"404"/) {
             print "$program: The referenced repository ($repo) may not exist, perhaps you do not have permission to see it. If the repository is hosted by GitHub Enterprise, check-spelling does not know how to integrate with it.\n";
             exit 8;
         }
@@ -444,8 +579,8 @@ sub get_artifacts {
         while (1) {
             my @curl_args = qw(curl);
             unless ($has_gh_token) {
-                my $gh_token = `gh auth token`;
-                push @curl_args, '-u', "token:$gh_token" unless $?;
+                my $gh_token = get_token();
+                push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
             }
             push @curl_args, '-I', $meta_url;
             my ($curl_stdout, $curl_stderr, $curl_result);
@@ -522,6 +657,7 @@ sub main {
     check_current_script($bash_script);
     # - 4 parse arguments
     die $syntax unless defined $first;
+    $ENV{'GITHUB_API_URL'} ||= 'https://api.github.com';
     my $repo;
     my @artifacts;
     if (-s $first) {
