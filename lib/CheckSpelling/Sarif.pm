@@ -440,7 +440,7 @@ sub main {
         }
     }
 
-    return encode_json \%sarif;
+    return JSON::PP->new->canonical([1])->utf8->encode(\%sarif);
 }
 
 1;
