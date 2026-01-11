@@ -150,7 +150,7 @@ runs:
         $data{"workflow_run_attempt"}=$run_attempt;
         my $started_at=$ENV{"started_at"};
         $data{"started_at"}=$started_at if defined $started_at;
-        print encode_json \%data;
+        print JSON::PP->new->canonical([1])->utf8->encode(\%data);
       ' > "$sarif_payload" || result=$?
       if [ -n "$result" ]; then
         echo "::error title=upload-sarif::Failed to prepare data. Please check https://github.com/check-spelling/check-spelling/issues/?q=is%3Aissue%20upload-sarif-failed-prepare for bugs, and if not file a bug: https://github.com/check-spelling/check-spelling/issues/new?title=[upload-sarif-failed-prepare]%20scenario&body=Please%20provide%20details+preferably%20including%20a%20link%20to%20a%20workflow%20run,%20the%20configuration%20of%20the%20repository,%20and%20anything%20else%20you%20may%20know%20about%20the%20problem%2e (upload-sarif-failed-prepare)"
