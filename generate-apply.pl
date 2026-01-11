@@ -13,4 +13,5 @@ $config{"expect_files"} = \@expect_files;
 $config{"excludes_files"} = \@excludes_files;
 $config{"job"} = $job;
 $config{"only_check_changed_files"} = $ENV{INPUT_ONLY_CHECK_CHANGED_FILES};
-print encode_json \%config;
+my $json_canonical = JSON::PP->new->canonical([1]);
+print $json_canonical->utf8->encode(\%config);
