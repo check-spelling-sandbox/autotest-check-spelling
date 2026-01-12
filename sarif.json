@@ -700,6 +700,32 @@
               }
             },
             {
+              "id": "out-of-bounds-symbolic-link",
+              "name": "OutOfBoundsSymbolicLink",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#out-of-bounds-symbolic-link",
+              "shortDescription": {
+                "text": "Out of bounds symbolic link"
+              },
+              "fullDescription": {
+                "text": "Symbolic link points outside repository"
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Add the file to [excludes](https://docs.check-spelling.dev/Configuration-Files#excludes)\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "medium",
+                "problem.severity": "warning",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "duplicate-extra-dictionary",
               "name": "DuplicateExtraDictionary",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#duplicate-extra-dictionary",
