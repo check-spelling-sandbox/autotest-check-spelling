@@ -580,6 +580,7 @@ sub split_file {
         my $ratio_threshold = 1000;
         if ($ratio > $ratio_threshold) {
           skip_file($temp_dir, "average line width ($ratio) exceeds the threshold ($ratio_threshold) (minified-file)\n");
+          last;
         }
       }
     }
@@ -590,6 +591,7 @@ sub split_file {
     die unless $@ eq "alarm\n";
     print WARNINGS ":$.:1 ... 1, Warning - Could not parse file within time limit (slow-file)\n";
     skip_file($temp_dir, "it could not be parsed file within time limit (slow-file)\n");
+    last;
   }
 
   close FILE;
