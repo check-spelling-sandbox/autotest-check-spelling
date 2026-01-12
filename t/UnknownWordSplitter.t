@@ -13,7 +13,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 62;
+plan tests => 63;
 
 use_ok('CheckSpelling::UnknownWordSplitter');
 use_ok('CheckSpelling::Exclude');
@@ -360,3 +360,14 @@ close $fh;
 $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
 check_output_file("$output_dir/warnings", ":128:9 ... 14: `wrnog`
 ", 'not minified');
+
+SKIP: {
+    skip 'could not find an expired artifact', 3 unless eval { symlink("",""); 1 };
+    ($fh, $filename) = tempfile();
+    close $fh;
+    unlink($filename);
+    symlink("/etc/hosts", $filename);
+    $output_dir=CheckSpelling::UnknownWordSplitter::split_file($filename);
+    is(read_file("$output_dir/skipped"), 'file only has a single line (out-of-bounds-symbolic-link)
+', 'out-of-bounds-symbolic-link');
+}
