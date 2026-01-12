@@ -16,6 +16,7 @@ use utf8;
 use Encode qw/decode_utf8 encode FB_DEFAULT/;
 use File::Basename;
 use Cwd 'abs_path';
+use File::Spec;
 use File::Temp qw/ tempfile tempdir /;
 use CheckSpelling::Util;
 our $VERSION='0.1.0';
@@ -386,6 +387,11 @@ sub split_file {
         return $temp_dir;
       }
     }
+  }
+  if (defined readlink($file) &&
+      rindex(File::Spec->abs2rel(abs_path($file)), '../', 0) == 0) {
+    skip_file($temp_dir, "file only has a single line (out-of-bounds-symbolic-link)\n");
+    return $temp_dir;
   }
   if ($use_magic_file) {
     if (open(my $file_fh, '-|',
