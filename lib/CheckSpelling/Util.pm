@@ -17,6 +17,7 @@ sub get_file_from_env {
   my ($var, $fallback) = @_;
   return $fallback unless defined $ENV{$var};
   $ENV{$var} =~ /(.*)/s;
+  return $fallback if $1 eq '';
   return $1;
 }
 
