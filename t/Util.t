@@ -8,11 +8,12 @@ use Test::More;
 use Capture::Tiny ':all';
 use File::Temp qw/ tempfile /;
 
-plan tests => 57;
+plan tests => 58;
 use_ok('CheckSpelling::Util');
 
 $ENV{'EMPTY_VAR'}='';
 is(CheckSpelling::Util::get_val_from_env('EMPTY_VAR', 1), 1, 'fallback env var value');
+is(CheckSpelling::Util::get_file_from_env('EMPTY_VAR', 1), 1, 'fallback file env var value');
 
 my @unsorted = qw(
     Zoo
