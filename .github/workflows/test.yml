@@ -186,6 +186,15 @@ jobs:
           ) >> "$GITHUB_STEP_SUMMARY"
         fi
         echo 'ran=1' >> "$GITHUB_OUTPUT"
+    - name: publish coverage to pages
+      if: (success() || failure()) && (steps.coverage.outputs.ran == 1) && env.has_coverage_repository
+      uses: ./actions/publish-coverage
+      with:
+        repository: ${{ vars.coverage_repository }}
+        ssh-key: ${{ secrets.coverage_repository_key }}
+        pages-base-url: ${{ vars.github_pages_base }}
+      env:
+        has_coverage_repository: ${{ vars.coverage_repository && secrets.coverage_repository_key && 1 || '' }}
     - name: store-coverage
       if: (success() || failure()) && (steps.coverage.outputs.ran == 1)
       uses: actions/upload-artifact@v4
