@@ -1719,6 +1719,7 @@ add_perl_lib() {
 }
 
 need_hunspell() {
+  to_boolean "$INPUT_ALLOW_HUNSPELL" &&
   echo "$INPUT_EXTRA_DICTIONARIES $INPUT_CHECK_EXTRA_DICTIONARIES" | grep -q '\.dic'
 }
 
