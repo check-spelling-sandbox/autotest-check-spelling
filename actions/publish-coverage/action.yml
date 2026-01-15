@@ -1,0 +1,35 @@
+name: Publish Coverage
+description: Publish Coverage to Pages Repository
+
+inputs:
+  repository:
+    description: ''
+    required: true
+  ssh-key:
+    description: ''
+    required: true
+  pages-base-url:
+    description: ''
+    required: false
+  coverage:
+    description: ''
+    default: cover_db
+  author-name:
+    description: ''
+    required: false
+  author-email:
+    description: ''
+    required: false
+
+runs:
+  using: composite
+  steps:
+  - name: publish coverage
+    uses: check-spelling/publish-coverage@main
+    with:
+      repository: ${{ inputs.repository }}
+      ssh-key: ${{ inputs.ssh-key }}
+      pages-base-url: ${{ inputs.pages-base-url }}
+      coverage: ${{ inputs.coverage }}
+      author-name: ${{ inputs.author-name }}
+      author-email: ${{ inputs.author-email }}
