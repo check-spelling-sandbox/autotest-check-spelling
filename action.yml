@@ -60,6 +60,10 @@ inputs:
     deprecationMessage: "Obsolete: outputs are always captured"
     required: false
     default: ""
+  allow-hunspell:
+    description: "Allow hunspell dictionaries (.dic + .aff)"
+    required: false
+    default: "1"
   dictionary_source_prefixes:
     description: "JSON map of prefixes for dictionary urls"
     required: false
