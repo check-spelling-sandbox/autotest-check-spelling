@@ -2314,6 +2314,7 @@ set_up_files() {
             if [ -d "$hunspell_dictionary_path" ]; then
               for a in ./*.aff ./*.dic; do mv "$a" ".$(basename "$a")" "$hunspell_dictionary_path" 2>/dev/null || true & done
             fi
+            wait
             # Items that aren't proper should be moved to patterns instead
             "$spellchecker/dictionary-word-filter.pl" ./* | sort -u >> "$dict"
           )
