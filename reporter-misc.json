@@ -29,6 +29,17 @@
             ]
         },
         {
+            "owner": "check-spelling-jq-2",
+            "pattern": [
+                {
+                    "regexp": "^\\s*(jq): (error): (.* at .*?, line \\d+:$)",
+                    "severity": 2,
+                    "message": 3,
+                    "code": 1
+                }
+            ]
+        },
+        {
             "owner": "check-spelling-curl",
             "severity": "warning",
             "pattern": [
