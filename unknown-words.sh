@@ -1053,7 +1053,7 @@ handle_comment() {
     if [ -n "$INPUT_REPORT_TITLE_SUFFIX" ]; then
       title_suffix_re='.*'"$("$quote_meta" "$INPUT_REPORT_TITLE_SUFFIX")"
     fi
-    comment_search_re='@check-spelling-bot(?:[\t ]+|:[\t ]*)apply.*'"$("$quote_meta" "$summary_url")$title_suffix_re"
+    comment_search_re='@check-spelling-bot(?:[\t ]+|:[\t ]*)apply.*'"$("$quote_meta" "${summary_url%%#*}")$title_suffix_re"
     COMMENTS_URL=$(jq -r '.issue.comments_url' "$GITHUB_EVENT_PATH")
     bot_comment_node_id_and_status=$(get_a_comment "$comment_search_re")
     if [ -n "$bot_comment_node_id_and_status" ]; then
