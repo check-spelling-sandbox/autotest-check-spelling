@@ -11,7 +11,32 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 17;
+plan tests => 18;
+
+{
+  open(my $apply_pl, '<', 'apply.pl') || die "oops";
+  open(my $apply_pm, '>', 'lib/CheckSpelling/Apply.pm') || die "oopsie";
+  print $apply_pm "package CheckSpelling::Apply;";
+  print $apply_pm q#
+sub tear_here {
+  my ($exit) = @_;
+  our $exited;
+  return if defined $exited;
+  print STDERR "\n<<<TEAR HERE<<<exit: $exit\n";
+  print STDOUT "\n<<<TEAR HERE<<<exit: $exit\n";
+  $exited = $exit;
+}
+#;
+  while (<$apply_pl>) {
+    next if /^main\(/;
+    s/exit (\d+)/tear_here($1); return -1000;/;
+    print $apply_pm $_;
+  }
+  close $apply_pm;
+  close $apply_pl;
+
+  use_ok('CheckSpelling::Apply');
+}
 
 our $spellchecker = dirname(dirname(abs_path(__FILE__)));
 
@@ -20,6 +45,7 @@ chdir($sandbox);
 `perl -MDevel::Cover -e 1 2>&1`;
 $ENV{PERL5OPT} = '-MDevel::Cover' unless $?;
 $ENV{GITHUB_WORKSPACE} = $sandbox;
+$ENV{spellchecker} = $spellchecker;
 my ($fh, $temp) = tempfile();
 close $fh;
 $ENV{maybe_bad} = $temp;
@@ -31,11 +57,18 @@ sub run_apply {
     system(@args);
   };
   our $spellchecker;
-  $stdout =~ s!$spellchecker/apply\.pl!SPELLCHECKER/apply.pl!g;
-  $stderr =~ s!$spellchecker/apply\.pl!SPELLCHECKER/apply.pl!g;
+  $stdout =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
+  $stderr =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
   $stdout =~ s!Current apply script differs from '.*?/apply\.pl' \(locally downloaded to \`.*`\)\. You may wish to upgrade\.\n!!;
+  my $tear_code;
+  if ($stderr =~ s#\n<<<TEAR HERE<<<exit: (\d+).*\n*##sm) {
+    $tear_code = $1;
+  }
+  if ($stdout =~ s#\n<<<TEAR HERE<<<exit: (\d+).*\n*##sm) {
+    $tear_code = $1;
+  }
 
-  my $result = $results[0] >> 8;
+  my $result = defined $tear_code ? $tear_code : $results[0] >> 8;
   return ($stdout, $stderr, $result);
 }
 
@@ -109,7 +142,7 @@ while ($state < 4) {
 
 SKIP: {
   skip 'could not find an expired artifact', 3 unless $expired_artifact;
-  ($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", $expired_artifact_repo, $expired_artifact);
+  ($stdout, $stderr, $result) = run_apply("$spellchecker/wrappers/apply", $expired_artifact_repo, $expired_artifact);
 
   my $sandbox_name = basename $sandbox;
   my $temp_name = basename $temp;
@@ -118,7 +151,7 @@ SKIP: {
   is($result, 1, 'apply.pl (exit code) expired');
 }
 
-($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", "https://localhost/check-spelling/imaginary-repository/actions/runs/$expired_artifact/attempts/1");
+($stdout, $stderr, $result) = run_apply("$spellchecker/wrappers/apply", "https://localhost/check-spelling/imaginary-repository/actions/runs/$expired_artifact/attempts/1");
 like($stdout, qr{The referenced repository \(check-spelling/imaginary-repository\) may not exist, perhaps you do not have permission to see it\.\s+If the repository is hosted by GitHub Enterprise, check-spelling does not know how to integrate with it\.}, 'apply.pl (stdout) localhost-url');
 is($stderr, '', 'apply.pl (stderr) localhost-url');
 is($result, 8, 'apply.pl (exit code) localhost-url');
@@ -128,7 +161,7 @@ delete $ENV{GH_TOKEN};
 my $real_home = $ENV{HOME};
 my $real_http_socket = `gh config get http_unix_socket`;
 $ENV{HOME} = $sandbox;
-($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", 'check-spelling/check-spelling', $expired_artifact);
+($stdout, $stderr, $result) = run_apply("$spellchecker/wrappers/apply", 'check-spelling/check-spelling', $expired_artifact);
 
 like($stdout, qr{gh auth login|set the GH_TOKEN environment variable}, 'apply.pl (stdout) not authenticated');
 like($stderr, qr{SPELLCHECKER/apply.pl requires a happy gh, please try 'gh auth login'}, 'apply.pl (stderr) not authenticated');
@@ -141,7 +174,7 @@ if (-d "$real_home/.config/gh/") {
 }
 
 `gh config set http_unix_socket /dev/null`;
-($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", 'check-spelling/check-spelling', $expired_artifact);
+($stdout, $stderr, $result) = run_apply("$spellchecker/wrappers/apply", 'check-spelling/check-spelling', $expired_artifact);
 
 like($stdout, qr{SPELLCHECKER/apply.pl: Unix http socket is not working\.}, 'apply.pl (stdout) bad_socket');
 like($stdout, qr{http_unix_socket: /dev/null}, 'apply.pl (stdout) bad_socket');
@@ -152,7 +185,7 @@ $ENV{HOME} = $real_home;
 `gh config set http_unix_socket '$real_http_socket'`;
 
 $ENV{https_proxy}='http://localhost:9123';
-($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", 'check-spelling/check-spelling', $expired_artifact);
+($stdout, $stderr, $result) = run_apply("$spellchecker/wrappers/apply", 'check-spelling/check-spelling', $expired_artifact);
 
 like($stdout, qr{SPELLCHECKER/apply.pl: Proxy is not accepting connections\.}, 'apply.pl (stdout) bad_proxy');
 like($stdout, qr{https_proxy: 'http://localhost:9123'}, 'apply.pl (stdout) bad_proxy');
