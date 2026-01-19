@@ -63,9 +63,11 @@ sub get_token {
     return $token if defined $token && $token ne '';
     $token = $ENV{'GH_TOKEN'} || $ENV{'GITHUB_TOKEN'};
     return $token if defined $token && $token ne '';
-    $token = `gh auth token`;
+    my ($err, $exit);
+    ($token, $err, $exit) = capture_system('gh', 'auth', 'token');
     chomp $token;
-    return $token;
+    chomp $err;
+    return ($token, $err, $exit);
 };
 
 sub download_with_curl {
@@ -126,8 +128,8 @@ sub compare_files {
     my ($one, $two) = @_;
     my $one_stripped = strip_comments($one);
     my $two_stripped = strip_comments($two);
-    my $exit;
-    (undef, undef, $exit) = capture_system(
+    my $exit_code;
+    (undef, undef, $exit_code) = capture_system(
             'diff',
             '-qwB',
             $one_stripped, $two_stripped
@@ -204,10 +206,10 @@ sub die_with_message {
 }
 
 sub gh_is_happy_internal {
-    my ($output, $exit) = capture_merged_system(qw(gh api /installation/repositories));
-    return ($exit, $output) if $exit == 0;
-    ($output, $exit) = capture_merged_system(qw(gh api /user));
-    return ($exit, $output);
+    my ($output, $exit_code) = capture_merged_system(qw(gh api /installation/repositories));
+    return ($exit_code, $output) if $exit_code == 0;
+    ($output, $exit_code) = capture_merged_system(qw(gh api /user));
+    return ($exit_code, $output);
 }
 
 sub gh_is_happy {
@@ -244,7 +246,7 @@ sub tools_are_ready {
 
 sub run_pipe {
     my @args = @_;
-    my ($out, undef, $exit) = capture_system(@args);
+    my ($out, undef, $exit_code) = capture_system(@args);
     return $out;
 }
 
@@ -265,8 +267,8 @@ sub retrieve_spell_check_this {
     eval { %config = %{decode_json $spell_check_this_config}; } || die "decode_json failed in retrieve_spell_check_this with '$spell_check_this_config'";
     my ($repo, $branch, $destination, $path) = ($config{url}, $config{branch}, $config{config}, $config{path});
     my $spell_check_this_dir = tempdir();
-    my $exit;
-    (undef, undef, $exit) = capture_system(
+    my $exit_code;
+    (undef, undef, $exit_code) = capture_system(
             'git', 'clone',
             '--depth', '1',
             '--no-tags',
@@ -388,7 +390,7 @@ sub get_artifact_metadata {
         '-s',
         '--fail-with-body',
     );
-    my $gh_token = get_token();
+    my ($gh_token) = get_token();
     push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
     push @curl_args, (
         '-o',
@@ -477,7 +479,7 @@ sub download_latest_artifact {
             '-s',
             '--fail-with-body',
         );
-        my $gh_token = get_token();
+        my ($gh_token) = get_token();
         push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
         push @curl_args, (
             '-o',
@@ -582,7 +584,7 @@ sub get_artifacts {
         while (1) {
             my @curl_args = qw(curl);
             unless ($has_gh_token) {
-                my $gh_token = get_token();
+                my ($gh_token) = get_token();
                 push @curl_args, '-u', "token:$gh_token" if defined $gh_token;
             }
             push @curl_args, '-I', $meta_url;
