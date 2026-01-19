@@ -126,8 +126,8 @@ sub compare_files {
     my ($one, $two) = @_;
     my $one_stripped = strip_comments($one);
     my $two_stripped = strip_comments($two);
-    my $exit;
-    (undef, undef, $exit) = capture_system(
+    my $exit_code;
+    (undef, undef, $exit_code) = capture_system(
             'diff',
             '-qwB',
             $one_stripped, $two_stripped
@@ -204,10 +204,10 @@ sub die_with_message {
 }
 
 sub gh_is_happy_internal {
-    my ($output, $exit) = capture_merged_system(qw(gh api /installation/repositories));
-    return ($exit, $output) if $exit == 0;
-    ($output, $exit) = capture_merged_system(qw(gh api /user));
-    return ($exit, $output);
+    my ($output, $exit_code) = capture_merged_system(qw(gh api /installation/repositories));
+    return ($exit_code, $output) if $exit_code == 0;
+    ($output, $exit_code) = capture_merged_system(qw(gh api /user));
+    return ($exit_code, $output);
 }
 
 sub gh_is_happy {
@@ -244,7 +244,7 @@ sub tools_are_ready {
 
 sub run_pipe {
     my @args = @_;
-    my ($out, undef, $exit) = capture_system(@args);
+    my ($out, undef, $exit_code) = capture_system(@args);
     return $out;
 }
 
@@ -265,8 +265,8 @@ sub retrieve_spell_check_this {
     eval { %config = %{decode_json $spell_check_this_config}; } || die "decode_json failed in retrieve_spell_check_this with '$spell_check_this_config'";
     my ($repo, $branch, $destination, $path) = ($config{url}, $config{branch}, $config{config}, $config{path});
     my $spell_check_this_dir = tempdir();
-    my $exit;
-    (undef, undef, $exit) = capture_system(
+    my $exit_code;
+    (undef, undef, $exit_code) = capture_system(
             'git', 'clone',
             '--depth', '1',
             '--no-tags',
