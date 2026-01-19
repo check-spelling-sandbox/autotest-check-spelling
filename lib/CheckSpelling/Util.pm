@@ -168,4 +168,19 @@ sub wrap_in_backticks {
   return "$q$a$q";
 }
 
+sub tear_here {
+  my ($exit) = @_;
+  our $exited;
+  return if defined $exited;
+  print STDERR "\n<<<TEAR HERE<<<exit: $exit\n";
+  print STDOUT "\n<<<TEAR HERE<<<exit: $exit\n";
+  $exited = $exit;
+}
+sub die_custom {
+  my ($program, $line, $message) = @_;
+  print STDERR "$message at $program line $line.\n";
+  tear_here(1);
+  die "stopping";
+}
+
 1;
