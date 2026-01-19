@@ -427,6 +427,13 @@ sub get_artifact_metadata {
         $count = $json->{'total_count'};
     }
     close $json_file_fh;
+    if ($count == 0) {
+        return (
+            out => '',
+            err => 'no artifact matches any of the names or patterns provided',
+            result => (3 << 8),
+        );
+    }
     return (
         id       => $id,
         download => $download_url,
