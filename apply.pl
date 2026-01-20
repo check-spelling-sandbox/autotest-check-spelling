@@ -649,6 +649,36 @@ sub update_repository {
     system('git', 'add', '-u', '--', $config_ref->{'spelling_config'});
 }
 
+sub extract_artifacts_from_file {
+    my ($artifact) = @_;
+    open my $artifact_reader, '-|', 'unzip', '-l', $artifact;
+    my ($has_artifact, $only_file) = (0, 0);
+    while (my $line = <$artifact_reader>) {
+        chomp $line;
+        if ($line =~ /\s+artifact\.zip$/) {
+            $has_artifact = 1;
+            next;
+        }
+        if ($line =~ /\s+1 file$/) {
+            $only_file = 1;
+            next;
+        }
+        $only_file = 0 if $only_file;
+    }
+    close $artifact_reader;
+    my @artifacts;
+    if ($has_artifact && $only_file) {
+        my $artifact_dir = tempdir(CLEANUP => 1);
+        my ($fh, $gh_err) = tempfile();
+        close $fh;
+        system('unzip', '-q', '-d', $artifact_dir, $artifact, 'artifact.zip');
+        @artifacts = ("$artifact_dir/artifact.zip");
+    } else {
+        @artifacts = ($artifact);
+    }
+    return @artifacts;
+}
+
 sub main {
     our $program;
     my ($bash_script, $first, $run);
@@ -668,31 +698,7 @@ sub main {
     my $repo;
     my @artifacts;
     if (-s $first) {
-        my $artifact = $first;
-        open my $artifact_reader, '-|', 'unzip', '-l', $artifact;
-        my ($has_artifact, $only_file) = (0, 0);
-        while (my $line = <$artifact_reader>) {
-            chomp $line;
-            if ($line =~ /\s+artifact\.zip$/) {
-                $has_artifact = 1;
-                next;
-            }
-            if ($line =~ /\s+1 file$/) {
-                $only_file = 1;
-                next;
-            }
-            $only_file = 0 if $only_file;
-        }
-        close $artifact_reader;
-        if ($has_artifact && $only_file) {
-            my $artifact_dir = tempdir(CLEANUP => 1);
-            my ($fh, $gh_err) = tempfile();
-            close $fh;
-            system('unzip', '-q', '-d', $artifact_dir, $artifact, 'artifact.zip');
-            @artifacts = ("$artifact_dir/artifact.zip");
-        } else {
-            @artifacts = ($artifact);
-        }
+        @artifacts = extract_artifacts_from_file($first);
     } else {
         my $suffix;
         if ($first =~ m{^\s*https://.*/([^/]+/[^/]+)/actions/runs/(\d+)(?:/attempts/\d+|)(?:#(\S+)|)\s*$}) {
