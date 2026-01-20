@@ -114,10 +114,10 @@ SKIP: {
   is($result, 1, 'apply.pl (exit code) expired');
 }
 
-($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", "https://localhost/check-spelling/imaginary-repository/actions/runs/$expired_artifact/attempts/1");
-like($stdout, qr{The referenced repository \(check-spelling/imaginary-repository\) may not exist, perhaps you do not have permission to see it\.\s+If the repository is hosted by GitHub Enterprise, check-spelling does not know how to integrate with it\.}, 'apply.pl (stdout) localhost-url');
-is($stderr, '', 'apply.pl (stderr) localhost-url');
-is($result, 8, 'apply.pl (exit code) localhost-url');
+($stdout, $stderr, $result) = run_apply("$spellchecker/apply.pl", "https://github.com/check-spelling/imaginary-repository/actions/runs/$expired_artifact/attempts/1");
+like($stdout, qr{The referenced repository \(check-spelling/imaginary-repository\) may not exist, perhaps you do not have permission to see it\.\s+If the repository is hosted by GitHub Enterprise, check-spelling does not know how to integrate with it\.}, 'apply.pl (stdout) imaginary-repository');
+is($stderr, '', 'apply.pl (stderr) imaginary-repository');
+is($result, 8, 'apply.pl (exit code) imaginary-repository');
 
 my $gh_token = $ENV{GH_TOKEN};
 delete $ENV{GH_TOKEN};
