@@ -30,6 +30,11 @@ sub run_apply {
   my ($stdout, $stderr, @results) = capture {
     system(@args);
   };
+  return parse_outputs($stdout, $stderr, @results);
+}
+
+sub parse_outputs {
+  my ($stdout, $stderr, @results) = @_;
   our $spellchecker;
   $stdout =~ s!$spellchecker/apply\.pl!SPELLCHECKER/apply.pl!g;
   $stderr =~ s!$spellchecker/apply\.pl!SPELLCHECKER/apply.pl!g;
