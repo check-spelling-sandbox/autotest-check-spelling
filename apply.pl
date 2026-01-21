@@ -242,10 +242,6 @@ sub tools_are_ready {
     }
 }
 
-sub maybe_unlink {
-    unlink($_[0]) if $_[0];
-}
-
 sub run_pipe {
     my @args = @_;
     my ($out, undef, $exit) = capture_system(@args);
