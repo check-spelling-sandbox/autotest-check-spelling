@@ -59,6 +59,13 @@ jobs:
             APT_PACKAGES="cpanminus $APT_PACKAGES"
           fi
           if [ -n "$APT_PACKAGES" ]; then
+            if [ -n "$cpan_modules" ]; then
+              APT_PACKAGES="$APT_PACKAGES $(
+                for a in $cpan_modules ; do
+                  apt-cache search lib$(echo $a|perl -pe 's/::/-/g')-perl;
+                done|perl -pe 's/ -.*//'
+              )"
+            fi
             # Skip installing pacakge docs to make the man-db trigger much faster
             (for exclude in doc man info; do echo "path-exclude /usr/share/$exclude/*"; done) |
               sudo tee /etc/dpkg/dpkg.cfg.d/01_nodoc > /dev/null
@@ -103,10 +110,17 @@ jobs:
             fi
           fi
           if [ -n "$cpan_modules" ]; then
-            if ! command -v cpanm >/dev/null 2>/dev/null; then
-              curl -s -S -L https://cpanmin.us | perl - --sudo App::cpanminus
+            cpan_modules=$(
+              for module in $required_perl_modules; do
+                perl -e "use $module; 1;" > /dev/null 2>/dev/null || echo $module
+              done | xargs
+            )
+            if [ -n "$cpan_modules" ]; then
+              if ! command -v cpanm >/dev/null 2>/dev/null; then
+                curl -s -S -L https://cpanmin.us | perl - --sudo App::cpanminus
+              fi
+              perl `command -v cpanm` -S --notest $cpan_modules
             fi
-            perl `command -v cpanm` -S --notest $cpan_modules
           fi
         )
 
