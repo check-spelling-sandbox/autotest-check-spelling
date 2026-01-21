@@ -654,7 +654,7 @@ sub main {
     # - 1 check for tools basic
     check_basic_tools();
     # - 2 check for current
-    # -> 1 download the latest version to a temp file
+    # -> 1. download the latest version to a temp file
     # -> 2. parse current and latest (stripping comments) and compare (whitespace insensitively)
     # -> 3. offer to update if the latest version is different
     check_current_script($bash_script);
