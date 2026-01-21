@@ -142,7 +142,8 @@ $ENV{GH_TOKEN} = $gh_token;
 
 if (-d "$real_home/.config/gh/") {
   mkdir "$sandbox/.config";
-  `rsync -a '$real_home/.config/gh/' '$sandbox/.config/gh/'`;
+  mkdir "$sandbox/.config/gh";
+  `cp -R '$real_home/.config/gh/'* '$sandbox/.config/gh/'`;
 }
 
 `gh config set http_unix_socket /dev/null`;
