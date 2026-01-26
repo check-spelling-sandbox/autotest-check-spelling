@@ -156,7 +156,7 @@ sub parse_warnings {
             }
             $message =~ s/(^|[^\\])$backticks(.+?)$backticks/${1}[${2}](#security-tab)/;
         } else {
-            $message =~ s/(^|[^\\])\`([^`]+[^`\\])\`/${1}[${2}](#security-tab)/;
+            $message =~ s/(^|[^\\])\`((?:[^`\\]|\\(?!`))+)\`/${1}[${2}](#security-tab)/;
         }
         # replace '`' with `\`+`'` because GitHub's SARIF parser doesn't like them
         $message =~ s/\`/'/g;
