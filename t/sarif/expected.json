@@ -46,6 +46,32 @@
 }
 },
 {
+"defaultConfiguration": {
+"level": "error"
+},
+"fullDescription": {
+"text": "Forbidden pattern matched this text"
+},
+"help": {
+"markdown": "**Remediation (click \"Show more\" below)**:\n\n- Alter text so the pattern does not match\n- Add a [pattern](https://docs.check-spelling.dev/Configuration-Files#patterns) to patterns.txt that matches (a portion of) the flagged content to accept it\n- Delete, edit, or comment out the pattern\n\n",
+"text": "?"
+},
+"helpUri": "https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern",
+"id": "forbidden-pattern",
+"name": "ForbiddenPattern",
+"properties": {
+"precision": "high",
+"problem.severity": "error",
+"tags": [
+"source-code",
+"code-reviews"
+]
+},
+"shortDescription": {
+"text": "Forbidden Pattern"
+}
+},
+{
 "fullDescription": {
 "text": "Unfortunately the rule definition for an event hasn't been written. This is a bug in check-spelling."
 },
@@ -77,6 +103,27 @@
 }
 ],
 "results": [
+{
+"locations": [
+{
+"physicalLocation": {
+"artifactLocation": {
+"uri": "t/sarif/forbidden.txt",
+"uriBaseId": "%SRCROOT%"
+},
+"region": {
+"endColumn": 18,
+"startColumn": 17,
+"startLine": 11
+}
+}
+}
+],
+"message": {
+"text": "[a](#security-tab) matches a line_forbidden.patterns rule: Should be 'an' - '\\(?<=\\\\\\s\\)a\\(?= \\(?:a\\(?!nd\\\\\\s|s\\\\\\s\\)|e\\(?!u\\)|i\\(?![ns\\]\\\\\\s\\)|o\\(?!nc?e\\)|u\\(?!biquitous|int|kr|n[ai\\]|r[ael\\]|s[aeiu'…"
+},
+"ruleId": "forbidden-pattern"
+},
 {
 "message": {
 "text": "imaginary rule"
