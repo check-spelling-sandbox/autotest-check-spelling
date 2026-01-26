@@ -11,15 +11,15 @@ use JSON::PP;
 
 plan tests => 4;
 use_ok('CheckSpelling::Sarif');
-
 is(CheckSpelling::Sarif::encode_low_ascii("\x05"), '\u0005');
 
 my $tests = dirname(__FILE__);
 my $base = dirname($tests);
 
 $ENV{'CHECK_SPELLING_VERSION'} = '0.0.0';
-my ($fh, $sarif_merged, $warnings);
-($fh, $warnings) = tempfile();
+my ($sarif_merged);
+my ($fh, $warnings) = tempfile();
+binmode($fh, ":encoding(UTF-8)");
 print $fh 't/sarif/sample.txt:1:24 ... 28, Error - `meep` is not a recognized word (unrecognized-spelling)
 t/sarif/sample.txt:1:30 ... 34, Error - `meep` is not a recognized word (unrecognized-spelling)
 t/sarif/sample.txt:2:1 ... 5, Error - `meep` is not a recognized word (unrecognized-spelling)
@@ -28,6 +28,7 @@ t/sarif/sample.txt:7:1 ... 7, Error - `mibbit` is not a recognized word (unrecog
 t/sarif/sample.txt:8:6 ... 11, Error - ``je`ep`` is not a recognized word (unrecognized-spelling)
 t/sarif/sample.txt:9:2 ... 4, Error - imaginary rule (imaginary-rule)
 t/sarif/other.txt:10:5 ... 10, Error - ` a` matches pattern `\sa(?= (something))` (unrecognized-spelling)
+t/sarif/forbidden.txt:11:17 ... 18, Error - `a` matches a line_forbidden.patterns rule: Should be `an` - `(?<=\s)a(?= (?:a(?!nd\s|s\s)|e(?!u)|i(?![ns]\s)|o(?!nc?e)|u(?!biquitous|int|kr|n[ai]|r[ael]|s[aeiu`… (forbidden-pattern)
 https://example.com/lib/CheckSpelling/Sarif.pm:3:24 ... 28, Error - `Star` is not a recognized word (unrecognized-spelling)
 
 ';
