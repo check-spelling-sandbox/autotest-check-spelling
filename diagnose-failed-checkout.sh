@@ -2,6 +2,10 @@
 
 act-summary
 
+if [ -n "$ACT" ]; then
+  set -x
+fi
+
 out=$(mktemp)
 err=$(mktemp)
 
