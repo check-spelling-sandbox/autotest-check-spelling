@@ -2159,6 +2159,11 @@ set_up_files() {
     INPUT_USE_SARIF='' INPUT_DISABLE_CHECKS=noisy-file "$word_collator" > "$expect_collated"
     perl -pe 's/ \(.*\)//' "$expect_collated" > "$expect_path"
     "$expect_collator" "$expect_collated" "$expect_notes" >> "$early_warnings"
+    if [ -n "$DEBUG" ]; then
+      echo 'debugging expect_path' >&2
+      cat "$expect_path" >&2
+      echo '---' >&2
+    fi
   else
     touch "$expect_path"
   fi
