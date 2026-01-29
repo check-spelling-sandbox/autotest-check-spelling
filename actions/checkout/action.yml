@@ -114,4 +114,4 @@ runs:
     shell: bash
     run: |
       : Restore silly git message
-      git config --global init.defaultBranch ''
+      git config --global --unset init.defaultBranch
