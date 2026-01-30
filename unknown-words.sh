@@ -1299,7 +1299,7 @@ define_variables() {
   adjust_severities="$spellchecker/wrappers/adjust-severities"
   find_token="$spellchecker/find-token.pl"
   output_covers="$spellchecker/output-covers.pl"
-  cleanup_file="$spellchecker/cleanup-file.pl"
+  cleanup_files="$spellchecker/wrappers/cleanup-files"
   file_size="$spellchecker/file-size.pl"
   check_dictionary="$spellchecker/wrappers/check-dictionary"
   check_pattern_file="$spellchecker/wrappers/check-pattern-file"
@@ -1485,37 +1485,16 @@ check_dictionary() {
   "$check_dictionary" "$1"
 }
 
-cleanup_file() {
-  export maybe_bad="$1"
-  update_file="$3"
-
+cleanup_files() {
   result=0
-  "$cleanup_file" || result=$?
+  cat "$3" |
+  type="$1" \
+  output="$2" \
+  used_config_files="$used_config_files" \
+  xargs -0 "$cleanup_files" || result=$?
   if [ $result -gt 0 ]; then
     quit "$result"
   fi
-
-  if [ -n "$update_file" ]; then
-    cp "$maybe_bad" "$update_file" 2>/dev/null || touch "$update_file"
-  fi
-
-  check_for_newline_at_eof "$maybe_bad" "${update_file:-$maybe_bad}"
-  printf "$maybe_bad\0" >> "$used_config_files"
-
-  if [ -n "$update_file" ]; then
-    maybe_bad="$update_file"
-  fi
-
-  type="$2"
-  case "$type" in
-    line_forbidden|patterns|excludes|only)
-      file="$1" check_pattern_file "$maybe_bad"
-    ;;
-    dictionary|expect|allow)
-      file="$1" check_dictionary "$maybe_bad"
-    ;;
-    # reject isn't checked, it allows for regular expressions
-  esac
 }
 
 get_project_files() {
@@ -1531,36 +1510,32 @@ get_project_files() {
   fi
   from="$(project_file_path "$file"."$ext")"
   append_to="$from"
+  from_expanded_file=$(mktemp)
   if [ -f "$from" ]; then
     echo "Retrieving $file from $from"
-    cleanup_file "$from" "$type" "$dest"
-    from_expanded="$from"
+    printf "$from\0" > "$from_expanded_file"
+    cleanup_files "$type" "$dest" "$from_expanded_file"
   else
     if [ ! -e "$from" ]; then
       from="${from%.$ext}"
     fi
     if [ -d "$from" ]; then
-      from_expanded="$(find "$from" -mindepth 1 -maxdepth 1 -name "*$ext" ! -name "*$n*" |sort)"
+      find "$from" -mindepth 1 -maxdepth 1 -name "*$ext" ! -name "*$n*" -print0 | sort -z > "$from_expanded_file"
       append_to="$from"/"$(git rev-parse --revs-only HEAD || date '+%Y%M%d%H%m%S')"."$ext"
       touch "$dest"
-      echo "Retrieving $file from $from_expanded"
+      echo "Retrieving $file from:$n$(tr "\0" "\n" < "$from_expanded_file")"
       temp_file=$(mktemp)
-      while IFS= read -r item; do
-        cleanup_file "$item" "$type" "$temp_file"
-        if [ -s "$item" ]; then
-          cat "$temp_file" >> "$dest"
-        fi
-      done <<< "$from_expanded"
+      cleanup_files "$type" "$dest" "$from_expanded_file"
       if [ "$ext" = json ]; then
         jq -s 'reduce .[] as $obj ({}; . * $obj)' "$dest" > "$dest".merged &&
         mv "$dest".merged "$dest"
       fi
       from="$from"/"$(basename "$from")"."$ext"
     else
-      from_expanded="$from"."$ext"
-      from="$from_expanded"
+      from="$from.$ext"
+      printf "$from\0" > "$from_expanded_file"
       if [ -f "$from" ]; then
-        cleanup_file "$from" "$type" "$dest"
+        cleanup_files "$type" "$dest" "$from_expanded_file"
       fi
     fi
   fi
@@ -1571,7 +1546,7 @@ get_project_files_deprecated() {
     save_append_to="$append_to"
     get_project_files "$2" "$3"
     if [ -s "$3" ]; then
-      example="$(echo "$from_expanded"|head -1)"
+      example="$(tr "\0" "\n" < "$from_expanded_file"|head -1)"
       if [ "$(basename "$(dirname "$example")")" = "$2" ]; then
         note=" directory"
       else
@@ -2092,9 +2067,9 @@ set_up_files() {
   fi
   get_project_files word_expectations.words "$expect_path"
   get_project_files expect.txt "$expect_path"
-  expect_files="$from_expanded"
+  expect_files="$from_expanded_file"
   expect_file="$from"
-  if [ -n "$expect_files" ]; then
+  if [ -s "$expect_files" ]; then
     expect_notes="$(mktemp)"
     expect_collated="$(mktemp)"
     expect_splitter_configuration=$(mktemp -d)
@@ -2128,8 +2103,9 @@ set_up_files() {
       echo '^#.*'
     ) > "$expect_splitter_configuration/patterns.txt"
     touch "$early_warnings.1"
-    echo "$expect_files" |
-    xargs env -i \
+    cat "$expect_files" |
+    xargs -0 \
+    env -i \
     SHELL="$SHELL" \
     PATH="$PATH" \
     LC_ALL="C" \
@@ -2164,7 +2140,7 @@ set_up_files() {
   new_expect_file="$append_to"
   get_project_files file_ignore.patterns "$excludelist_path"
   get_project_files excludes.txt "$excludelist_path"
-  excludes_files="$from_expanded"
+  excludes_files="$from_expanded_file"
   excludes_file="$from"
   if [ -s "$excludes_path" ]; then
     cp "$excludes_path" "$excludes"
@@ -3057,7 +3033,7 @@ spelling_body() {
         if [ $unknown_count -gt 0 ]; then
           expect_details_unknown="and **unrecognized words** ($unknown_count)"
         fi
-        expect_details="This includes both **expected items** ($expected_item_count) from $(echo "$expect_files" | tr '\n' ' ')$expect_details_unknown
+        expect_details="This includes both **expected items** ($expected_item_count) from $(cat "$expect_files" | tr '\0\n' '  ')$expect_details_unknown
         "
         expect_head=" (expected and unrecognized)"
       fi
@@ -3156,8 +3132,8 @@ spelling_body() {
           You should consider adding them to:
           $B$n" | strip_lead
 
-          )$n$(echo "$excludes_files" |
-          xargs -n1 echo)$n$B$(echo '
+          )$n$(cat "$excludes_files" |
+          xargs -0 -n1)$n$B$(echo '
 
           File matching is via Perl regular expressions.
 

@@ -15,6 +15,14 @@ sub process_line {
         $warning = $_[0];
     };
     if (eval {qr/$line/} && ($warning eq '')) {
+        our %seen_patterns;
+        my $previous_reference = $seen_patterns{$line};
+        if (defined $previous_reference) {
+            my $length = length $line;
+            return ('$^', "1 ... $length, Warning - Pattern is the same as pattern on `$previous_reference` (duplicate-pattern)\n");
+        } else {
+            $seen_patterns{$line} = "$ARGV:$.";
+        }
         return ($line, '');
     }
     $warning = $@ unless $warning;
@@ -29,7 +37,7 @@ sub process_line {
     if ($code =~ /(^Unmatched )(.)$/) {
         $code = $1 . CheckSpelling::Util::wrap_in_backticks($2);
     }
-    return ("^\$", "$start ... $end, Warning - $code: $wrapped (bad-regex)\n");
+    return ('$^', "$start ... $end, Warning - $code: $wrapped (bad-regex)\n");
 }
 
 1;
