@@ -136,12 +136,14 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors, Warnings, and Notices ❌ (4)</summary>
+<details><summary>Errors, Warnings, and Notices ❌ (6)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 [❌ Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
+[⚠️ bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
+[❌ duplicate-pattern](https://docs.check-spelling.dev/Event-descriptions#duplicate-pattern) | 1
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
@@ -151,6 +153,20 @@ See [❌ Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 
 </details>
 <details><summary>Details 🔎</summary>
+
+<details><summary>📂 bad-regex</summary>
+
+note|path
+-|-
+Unmatched `[`: `a[` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/patterns/one.txt#L5
+</details>
+
+<details><summary>📂 duplicate-pattern</summary>
+
+note|path
+-|-
+Pattern is the same as pattern on `WORKSPACE/t/unknown-words/config/patterns/one.txt:8` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/patterns/two.txt#L2
+</details>
 
 <details><summary>📂 forbidden-pattern</summary>
 

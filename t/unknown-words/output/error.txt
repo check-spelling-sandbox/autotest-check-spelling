@@ -2,9 +2,12 @@
 
 Downloaded https://raw.githubusercontent.com/CHECK-SPELLING/CHECK-SPELLING/dictionary-20200211/dict.txt (to ...)
 Retrieved extra:elvish.txt
+WORKSPACE/t/unknown-words/config/patterns/empty.txt:1:1 ... 1, Notice - File is empty (empty-file)
 WORKSPACE/t/unknown-words/config/expect/expect.txt:1:8 ... 9, Error - `+` matches a line_forbidden.patterns rule: Expect entries should not include non-word characters - `(?![A-Z]|[a-z]|'|\s|=).` (forbidden-pattern)
 WORKSPACE/t/unknown-words/config/expect/expect.txt:1:8 ... 9, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 WORKSPACE/t/unknown-words/config/expect/expect.txt:2:1 ... 17, Warning - `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect (ignored-expect-variant)
+WORKSPACE/t/unknown-words/config/patterns/one.txt:5:2 ... 3, Warning - Unmatched `[`: `a[` (bad-regex)
+WORKSPACE/t/unknown-words/config/patterns/two.txt:2:1 ... 11, Warning - Pattern is the same as pattern on `WORKSPACE/t/unknown-words/config/patterns/one.txt:8` (duplicate-pattern)
 unknown-words/config/unsupported.file:1:1 ... 37, Notice - Config file not used (unused-config-file)
 unknown-words/input/sample.file:1:21 ... 32, Error - `sample.file` matches a line_forbidden.patterns rule: Should be `sample-file.txt` - `\bsample\.file\b` (forbidden-pattern)
 unknown-words/input/sample.file:2:7 ... 11, Error - `diid` is not a recognized word (unrecognized-spelling)
@@ -19,6 +22,8 @@ unknown-words/input/sample.file:7:1 ... 9, Error - `Bad news` matches a line_for
 unknown-words/input/sample.file:7:18 ... 26, Error - `logo.ico` matches a line_forbidden.patterns rule: Should be `logo.png` - `\blogo\.ico\b` (forbidden-pattern)
 unknown-words/input/sample.file:7:23 ... 26, Error - `ico` is not a recognized word (unrecognized-spelling)
 Summary Tables budget: INITIAL_BUDGET
+Summary Tables budget reduced to: REDUCED_BUDGET
+Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
 Summary Tables budget reduced to: REDUCED_BUDGET
