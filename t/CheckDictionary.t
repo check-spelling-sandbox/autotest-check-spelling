@@ -19,18 +19,18 @@ delete $ENV{INPUT_IGNORE_PATTERN};
 my ($line, $warning);
 $. = 10;
 
-($line, $warning) = CheckSpelling::CheckDictionary::process_line('ignored', 'hello?#123');
+($line, $warning) = CheckSpelling::CheckDictionary::process_line('hello?#123');
 is($line, 'hello?', 'valid entry (result)');
 
 my $hello = "hello#123";
 $ENV{INPUT_IGNORE_PATTERN} = "[^A-Za-z']";
-($line, $warning) = CheckSpelling::CheckDictionary::process_line('ignored', $hello);
+($line, $warning) = CheckSpelling::CheckDictionary::process_line($hello);
 is($warning, '', 'valid entry (warning)');
 is($line, 'hello', 'valid entry (result)');
 
 $ENV{comment_char} = '$';
-($line, $warning) = CheckSpelling::CheckDictionary::process_line('file-path', $hello);
-is($warning, "file-path:10:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
+($line, $warning) = CheckSpelling::CheckDictionary::process_line($hello);
+is($warning, "6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
 ", 'invalid entry (warning)');
 is($line, '', 'invalid entry (result)');
 
