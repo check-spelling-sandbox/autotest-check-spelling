@@ -8,6 +8,10 @@ Retrieving excludes from WORKSPACE/t/unknown-words/config/excludes.txt
 Retrieving only from WORKSPACE/t/unknown-words/config/only.txt
 Retrieving line_forbidden from WORKSPACE/t/unknown-words/config/line_forbidden.patterns
 Retrieving candidate from WORKSPACE/t/unknown-words/config/candidate.patterns
+Retrieving patterns from:
+WORKSPACE/t/unknown-words/config/patterns/empty.txt
+WORKSPACE/t/unknown-words/config/patterns/one.txt
+WORKSPACE/t/unknown-words/config/patterns/two.txt
 Checking spelling...
 ::group::Spell checking (2) files
 TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/paths-of-checked-files.txt
@@ -108,12 +112,14 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors, Warnings, and Notices ❌ (4)</summary>
+<details><summary>Errors, Warnings, and Notices ❌ (6)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 [❌ Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
+[⚠️ bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
+[❌ duplicate-pattern](https://docs.check-spelling.dev/Event-descriptions#duplicate-pattern) | 1
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
