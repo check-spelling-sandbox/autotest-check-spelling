@@ -29,7 +29,7 @@ sub process_line {
     if ($code =~ /(^Unmatched )(.)$/) {
         $code = $1 . CheckSpelling::Util::wrap_in_backticks($2);
     }
-    return ("^\$\n", "$start ... $end, Warning - $code: $wrapped (bad-regex)\n");
+    return ("^\$", "$start ... $end, Warning - $code: $wrapped (bad-regex)\n");
 }
 
 1;
