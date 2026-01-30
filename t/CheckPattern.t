@@ -17,7 +17,7 @@ my ($out, $err) = CheckSpelling::CheckPattern::process_line("hello\n");
 is ($out, "hello");
 is ($err, '');
 
-my $invalid_regex = "^\$\n";
+my $invalid_regex = "^\$";
 
 ($out, $err) = CheckSpelling::CheckPattern::process_line("+foo");
 is ($out, $invalid_regex);is ($err, "1 ... 2, Warning - Quantifier follows nothing: `+` (bad-regex)\n");
