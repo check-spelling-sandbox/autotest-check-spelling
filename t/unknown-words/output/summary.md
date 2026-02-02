@@ -148,9 +148,9 @@ These forbidden patterns matched content:
 See [:x: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
 </details>
-<details><summary>Details :mag_right:</summary>
+<details><summary>Details 🔎</summary>
 
-<details><summary>:open_file_folder: forbidden-pattern</summary>
+<details><summary>📂 forbidden-pattern</summary>
 
 note|path
 -|-
@@ -161,21 +161,21 @@ note|path
 `sample.file` matches a line_forbidden.patterns rule: Should be `sample-file.txt` - `\bsample\.file\b` | unknown-words/input/sample.file:1
 </details>
 
-<details><summary>:open_file_folder: ignored-expect-variant</summary>
+<details><summary>📂 ignored-expect-variant</summary>
 
 note|path
 -|-
 `Unexpectedlylong` is ignored by check-spelling because another more general variant is also in expect | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L2
 </details>
 
-<details><summary>:open_file_folder: non-alpha-in-dictionary</summary>
+<details><summary>📂 non-alpha-in-dictionary</summary>
 
 note|path
 -|-
 Ignoring entry because it contains non-alpha characters | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words/config/expect/expect.txt#L1
 </details>
 
-<details><summary>:open_file_folder: unrecognized-spelling</summary>
+<details><summary>📂 unrecognized-spelling</summary>
 
 note|path
 -|-
@@ -187,7 +187,7 @@ note|path
 `youu` is not a recognized word | unknown-words/input/sample.file:2
 </details>
 
-<details><summary>:open_file_folder: unused-config-file</summary>
+<details><summary>📂 unused-config-file</summary>
 
 note|path
 -|-
