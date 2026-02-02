@@ -2868,7 +2868,7 @@ spelling_body() {
   if [ -z "$remote_url_https" ]; then
     remote_url_https="$(echo "$remote_url_ssh" | perl -pe 's{(?:git\@|^)github\.com:}{https://github.com/}')"
   fi
-  if [ -z "$remote_ref" ]; then
+  if [ -z "$remote_ref" ] && [ -e .git/HEAD ]; then
     remote_ref="$(perl -pe 's{^ref: }{}' .git/HEAD)"
   fi
   remote_ref=${remote_ref#refs/heads/}
