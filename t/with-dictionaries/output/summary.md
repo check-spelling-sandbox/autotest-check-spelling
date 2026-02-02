@@ -13,9 +13,9 @@ There are currently no expected items.
 See [:information_source: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
 </details>
-<details><summary>Details :mag_right:</summary>
+<details><summary>Details 🔎</summary>
 
-<details><summary>:open_file_folder: unused-config-file</summary>
+<details><summary>📂 unused-config-file</summary>
 
 note|path
 -|-
