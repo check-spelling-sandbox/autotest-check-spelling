@@ -284,7 +284,7 @@ check_output_file($counter_summary, '{
 ,"forbidden-pattern": 1
 }
 ', 'counter_summary');
-check_output_file($forbidden_summary, '#### please avoid starting lines with "pe" followed by a letter.
+check_output_file($forbidden_summary, '##### please avoid starting lines with "pe" followed by a letter.
 ```
 ^pe.
 ```
