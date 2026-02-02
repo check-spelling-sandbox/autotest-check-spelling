@@ -158,10 +158,10 @@ jobs:
             next if $last_line eq $_;
             next if /\Q$no_such_file\E/;
             $last_line = $_;
-            s/ \.+ ok/|:white_check_mark:/ || s/ \.+ /|/;
+            s/ \.+ ok/|✅/ || s/ \.+ /|/;
             s/^\s+(.*):\s*/... $1|/;
-            s/\s+(\(Wstat)/|:x: $1/ unless /\|/;
-            s/All tests successful\./All tests|:white_check_mark:/;
+            s/\s+(\(Wstat)/|❌ $1/ unless /\|/;
+            s/All tests successful\./All tests|✅/;
             print;
             }' "$cover_output"
           echo

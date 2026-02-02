@@ -604,7 +604,7 @@ runs:
           echo
           echo '---'
           echo
-          echo '<details><summary>:angel: SARIF file</summary>'
+          echo '<details><summary>👼 SARIF file</summary>'
           echo
           echo '```'
           sarif_file_size=$(
