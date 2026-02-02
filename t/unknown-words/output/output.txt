@@ -6,6 +6,7 @@ Retrieving excludes from WORKSPACE/t/unknown-words/config/excludes.txt
 ::endgroup::
 Retrieving only from WORKSPACE/t/unknown-words/config/only.txt
 Retrieving line_forbidden from WORKSPACE/t/unknown-words/config/line_forbidden.patterns
+Retrieving candidate from WORKSPACE/t/unknown-words/config/candidate.patterns
 Checking spelling...
 ::group::Spell checking (2) files
 TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/paths-of-checked-files.txt
