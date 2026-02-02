@@ -11,7 +11,7 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 22;
+plan tests => 32;
 
 {
   open(my $apply_pl, '<', 'apply.pl') || die "oops";
@@ -99,7 +99,7 @@ sub parse_outputs {
     $tear_code = $1;
   }
 
-  my $result = defined $tear_code ? $tear_code : $results[0] >> 8;
+  my $result = defined $tear_code ? $tear_code : (scalar @results ? $results[0] >> 8 : undef);
   return ($stdout, $stderr, $result);
 }
 
@@ -170,6 +170,30 @@ while ($state < 4) {
     close($expired_artifacts_log_fh);
   }
 }
+
+like(CheckSpelling::Apply::check_exists_command('git'), qr{/git}, 'check_exists_command (git)');
+
+$CheckSpelling::Apply::program = 'Apply.t';
+our $needs_command = 'git';
+sub check_needs_command_because {
+  return CheckSpelling::Apply::needs_command_because($needs_command, 'test');
+}
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_needs_command_because);
+is($stdout, '', 'needs_command_because (git)');
+is($stderr, '', 'needs_command_because (git)');
+is($result, undef, 'needs_command_because (git)');
+
+$needs_command = 'imaginary-git-program';
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_needs_command_because);
+is($stdout, '', 'needs_command_because:out (imaginary-git-program)');
+like($stderr, qr{\QPlease install `imaginary-git-program` - it is needed to test at Apply.t line \E\d+}, 'needs_command_because:err (imaginary-git-program)');
+is($result, 1, 'needs_command_because:result (imaginary-git-program)');
+
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&CheckSpelling::Apply::check_basic_tools);
+is($stdout, '', 'check_basic_tools:out');
+is($stderr, '', 'check_basic_tools:err');
+is($result, undef, 'check_basic_tools:result');
+
 
 $ENV{GITHUB_API_URL} = 'https://api.github.com';
 $CheckSpelling::Apply::program = "$spellchecker/wrappers/apply.pl";
