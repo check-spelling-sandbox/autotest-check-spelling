@@ -82,13 +82,13 @@ check_extra_dictionaries: ""
 
 </details>
 
-### Forbidden patterns :no_good: (1)
+#### Forbidden patterns :no_good: (1)
 
 In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
 
 These forbidden patterns matched content:
 
-#### Should be `sample-file.txt`
+##### Should be `sample-file.txt`
 ```
 \bsample\.file\b
 ```
