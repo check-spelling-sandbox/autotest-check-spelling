@@ -220,7 +220,7 @@ jobs:
         : Calculate coverage
         cover_command=`command -v cover`
         if [ -n "$cover_command" ]; then
-        perl `command -v cover` -ignore /usr/bin/shasum -report html
+        perl "$cover_command" -ignore /usr/bin/shasum -report html
         fi
         if [ -e cover_db/coverage.html ]; then
           (
