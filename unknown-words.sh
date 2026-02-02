@@ -2845,278 +2845,278 @@ spelling_body() {
   if [ -z "$err" ] && [ -e "$fewer_misspellings_canary" ]; then
     output_remove_items="$N$(remove_items)"
   fi
-    if [ -n "$err" ] && [ -e "$fewer_misspellings_canary" ]; then
-      cleanup_text="remove the previously acknowledged and now absent words"
-    fi
-    if [ -n "$GITHUB_HEAD_REF" ]; then
-      remote_url_ssh="$(jq -r '.pull_request.head.repo.ssh_url // empty' "$GITHUB_EVENT_PATH")"
-      remote_url_https="$(jq -r '.pull_request.head.repo.clone_url // empty' "$GITHUB_EVENT_PATH")"
-      if should_patch_head; then
-        remote_ref="$GITHUB_HEAD_REF"
-      else
-        remote_ref="$GITHUB_BASE_REF"
-      fi
+  if [ -n "$err" ] && [ -e "$fewer_misspellings_canary" ]; then
+    cleanup_text="remove the previously acknowledged and now absent words"
+  fi
+  if [ -n "$GITHUB_HEAD_REF" ]; then
+    remote_url_ssh="$(jq -r '.pull_request.head.repo.ssh_url // empty' "$GITHUB_EVENT_PATH")"
+    remote_url_https="$(jq -r '.pull_request.head.repo.clone_url // empty' "$GITHUB_EVENT_PATH")"
+    if should_patch_head; then
+      remote_ref="$GITHUB_HEAD_REF"
     else
-      remote_url_ssh="$(jq -r '.repository.ssh_url // empty' "$GITHUB_EVENT_PATH")"
-      remote_url_https="$(jq -r '.repository.clone_url // empty' "$GITHUB_EVENT_PATH")"
-      remote_ref="$GITHUB_REF"
+      remote_ref="$GITHUB_BASE_REF"
     fi
-    if [ -z "$remote_url_ssh$remote_url_https" ]; then
-      remote_url_ssh="$(git remote get-url --push origin 2>/dev/null || true)"
-      if [ -z "$remote_url_ssh" ]; then
-        remote_url_https="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
-      fi
+  else
+    remote_url_ssh="$(jq -r '.repository.ssh_url // empty' "$GITHUB_EVENT_PATH")"
+    remote_url_https="$(jq -r '.repository.clone_url // empty' "$GITHUB_EVENT_PATH")"
+    remote_ref="$GITHUB_REF"
+  fi
+  if [ -z "$remote_url_ssh$remote_url_https" ]; then
+    remote_url_ssh="$(git remote get-url --push origin 2>/dev/null || true)"
+    if [ -z "$remote_url_ssh" ]; then
+      remote_url_https="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
     fi
-    if [ -z "$remote_url_https" ]; then
-      remote_url_https="$(echo "$remote_url_ssh" | perl -pe 's{(?:git\@|^)github\.com:}{https://github.com/}')"
+  fi
+  if [ -z "$remote_url_https" ]; then
+    remote_url_https="$(echo "$remote_url_ssh" | perl -pe 's{(?:git\@|^)github\.com:}{https://github.com/}')"
+  fi
+  if [ -z "$remote_ref" ]; then
+    remote_ref="$(perl -pe 's{^ref: }{}' .git/HEAD)"
+  fi
+  remote_ref=${remote_ref#refs/heads/}
+  if [ -s "$extra_dictionaries_cover_entries" ]; then
+    expected_item_count="$(line_count < "$expect_path")"
+    if [ "$expected_item_count" -gt 0 ]; then
+      expect_details="This includes both **expected items** ($expected_item_count) from $expect_files and **unrecognized words** ($unknown_count)
+      "
+      expect_head=" (expected and unrecognized)"
     fi
-    if [ -z "$remote_ref" ]; then
-      remote_ref="$(perl -pe 's{^ref: }{}' .git/HEAD)"
+
+    extra_dictionaries_cover_entries_limited="$(mktemp)"
+    head -"$extra_dictionary_limit" "$extra_dictionaries_cover_entries" > "$extra_dictionaries_cover_entries_limited"
+    if [ -n "$workflow_path" ]; then
+      workflow_path_hint=" (in $b$workflow_path$b)"
     fi
-    remote_ref=${remote_ref#refs/heads/}
-    if [ -s "$extra_dictionaries_cover_entries" ]; then
-      expected_item_count="$(line_count < "$expect_path")"
-      if [ "$expected_item_count" -gt 0 ]; then
-        expect_details="This includes both **expected items** ($expected_item_count) from $expect_files and **unrecognized words** ($unknown_count)
-        "
-        expect_head=" (expected and unrecognized)"
-      fi
+    if [ -n "$THIS_GITHUB_JOB_ID" ]; then
+      job_id_hint=" in ${b}jobs:${b}/${b}$THIS_GITHUB_JOB_ID:${b}"
+    fi
+    action_ref=$(get_action_repo_info)
+    if [ -n "$action_ref" ]; then
+      action_ref_hint=" for ${b}uses: ${action_ref}${b}"
+      inline_with_hint=" in its ${b}with${b}"
+    fi
+    if [ -z "$workflow_path" ]; then
+      creating_a_workflow_and=' creating a workflow (e.g. from https://github.com/check-spelling/spell-check-this/blob/main/.github/workflows/spelling.yml (`https://raw.githubusercontent.com/check-spelling/spell-check-this/main/.github/workflows/spelling.yml`)) and'
+    fi
+    if [ -n "$INPUT_EXTRA_DICTIONARIES" ]; then
+      extra_dictionaries_hint=' to `extra_dictionaries`'
+    else
+      with_hint='
+            with:
+              extra_dictionaries: |'
+    fi
+    output_dictionaries="$(echo "
+      <details><summary>Available :books: dictionaries could cover words$expect_head not in the :blue_book: dictionary</summary>
 
-      extra_dictionaries_cover_entries_limited="$(mktemp)"
-      head -"$extra_dictionary_limit" "$extra_dictionaries_cover_entries" > "$extra_dictionaries_cover_entries_limited"
-      if [ -n "$workflow_path" ]; then
-        workflow_path_hint=" (in $b$workflow_path$b)"
-      fi
-      if [ -n "$THIS_GITHUB_JOB_ID" ]; then
-        job_id_hint=" in ${b}jobs:${b}/${b}$THIS_GITHUB_JOB_ID:${b}"
-      fi
-      action_ref=$(get_action_repo_info)
-      if [ -n "$action_ref" ]; then
-        action_ref_hint=" for ${b}uses: ${action_ref}${b}"
-        inline_with_hint=" in its ${b}with${b}"
-      fi
-      if [ -z "$workflow_path" ]; then
-        creating_a_workflow_and=' creating a workflow (e.g. from https://github.com/check-spelling/spell-check-this/blob/main/.github/workflows/spelling.yml (`https://raw.githubusercontent.com/check-spelling/spell-check-this/main/.github/workflows/spelling.yml`)) and'
-      fi
-      if [ -n "$INPUT_EXTRA_DICTIONARIES" ]; then
-        extra_dictionaries_hint=' to `extra_dictionaries`'
-      else
-        with_hint='
-              with:
-                extra_dictionaries: |'
-      fi
-      output_dictionaries="$(echo "
-        <details><summary>Available :books: dictionaries could cover words$expect_head not in the :blue_book: dictionary</summary>
+      $expect_details
 
-        $expect_details
+      Dictionary | Entries | Covers | Uniquely
+      -|-|-|-
+      $(perl -pe 's/ \((\d+)\) covers (\d+) of them \((\d+) uniquely\)/|$1|$2|$3|/ || s/ \((\d+)\) covers (\d+) of them/|$1|$2||/' "$extra_dictionaries_cover_entries_limited")
 
-        Dictionary | Entries | Covers | Uniquely
-        -|-|-|-
-        $(perl -pe 's/ \((\d+)\) covers (\d+) of them \((\d+) uniquely\)/|$1|$2|$3|/ || s/ \((\d+)\) covers (\d+) of them/|$1|$2||/' "$extra_dictionaries_cover_entries_limited")
+      Consider$creating_a_workflow_and adding them$workflow_path_hint$job_id_hint$action_ref_hint$inline_with_hint$extra_dictionaries_hint:
+      $B yml$with_hint$n$(
+        perl -pe 's/\s.*//;s/^/                /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
+      )
+      $B
+      To stop checking additional dictionaries, add$workflow_path_hint$action_ref_hint$inline_with_hint:
+      $B yml
+      check_extra_dictionaries: $Q$Q
+      $B
 
-        Consider$creating_a_workflow_and adding them$workflow_path_hint$job_id_hint$action_ref_hint$inline_with_hint$extra_dictionaries_hint:
-        $B yml$with_hint$n$(
-          perl -pe 's/\s.*//;s/^/                  /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
-        )
+      </details>
+      " | perl -pe 's/^ {6}//')"
+  fi
+  if [ -s "$should_exclude_file" ]; then
+    calculate_exclude_patterns
+    set_output_variable skipped_files "$should_exclude_file"
+    if ! grep -qE '\w' "$should_exclude_patterns"; then
+      echo '::error title=Excludes generation failed::Please file a bug (excludes-generation-failed)' >&2
+    else
+      set_output_variable should_exclude_patterns "$should_exclude_patterns"
+      exclude_files_text="update file exclusions"
+      output_excludes="$(echo "
+        <details><summary>Some files were automatically ignored :see_no_evil:</summary>
+
+        These sample patterns would exclude them:
         $B
-        To stop checking additional dictionaries, add$workflow_path_hint$action_ref_hint$inline_with_hint:
-        $B yml
-        check_extra_dictionaries: $Q$Q
-        $B
+        $(cat "$should_exclude_patterns")
+        $B"| strip_lead)"
+      if [ "$(line_count < "$should_exclude_file")" -gt 10 ]; then
+        output_excludes_large="$(echo "
+          "'You should consider excluding directory paths (e.g. `(?:^|/)vendor/`), filenames (e.g. `(?:^|/)yarn\.lock$`), or file extensions (e.g. `\.gz$`)
+          '| strip_lead)"
+      fi
+      output_excludes_suffix="$(echo "
 
+        You should consider adding them to:
+        $B$n" | strip_lead
+
+        )$n$(echo "$excludes_files" |
+        xargs -n1 echo)$n$B$(echo '
+
+        File matching is via Perl regular expressions.
+
+        To check these files, more of their words need to be in the dictionary than not. You can use `patterns.txt` to exclude portions, add items to the dictionary (e.g. by adding them to `allow.txt`), or fix typos.
         </details>
-        " | perl -pe 's/^ {8}//')"
+      ' | strip_lead)"
+      can_offer_to_apply=1
     fi
-    if [ -s "$should_exclude_file" ]; then
-      calculate_exclude_patterns
-      set_output_variable skipped_files "$should_exclude_file"
-      if ! grep -qE '\w' "$should_exclude_patterns"; then
-        echo '::error title=Excludes generation failed::Please file a bug (excludes-generation-failed)' >&2
-      else
-        set_output_variable should_exclude_patterns "$should_exclude_patterns"
-        exclude_files_text="update file exclusions"
-        output_excludes="$(echo "
-          <details><summary>Some files were automatically ignored :see_no_evil:</summary>
-
-          These sample patterns would exclude them:
-          $B
-          $(cat "$should_exclude_patterns")
-          $B"| strip_lead)"
-        if [ "$(line_count < "$should_exclude_file")" -gt 10 ]; then
-          output_excludes_large="$(echo "
-            "'You should consider excluding directory paths (e.g. `(?:^|/)vendor/`), filenames (e.g. `(?:^|/)yarn\.lock$`), or file extensions (e.g. `\.gz$`)
-            '| strip_lead)"
-        fi
-        output_excludes_suffix="$(echo "
-
-          You should consider adding them to:
-          $B$n" | strip_lead
-
-          )$n$(echo "$excludes_files" |
-          xargs -n1 echo)$n$B$(echo '
-
-          File matching is via Perl regular expressions.
-
-          To check these files, more of their words need to be in the dictionary than not. You can use `patterns.txt` to exclude portions, add items to the dictionary (e.g. by adding them to `allow.txt`), or fix typos.
-          </details>
-        ' | strip_lead)"
-        can_offer_to_apply=1
-      fi
+  fi
+  if [ -s "$counter_summary_file" ]; then
+    get_has_errors
+    if [ -n "$has_notices" ]; then
+      event_title_notices='Notices'
+      event_icon=':information_source:'
+    else
+      event_title_notices=''
+    fi
+    if [ -n "$has_warnings" ]; then
+      event_title_warnings='Warnings'
+      event_icon=':warning:'
+    else
+      event_title_warnings=''
+    fi
+    if [ -n "$has_errors" ]; then
+      event_title_errors='Errors'
+      event_icon=':x:'
+    else
+      event_title_errors=''
+    fi
+    event_title=$(build-english-list "$event_title_errors" "$event_title_warnings" "$event_title_notices")
+    if [ -z "$event_title" ]; then
+      event_title=Events
     fi
     if [ -s "$counter_summary_file" ]; then
-      get_has_errors
-      if [ -n "$has_notices" ]; then
-        event_title_notices='Notices'
-        event_icon=':information_source:'
-      else
-        event_title_notices=''
-      fi
-      if [ -n "$has_warnings" ]; then
-        event_title_warnings='Warnings'
-        event_icon=':warning:'
-      else
-        event_title_warnings=''
-      fi
-      if [ -n "$has_errors" ]; then
-        event_title_errors='Errors'
-        event_icon=':x:'
-      else
-        event_title_errors=''
-      fi
-      event_title=$(build-english-list "$event_title_errors" "$event_title_warnings" "$event_title_notices")
-      if [ -z "$event_title" ]; then
-        event_title=Events
-      fi
-      if [ -s "$counter_summary_file" ]; then
-        warnings_details="$(echo "
-          [$event_icon ${event_title}](https://docs.check-spelling.dev/Event-descriptions) | Count
-          -|-
-          $(
-            jq -r 'to_entries[] | "[:information_source: \(.key)](https://docs.check-spelling.dev/Event-descriptions#\(.key)) | \(.value)"' "$counter_summary_file" |
-            NOTICES_LIST="$(
-              echo "$INPUT_NOTICES" | events_to_regular_expression
-            )" WARNINGS_LIST="$(
-              echo "$INPUT_WARNINGS" | events_to_regular_expression
-            )" perl -e '
-            my $notices=$ENV{NOTICES_LIST};
-            my $warnings=$ENV{WARNINGS_LIST};
-            while (<>) {
-              if (/$warnings/) {
-                s/information_source/warning/;
-              } elsif (!/$notices/) {
-                s/information_source/x/;
-              }
-              print;
+      warnings_details="$(echo "
+        [$event_icon ${event_title}](https://docs.check-spelling.dev/Event-descriptions) | Count
+        -|-
+        $(
+          jq -r 'to_entries[] | "[:information_source: \(.key)](https://docs.check-spelling.dev/Event-descriptions#\(.key)) | \(.value)"' "$counter_summary_file" |
+          NOTICES_LIST="$(
+            echo "$INPUT_NOTICES" | events_to_regular_expression
+          )" WARNINGS_LIST="$(
+            echo "$INPUT_WARNINGS" | events_to_regular_expression
+          )" perl -e '
+          my $notices=$ENV{NOTICES_LIST};
+          my $warnings=$ENV{WARNINGS_LIST};
+          while (<>) {
+            if (/$warnings/) {
+              s/information_source/warning/;
+            } elsif (!/$notices/) {
+              s/information_source/x/;
             }
-            '
-          )
-
-          See [$event_icon Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
-          " | strip_lead)"
-      else
-        warnings_details="_Could not get warning list from ${counter_summary_file}_"
-      fi
-      if [ -n "$has_errors" ] && [ -z "$message" ]; then
-        message="$warnings_details"
-      else
-        if [ -n "$details_note" ]; then
-          details_heading="#### $details_note"
-        else
-          details_heading=""
-        fi
-        output_warnings="$(echo "
-        <details><summary>$event_title $event_icon ($(grep -c ':' "$counter_summary_file"))</summary>
-
-        $details_heading
-
-        $warnings_details
-        </details>
-        " | strip_lead)"
-      fi
-    fi
-    count_patterns() {
-      perl -ne 'next '"$2"';next unless /\S/;print' "$1" | line_count
-    }
-    if [ -s "$forbidden_summary" ]; then
-      forbidden_pattern_count=$(count_patterns "$forbidden_summary" "unless /^#### /")
-      output_forbidden_patterns="$(echo "
-        <details><summary>Forbidden patterns :no_good: ($forbidden_pattern_count)</summary>
-
-        In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
-
-        These forbidden patterns matched content:
-
-        $(
-        cat "$forbidden_summary"
+            print;
+          }
+          '
         )
 
-        </details>
-      " | strip_lead)"
-    fi
-    if [ -s "$candidate_summary" ]; then
-      pattern_suggestion_count=$(count_patterns "$candidate_summary" "if /^#/")
-      output_candidate_pattern_suggestions="$(echo "
-        <details><summary>Pattern suggestions :scissors: ($pattern_suggestion_count)</summary>
-
-        You could add these patterns to $b$new_patterns_file$b:
-        $B
-        # Automatically suggested patterns
-
-        $(
-        cat "$candidate_summary"
-        )
-
-        $B
-
-        Alternatively, if a pattern suggestion doesn't make sense for this project, add a ${b}#${b}
-        to the beginning of the line in the candidates file with the pattern to stop suggesting it.
-
-        </details>
-      " | strip_lead)"
-    fi
-    if [ -n "$patch_add" ]; then
-      can_offer_to_apply=1
-      accept_words_text='accept these unrecognized words as correct'
-    fi
-    if [ -n "$can_offer_to_apply" ] && [ -n "$err" ]; then
-      if [ -n "$accept_words_text" ]; then
-        if [ "$INPUT_INCLUDE_ADVICE" = 'unrecognized-spelling' ]; then
-          include_advice=true
-        fi
-      fi
-      accept_heading="To $(build-english-list "$add_spell_check_this_text" "$accept_words_text" "$exclude_files_text" "$cleanup_text")"
-      output_accept_script="$(echo "
-        <details><summary>$accept_heading,
-        you could run the following commands</summary>
-        $(repo_clone_note)
-        $(relative_note)
-
-        $B sh
-        $(generate_merge_instructions "" " && $n"
-        )$err &&$n git commit -m 'Update check-spelling metadata'
-        $B
-        </details>
+        See [$event_icon Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
         " | strip_lead)"
-      if [ "$INPUT_INCLUDE_ADVICE" = 'metadata' ]; then
+    else
+      warnings_details="_Could not get warning list from ${counter_summary_file}_"
+    fi
+    if [ -n "$has_errors" ] && [ -z "$message" ]; then
+      message="$warnings_details"
+    else
+      if [ -n "$details_note" ]; then
+        details_heading="#### $details_note"
+      else
+        details_heading=""
+      fi
+      output_warnings="$(echo "
+      <details><summary>$event_title $event_icon ($(grep -c ':' "$counter_summary_file"))</summary>
+
+      $details_heading
+
+      $warnings_details
+      </details>
+      " | strip_lead)"
+    fi
+  fi
+  count_patterns() {
+    perl -ne 'next '"$2"';next unless /\S/;print' "$1" | line_count
+  }
+  if [ -s "$forbidden_summary" ]; then
+    forbidden_pattern_count=$(count_patterns "$forbidden_summary" "unless /^#### /")
+    output_forbidden_patterns="$(echo "
+      <details><summary>Forbidden patterns :no_good: ($forbidden_pattern_count)</summary>
+
+      In order to address this, you could change the content to not match the forbidden patterns (comments before forbidden patterns may help explain why they're forbidden), add patterns for acceptable instances, or adjust the forbidden patterns themselves.
+
+      These forbidden patterns matched content:
+
+      $(
+      cat "$forbidden_summary"
+      )
+
+      </details>
+    " | strip_lead)"
+  fi
+  if [ -s "$candidate_summary" ]; then
+    pattern_suggestion_count=$(count_patterns "$candidate_summary" "if /^#/")
+    output_candidate_pattern_suggestions="$(echo "
+      <details><summary>Pattern suggestions :scissors: ($pattern_suggestion_count)</summary>
+
+      You could add these patterns to $b$new_patterns_file$b:
+      $B
+      # Automatically suggested patterns
+
+      $(
+      cat "$candidate_summary"
+      )
+
+      $B
+
+      Alternatively, if a pattern suggestion doesn't make sense for this project, add a ${b}#${b}
+      to the beginning of the line in the candidates file with the pattern to stop suggesting it.
+
+      </details>
+    " | strip_lead)"
+  fi
+  if [ -n "$patch_add" ]; then
+    can_offer_to_apply=1
+    accept_words_text='accept these unrecognized words as correct'
+  fi
+  if [ -n "$can_offer_to_apply" ] && [ -n "$err" ]; then
+    if [ -n "$accept_words_text" ]; then
+      if [ "$INPUT_INCLUDE_ADVICE" = 'unrecognized-spelling' ]; then
         include_advice=true
       fi
-      if offer_quote_reply; then
-        output_quote_reply_placeholder="$n<!--QUOTE_REPLY-->$n"
-      fi
     fi
-    if [ "$INPUT_INCLUDE_ADVICE" = 'always' ] || [ -n "$has_errors" ]; then
+    accept_heading="To $(build-english-list "$add_spell_check_this_text" "$accept_words_text" "$exclude_files_text" "$cleanup_text")"
+    output_accept_script="$(echo "
+      <details><summary>$accept_heading,
+      you could run the following commands</summary>
+      $(repo_clone_note)
+      $(relative_note)
+
+      $B sh
+      $(generate_merge_instructions "" " && $n"
+      )$err &&$n git commit -m 'Update check-spelling metadata'
+      $B
+      </details>
+      " | strip_lead)"
+    if [ "$INPUT_INCLUDE_ADVICE" = 'metadata' ]; then
       include_advice=true
     fi
-    if [ -n "$include_advice" ] && [ -s "$advice_path" ]; then
-      output_advice="$N$(cat "$advice_path")$n"
+    if offer_quote_reply; then
+      output_quote_reply_placeholder="$n<!--QUOTE_REPLY-->$n"
     fi
-    if [ -n "$details_note" ]; then
-      details_heading="### $details_note"
-    else
-      details_heading=""
-    fi
-    step_summary_warnings="$(flush_step_summary_warnings)"
-    OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
+  fi
+  if [ "$INPUT_INCLUDE_ADVICE" = 'always' ] || [ -n "$has_errors" ]; then
+    include_advice=true
+  fi
+  if [ -n "$include_advice" ] && [ -s "$advice_path" ]; then
+    output_advice="$N$(cat "$advice_path")$n"
+  fi
+  if [ -n "$details_note" ]; then
+    details_heading="### $details_note"
+  else
+    details_heading=""
+  fi
+  step_summary_warnings="$(flush_step_summary_warnings)"
+  OUTPUT=$(echo "$n$report_header$n$step_summary_warnings$n$OUTPUT$details_heading$N$message$extra$output_remove_items$output_excludes$output_excludes_large$output_excludes_suffix$output_accept_script$output_quote_reply_placeholder$output_dictionaries$output_forbidden_patterns$output_candidate_pattern_suggestions$output_warnings$output_advice
       " | perl -pe 's/^\s+$/\n/;'| uniq)
 }
 
