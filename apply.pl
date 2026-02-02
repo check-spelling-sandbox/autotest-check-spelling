@@ -291,8 +291,7 @@ sub case_biased {
 
 sub add_to_excludes {
     my ($artifact, $config_ref) = @_;
-    my %config = %{$config_ref};
-    my $excludes = $config{"excludes_file"};
+    my $excludes = $config_ref->{"excludes_file"};
     my $should_exclude_patterns = unzip_pipe($artifact, 'should_exclude.patterns');
     unless ($should_exclude_patterns =~ /\w/) {
         $should_exclude_patterns = unzip_pipe($artifact, 'should_exclude.txt');
@@ -326,8 +325,7 @@ sub remove_stale {
     my ($artifact, $config_ref) = @_;
     my @stale = split /\s+/s, unzip_pipe($artifact, 'remove_words.txt');
     return unless @stale;
-    my %config = %{$config_ref};
-    my @expect_files = @{$config{"expect_files"}};
+    my @expect_files = @{$config_ref->{"expect_files"}};
     @expect_files = grep {
         print STDERR "Could not find $_\n" unless -f $_;
         -f $_;
@@ -356,8 +354,7 @@ sub add_expect {
     my ($artifact, $config_ref) = @_;
     my @add = split /\s+/s, (unzip_pipe($artifact, 'tokens.txt'));
     return unless @add;
-    my %config = %{$config_ref};
-    my $new_expect_file = $config{"new_expect_file"};
+    my $new_expect_file = $config_ref->{"new_expect_file"};
     my @words;
     make_path (dirname($new_expect_file));
     if (-s $new_expect_file) {

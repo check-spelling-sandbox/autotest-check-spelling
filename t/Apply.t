@@ -11,8 +11,9 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 22;
+plan tests => 42;
 
+my @apply_script;
 {
   open(my $apply_pl, '<', 'apply.pl') || die "oops";
   open(my $apply_pm, '>', 'lib/CheckSpelling/Apply.pm') || die "oopsie";
@@ -35,6 +36,7 @@ sub die_custom {
 }
 #;
   while (<$apply_pl>) {
+    push @apply_script, $_;
     next if /^main\(/;
     s/exit (\d+);/tear_here($1); die "exiting";/;
     s/\bdie /die_custom $., /;
@@ -66,6 +68,73 @@ sub call_check_current_script {
   CheckSpelling::Apply::check_current_script();
   $0 = $script;
   return 0;
+}
+
+$CheckSpelling::Apply::program = "$spellchecker/wrappers/apply.pl";
+
+{
+
+`git -c init.defaultBranch=something init .`;
+my $user_email='user@example.com';
+`
+echo '{
+  "expect_files": ["e.txt"],
+  "new_expect_file": "new.txt",
+  "excludes_file": "ex.txt",
+  "spelling_config": "."
+}' > apply.json;
+echo '{
+  "url": "./test.git",
+  "branch": "left",
+  "config": "output",
+  "path": "child",
+  "": ""
+}' > spell_check_this.json;
+echo 'zeebra' >> remove_words.txt;
+echo 'moonkey' >> tokens.txt;
+echo 'meep' >> should_exclude.txt;
+zip artifact.zip spell_check_this.json remove_words.txt tokens.txt apply.json should_exclude.txt;
+zip a.zip artifact.zip;
+rm artifact.zip;
+(echo 'aapple'; echo 'zeebra') > e.txt;
+echo er > ex.txt;
+git -c init.defaultBranch=wrong init test.git;
+mkdir test.git/child;
+touch test.git/child/file;
+git -C test.git add child/file;
+git -C test.git -c user.name=user -c user.email='$user_email' commit -m default;
+echo hi > test.git/child/file;
+git -C test.git add child/file;
+git -C test.git checkout -b left 2>&1;
+git -C test.git -c user.name=user -c user.email='$user_email' commit -m version;
+git -C test.git checkout wrong 2>&1;
+`;
+
+{
+  my $script = $0;
+  $0 = "$spellchecker/apply.pl";
+  my $full_script = (join '', @apply_script);
+  my $github_api_url = $ENV{'GITHUB_API_URL'};
+  $ENV{'GITHUB_API_URL'} = 'http://localhost';
+  sub call_main {
+    CheckSpelling::Apply::main($CheckSpelling::Apply::program, $full_script, 'nonexistent');
+  }
+  my ($stdout, $stderr, @results) = ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_main);
+  is($stdout, '', 'main out (bad args)');
+  like($stderr, qr{\Q<RUN_URL | OWNER/REPO RUN | ARTIFACT.zip>\E}, 'main err (bad args)');
+  is($results[0], 1, 'main exit (bad args)');
+  $ENV{'GITHUB_API_URL'} = $github_api_url;
+  CheckSpelling::Apply::main($CheckSpelling::Apply::program, $full_script, 'a.zip');
+  $0 = $script;
+}
+
+like(`git status |grep output/file`, qr{new file:\s+output/file$}, 'retrieve_spell_check_this added file');
+is(`grep zeebra e.txt`, '', 'remove stale');
+is(`grep moonkey new.txt`, 'moonkey
+', 'add expect');
+is(`cat ex.txt`, '^\Qmeep\E$
+er
+', 'add exclude (file)');
 }
 
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
@@ -107,7 +176,7 @@ sub parse_outputs {
     $tear_code = $1;
   }
 
-  my $result = defined $tear_code ? $tear_code : $results[0] >> 8;
+  my $result = defined $tear_code ? $tear_code : (scalar @results ? $results[0] >> 8 : undef);
   return ($stdout, $stderr, $result);
 }
 
@@ -179,8 +248,65 @@ while ($state < 4) {
   }
 }
 
+{
+  my $os = $^O;
+  $^O = 'MSWin32';
+  my $path_ext = $ENV{'PATHEXT'};
+  $ENV{'PATHEXT'} = '.exe;.bat;.cmd;.com';
+  like(CheckSpelling::Apply::check_exists_command('git'), qr{/git}, 'check_exists_command (git)');
+  $^O = $os;
+  $ENV{'PATHEXT'} = $path_ext;
+}
+
+$CheckSpelling::Apply::program = 'Apply.t';
+our $needs_command = 'git';
+sub check_needs_command_because {
+  return CheckSpelling::Apply::needs_command_because($needs_command, 'test');
+}
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_needs_command_because);
+is($stdout, '', 'needs_command_because (git)');
+is($stderr, '', 'needs_command_because (git)');
+is($result, undef, 'needs_command_because (git)');
+
+$needs_command = 'imaginary-git-program';
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_needs_command_because);
+is($stdout, '', 'needs_command_because:out (imaginary-git-program)');
+like($stderr, qr{\QPlease install `imaginary-git-program` - it is needed to test at Apply.t line \E\d+}, 'needs_command_because:err (imaginary-git-program)');
+is($result, 1, 'needs_command_because:result (imaginary-git-program)');
+
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&CheckSpelling::Apply::check_basic_tools);
+is($stdout, '', 'check_basic_tools:out');
+is($stderr, '', 'check_basic_tools:err');
+is($result, undef, 'check_basic_tools:result');
+
+{
+  my $real_gh_token = $ENV{'GH_TOKEN'};
+  my $real_github_token = $ENV{'GITHUB_TOKEN'};
+  $CheckSpelling::Apply::token = '';
+  $ENV{'GH_TOKEN'} = '';
+  $ENV{'GITHUB_TOKEN'} = 'github-token';
+  my ($token, $err);
+  ($token) = CheckSpelling::Apply::get_token();
+  is($token, $ENV{'GITHUB_TOKEN'}, 'get_token (GITHUB_TOKEN)');
+  $CheckSpelling::Apply::token = '';
+  $ENV{'GH_TOKEN'} = 'gh-token';
+  ($token) = CheckSpelling::Apply::get_token();
+  is($token, $ENV{'GH_TOKEN'}, 'get_token (GH_TOKEN)');
+  $CheckSpelling::Apply::token = '';
+  $ENV{'GH_TOKEN'} = '';
+  $ENV{'GITHUB_TOKEN'} = '';
+  ($token, $err) = CheckSpelling::Apply::get_token();
+  if ($err) {
+    is($err, 'no oauth token found for github.com', 'get_token (gh auth token - CI no token)');
+  } else {
+    like($token, qr{^gho_\w+$}, 'get_token (gh auth token)');
+  }
+  $CheckSpelling::Apply::token = '';
+  $ENV{'GH_TOKEN'} = $real_gh_token;
+  $ENV{'GITHUB_TOKEN'} = $real_github_token;
+}
+
 $ENV{GITHUB_API_URL} = 'https://api.github.com';
-$CheckSpelling::Apply::program = "$spellchecker/wrappers/apply.pl";
 my $repository;
 sub check_repository {
   CheckSpelling::Apply::get_artifacts($repository, $expired_artifact, undef);
@@ -193,7 +319,7 @@ SKIP: {
 
   my $sandbox_name = basename $sandbox;
   my $temp_name = basename $temp;
-  is($stdout, "SPELLCHECKER/apply.pl: GitHub Run Artifact expired. You will need to trigger a new run.\n", 'apply.pl (stdout) expired');
+  is($stdout, "Apply.t: GitHub Run Artifact expired. You will need to trigger a new run.\n", 'apply.pl (stdout) expired');
   is($stderr, '', 'apply.pl (stderr) expired');
   is($result, 1, 'apply.pl (exit code) expired');
 }
@@ -215,7 +341,7 @@ sub check_tools_are_not_ready {
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_tools_are_not_ready);
 
 like($stdout, qr{gh auth login|(?:populate|set) the GH_TOKEN environment variable}, 'apply.pl (stdout) not authenticated');
-like($stderr, qr{SPELLCHECKER/apply.pl requires a happy gh, please try 'gh auth login'}, 'apply.pl (stderr) not authenticated');
+like($stderr, qr{[Aa]pply.\w+ requires a happy gh, please try 'gh auth login'}, 'apply.pl (stderr) not authenticated');
 is($result, 1, 'apply.pl (exit code) not authenticated');
 $ENV{GH_TOKEN} = $gh_token;
 
@@ -228,7 +354,7 @@ if (-d "$real_home/.config/gh/") {
 `gh config set http_unix_socket /dev/null`;
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_tools_are_not_ready);
 
-like($stdout, qr{SPELLCHECKER/apply.pl: Unix http socket is not working\.}, 'apply.pl (stdout) bad_socket');
+like($stdout, qr{: Unix http socket is not working\.}, 'apply.pl (stdout) bad_socket');
 like($stdout, qr{http_unix_socket: /dev/null}, 'apply.pl (stdout) bad_socket');
 is($stderr, '', 'apply.pl (stderr) bad_socket');
 is($result, 7, 'apply.pl (exit code) bad_socket');
@@ -240,7 +366,7 @@ $ENV{https_proxy}='http://localhost:9123';
 $ENV{GH_TOKEN} = 'garbage';
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_tools_are_not_ready);
 
-like($stdout, qr{SPELLCHECKER/apply.pl: Proxy is not accepting connections\.}, 'apply.pl (stdout) bad_proxy');
+like($stdout, qr{: Proxy is not accepting connections\.}, 'apply.pl (stdout) bad_proxy');
 like($stdout, qr{https_proxy: 'http://localhost:9123'}, 'apply.pl (stdout) bad_proxy');
 is($stderr, '', 'apply.pl (stderr) bad_proxy');
 is($result, 6, 'apply.pl (exit code) bad_proxy');
