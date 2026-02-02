@@ -4,13 +4,13 @@
 No new misspelled words found
 
 There are currently no expected items.
-<details><summary>Notices :information_source: (1)</summary>
+<details><summary>Notices ℹ️ (1)</summary>
 
-[:information_source: Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
+[ℹ️ Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
-[:information_source: unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
+[ℹ️ unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
 
-See [:information_source: Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
+See [ℹ️ Event descriptions](https://docs.check-spelling.dev/Event-descriptions) for more information.
 
 </details>
 <details><summary>Details 🔎</summary>
