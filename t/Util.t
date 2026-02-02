@@ -6,8 +6,9 @@ use utf8;
 
 use Test::More;
 use Capture::Tiny ':all';
+use File::Temp qw/ tempfile /;
 
-plan tests => 51;
+plan tests => 57;
 use_ok('CheckSpelling::Util');
 
 $ENV{'EMPTY_VAR'}='';
@@ -215,3 +216,54 @@ my $a10 = 'a'x10;
 is(CheckSpelling::Util::truncate_with_ellipsis($a10, 6), 'a'x6 . '…', 'truncate');
 is(CheckSpelling::Util::truncate_with_ellipsis(CheckSpelling::Util::wrap_in_backticks($a10), 4), '`'.'a'x3 . '`…', 'truncate in backticks');
 is(CheckSpelling::Util::truncate_with_ellipsis($a10, 10), $a10, 'no truncation');
+
+my ($insert_fd, $insert) = tempfile;
+print $insert_fd "Insertion
+Text
+";
+close $insert_fd;
+$ENV{'insert'} = $insert;
+
+my ($base_fd, $base) = tempfile;
+print $base_fd "# Unrecognized words
+
+<details><summary>These words ...
+are ...
+</summary>
+</details><p></p>
+
+<details><summary>To accept
+these terms...
+</summary>
+</details><p></p>
+
+The end.
+";
+close $base_fd;
+$ENV{'base'} = $base;
+
+($stdout, $stderr, $result) = capture {
+    CheckSpelling::Util::insert_into_summary();
+};
+like($stdout, qr{</details><p></p>\n\nInsertion\nText\n\n<details><summary>To accept}, 'insert_into_summary out');
+is($stderr, '', 'insert_into_summary err');
+is($result, '1', 'insert_into_summary result');
+
+($base_fd, $base) = tempfile;
+print $base_fd "# Unrecognized words
+<details><summary>To accept these
+terms...
+</summary>
+</details><p></p>
+
+The end.
+";
+close $base_fd;
+$ENV{'base'} = $base;
+
+($stdout, $stderr, $result) = capture {
+    CheckSpelling::Util::insert_into_summary();
+};
+like($stdout, qr{# Unrecognized words\nInsertion\nText\n\n\*\*OR\*\*\n{3}<details><summary>To accept}, 'insert_into_summary or out');
+is($stderr, '', 'insert_into_summary or err');
+is($result, '1', 'insert_into_summary or result');

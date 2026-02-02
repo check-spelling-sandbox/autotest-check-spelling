@@ -95,20 +95,29 @@ sub print_insert {
   open INSERT, "<", $ENV{insert};
   local $/=undef;
   print <INSERT>;
-  print "\n\n";
+  print "\n";
   close INSERT;
 }
 
 sub insert_into_summary {
-  my $found=0;
+  my $state=0;
   open BASE, "<", $ENV{base};
   while (<BASE>){
-    if (!$found) {
-      if (/To accept /){
-        $found=1;
+    if ($state==0) {
+      $state = 1 if /^(?:#+ |<details><summary>)Unrecognized words/;
+    } elsif ($state==1) {
+      if (/<details><summary>These words/) {
+        $state=2;
+      } elsif (m{<details><summary>To accept }) {
+        $state=3;
         print_insert();
-        print "**OR**\n\n";
+        print "**OR**\n\n\n";
+      } elsif (m{^<details><summary>}) {
+        $state=3;
+        print_insert();
       }
+    } elsif ($state==2) {
+      $state=1 if m{^</details><p></p>};
     }
     print;
   }
