@@ -2078,6 +2078,36 @@ set_up_files() {
       echo '# Allow commented lines in `expect.txt` files'
       echo '^#.*'
     ) > "$expect_splitter_configuration/patterns.txt"
+    env -i \
+    SHELL="$SHELL" \
+    PATH="$PATH" \
+    LC_ALL="C" \
+    HOME="$HOME" \
+    early_warnings=/dev/null \
+    splitter_configuration="$expect_splitter_configuration" \
+    INPUT_LONGEST_WORD="$INPUT_LONGEST_WORD" \
+    INPUT_SHORTEST_WORD="$INPUT_SHORTEST_WORD" \
+    INPUT_IGNORE_PATTERN="$INPUT_IGNORE_PATTERN" \
+    INPUT_UPPER_PATTERN="$INPUT_UPPER_PATTERN" \
+    INPUT_LOWER_PATTERN="$INPUT_LOWER_PATTERN" \
+    INPUT_NOT_LOWER_PATTERN="$INPUT_NOT_LOWER_PATTERN" \
+    INPUT_NOT_UPPER_OR_LOWER_PATTERN="$INPUT_NOT_UPPER_OR_LOWER_PATTERN" \
+    INPUT_PUNCTUATION_PATTERN="$INPUT_PUNCTUATION_PATTERN" \
+    INPUT_USE_MAGIC_FILE=0 \
+    INPUT_USE_SARIF='' \
+    INPUT_DISABLE_CHECKS="single-line-file" \
+    sandbox="$splitter_sandbox" \
+    dict="$dict" \
+    spellchecker="$spellchecker" \
+    "$word_splitter" \
+    "$expect_path" 2> /dev/null |
+    counter_summary=/dev/null \
+    ignored_events="$INPUT_IGNORED" \
+    more_warnings=/dev/null \
+    warning_output="$expect_notes" \
+    INPUT_USE_SARIF='' INPUT_DISABLE_CHECKS=noisy-file "$word_collator" > "$expect_collated"
+    perl -pe 's/ \(.*\)//' "$expect_collated" > "$expect_path"
+
     touch "$early_warnings.1"
     cat "$expect_files" |
     xargs -0 \
@@ -2105,10 +2135,10 @@ set_up_files() {
     "$word_splitter" 2> /dev/null |
     early_warnings="$early_warnings.1" \
     counter_summary=/dev/null \
+    ignored_events="$INPUT_IGNORED" \
     more_warnings=/dev/null \
     warning_output="$expect_notes" \
-    INPUT_USE_SARIF='' INPUT_DISABLE_CHECKS=noisy-file "$word_collator" > "$expect_collated"
-    perl -pe 's/ \(.*\)//' "$expect_collated" > "$expect_path"
+    INPUT_USE_SARIF='' INPUT_DISABLE_CHECKS=noisy-file "$word_collator" > "$expect_collated.0"
     "$expect_collator" "$expect_collated" "$expect_notes" >> "$early_warnings"
   else
     touch "$expect_path"
