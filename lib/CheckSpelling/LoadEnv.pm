@@ -97,7 +97,6 @@ sub parse_inputs {
         %raw_inputs = %{decode_json(Encode::encode_utf8($input))};
     }
     my $maybe_load_inputs_from = $raw_inputs{$load_config_from_key};
-    delete $raw_inputs{$load_config_from_key};
 
     my %inputs;
     for my $key (keys %raw_inputs) {
