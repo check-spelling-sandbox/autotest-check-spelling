@@ -16,7 +16,7 @@ would've
 youu
 
 <details><summary>These words are not needed and should be removed
-</summary>invalid unexpectedlylong=
+</summary>unexpectedlylong=
 </details><p></p>
 
 <details><summary>To accept these unrecognized words as correct, you could apply this commit</summary>
@@ -93,7 +93,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (2) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
+This includes both **expected items** (1) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
