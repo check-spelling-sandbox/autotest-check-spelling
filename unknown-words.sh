@@ -3064,29 +3064,56 @@ spelling_body() {
 
     extra_dictionaries_cover_entries_limited="$(mktemp)"
     head -"$extra_dictionary_limit" "$extra_dictionaries_cover_entries" > "$extra_dictionaries_cover_entries_limited"
+    if [ -n "$INPUT_LOAD_CONFIG_FROM" ]; then
+      config_json_hint=" (in the $b$INPUT_CONFIG/config.json$b file)"
+    fi
     if [ -n "$workflow_path" ]; then
       workflow_path_hint=" (in $b$workflow_path$b)"
     fi
-    if [ -n "$THIS_GITHUB_JOB_ID" ]; then
-      job_id_hint=" in ${b}jobs:${b}/${b}$THIS_GITHUB_JOB_ID:${b}"
-    fi
-    action_ref=$(get_action_repo_info)
-    if [ -n "$action_ref" ]; then
-      action_ref_hint=" for ${b}uses: ${action_ref}${b}"
-      inline_with_hint=" in its ${b}with${b}"
-    fi
-    if [ -z "$workflow_path" ]; then
-      creating_a_workflow_and=' creating a workflow (e.g. from https://github.com/check-spelling/spell-check-this/blob/main/.github/workflows/spelling.yml (`https://raw.githubusercontent.com/check-spelling/spell-check-this/main/.github/workflows/spelling.yml`)) and'
-    fi
-    if [ -n "$INPUT_EXTRA_DICTIONARIES" ]; then
-      extra_dictionaries_hint=' to `extra_dictionaries`'
+    if echo "$INPUT_LOAD_CONFIG_FROM" | grep -q "['"'"]extra[-_]dictionaries'; then
+      add_extra_dictionaries_hint=" adding to the ${b}extra_dictionaries${b} array$config_json_hint:$n$B json$n$(
+        perl -pe 's/\s.*//;s{\[(.*)\]\(.*}{    "$1",}' "$extra_dictionaries_cover_entries_limited"
+      )$N$B"
     else
-      with_hint='
+      if [ -n "$THIS_GITHUB_JOB_ID" ]; then
+        job_id_hint=" in ${b}jobs:${b}/${b}$THIS_GITHUB_JOB_ID:${b}"
+      fi
+      action_ref=$(get_action_repo_info)
+      if [ -n "$action_ref" ]; then
+        action_ref_hint=" for ${b}uses: ${action_ref}${b}"
+        inline_with_hint=" in its ${b}with${b}"
+      fi
+      if [ -z "$workflow_path" ]; then
+        creating_a_workflow_and=' creating a workflow (e.g. from https://github.com/check-spelling/spell-check-this/blob/main/.github/workflows/spelling.yml (`https://raw.githubusercontent.com/check-spelling/spell-check-this/main/.github/workflows/spelling.yml`)) and'
+      fi
+      if [ -n "$INPUT_EXTRA_DICTIONARIES" ]; then
+        extra_dictionaries_hint=' to `extra_dictionaries`'
+      else
+        with_hint='
               with:
                 extra_dictionaries: |'
+      fi
+      if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
+        warn_about_pull_request_target="ℹ️ Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
+      fi
+      add_extra_dictionaries_hint="$creating_a_workflow_and adding them$workflow_path_hint$job_id_hint$action_ref_hint$inline_with_hint$extra_dictionaries_hint:
+      $B yml$with_hint$n$(
+        perl -pe 's/\s.*//;s/^/                  /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
+      )
+      $B
+      ${warn_about_pull_request_target:+"$warn_about_pull_request_target"}
+      "
     fi
-    if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
-      warn_about_pull_request_target="ℹ️ Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
+    if echo "$INPUT_LOAD_CONFIG_FROM" | grep -q 'check[-_]extra[-_]dictionaries'; then
+      stop_checking_dictionaries_hint="$config_json_hint:
+      $B json
+      ${Q}check_extra_dictionaries$Q: $Q$Q
+      $B"
+    else
+      stop_checking_dictionaries_hint="$workflow_path_hint$action_ref_hint$inline_with_hint:
+      $B yml
+      check_extra_dictionaries: $Q$Q
+      $B"
     fi
     output_dictionaries="$(echo "
       <details><summary>Available 📚 dictionaries could cover words$expect_head not in the 📘 dictionary</summary>
@@ -3097,16 +3124,8 @@ spelling_body() {
       -|-|-|-
       $(perl -pe 's/ \((\d+)\) covers (\d+) of them \((\d+) uniquely\)/|$1|$2|$3|/ || s/ \((\d+)\) covers (\d+) of them/|$1|$2||/' "$extra_dictionaries_cover_entries_limited")
 
-      Consider$creating_a_workflow_and adding them$workflow_path_hint$job_id_hint$action_ref_hint$inline_with_hint$extra_dictionaries_hint:
-      $B yml$with_hint$n$(
-        perl -pe 's/\s.*//;s/^/                  /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
-      )
-      $B
-      ${warn_about_pull_request_target:+"$warn_about_pull_request_target"}
-      To stop checking additional dictionaries, add$workflow_path_hint$action_ref_hint$inline_with_hint:
-      $B yml
-      check_extra_dictionaries: $Q$Q
-      $B
+      Consider$add_extra_dictionaries_hint
+      To stop checking additional dictionaries, add$stop_checking_dictionaries_hint
 
       </details>
 
