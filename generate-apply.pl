@@ -1,7 +1,15 @@
 #!/usr/bin/env perl
 use JSON::PP;
-my @expect_files = split /\n/, $ENV{expect_files};
-my @excludes_files = split /\n/, $ENV{excludes_files};
+sub read_null_delimited_file {
+  my ($file) = @_;
+  local $/=undef;
+  return () unless open my $input, '<:encoding(UTF-8)', $file;
+  my @files = split /\0/, <$input>;
+  close $input;
+  return @files;
+}
+my @expect_files = read_null_delimited_file $ENV{expect_files};
+my @excludes_files = read_null_delimited_file $ENV{excludes_files};
 my $new_expect_file = $ENV{new_expect_file};
 my $excludes_file = $ENV{excludes_file};
 my $spelling_config = $ENV{spelling_config};

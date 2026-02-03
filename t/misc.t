@@ -51,27 +51,27 @@ is((join ':', @results), '0', 'expect-collator result');
 
 $ENV{GITHUB_WORKSPACE}='/lib';
 ($stdout, $stderr, @results) = capture {
-  system("maybe_bad=/etc/passwd $ENV{spellchecker}/cleanup-file.pl");
+  system("early_warnings=/dev/stderr output=/dev/stdout $ENV{spellchecker}/wrappers/cleanup-files /etc/passwd");
 };
 
-like($stdout, qr<::error ::Configuration files must live within .*\.\.\.>, 'cleanup-file out must live within');
-like($stdout, qr<::error ::Unfortunately, file .* appears to reside elsewhere.>, 'cleanup-file out resides elsewhere');
-is($stderr, '', 'cleanup-file elsewhere err');
-is($results[0] >> 8, 3, 'cleanup-file elsewhere result');
+like($stdout, qr<::error ::Configuration files must live within .*\.\.\.>, 'cleanup-files - out must live within');
+like($stdout, qr<::error ::Unfortunately, file .* appears to reside elsewhere.>, 'cleanup-files - out resides elsewhere');
+is($stderr, '', 'cleanup-files - elsewhere err');
+is($results[0] >> 8, 3, 'cleanup-files - elsewhere result');
 
 my $dir=tempdir;
 $ENV{GITHUB_WORKSPACE}=$dir;
 ($stdout, $stderr, @results) = capture {
   system("
     git init -q '$dir';
-    maybe_bad=$dir/.git/config $ENV{spellchecker}/cleanup-file.pl
+    early_warnings=/dev/stderr output=/dev/stdout $ENV{spellchecker}/wrappers/cleanup-files '$dir/.git/config'
   ");
 };
 
-like($stdout, qr<::error ::Configuration files must not live within `\.git/`\.\.\.>, 'cleanup-file out must not live within');
-like($stdout, qr<::error ::Unfortunately, file .*/\.git/config appears to\.>, 'cleanup-file out appears to');
-is($stderr, '', 'cleanup-file .git err');
-is($results[0] >> 8, 4, 'cleanup-file .git result');
+like($stdout, qr<::error ::Configuration files must not live within `\.git/`\.\.\.>, 'cleanup-files - out must not live within');
+like($stdout, qr<::error ::Unfortunately, file '.*/\.git/config' appears to\.>, 'cleanup-files - out appears to');
+is($stderr, '', 'cleanup-files - .git err');
+is($results[0] >> 8, 4, 'cleanup-files - .git result');
 
 ($stdout, $stderr, @results) = capture {
   system('
