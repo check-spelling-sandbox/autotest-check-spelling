@@ -596,6 +596,32 @@
               }
             },
             {
+              "id": "mixed-line-endings",
+              "name": "MixedLineEndings",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#mixed-line-endings",
+              "shortDescription": {
+                "text": "Mixed line endings"
+              },
+              "fullDescription": {
+                "text": "The specified file has mixed line endings."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- run dos2unix or unix2dos or similar to harmonize the line endings\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "recommendation",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "non-alpha-in-dictionary",
               "name": "NonAlphaInDictionary",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary",

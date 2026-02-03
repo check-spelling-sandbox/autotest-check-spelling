@@ -1,5 +1,6 @@
 ::add-matcher::WORKSPACE/reporter.json
-Retrieving expect from WORKSPACE/t/unknown-words/config/expect/expect.txt
+Retrieving expect from:
+WORKSPACE/t/unknown-words/config/expect/expect.txt
 WORKSPACE/t/unknown-words/config/expect/other.txt
 Retrieving excludes from WORKSPACE/t/unknown-words/config/excludes.txt
 ::group::Retrieving check extra dictionaries
