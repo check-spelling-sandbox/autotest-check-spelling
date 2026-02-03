@@ -2895,8 +2895,8 @@ spelling_body() {
       extra_dictionaries_hint=' to `extra_dictionaries`'
     else
       with_hint='
-            with:
-              extra_dictionaries: |'
+              with:
+                extra_dictionaries: |'
     fi
     if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
       warn_about_pull_request_target=":information_source: Because this workflow is running ${b}on: pull_request_target${b}, **changes to this workflow file will not take effect** as part of a pull request (including this one). You should:${n}1. Create a new branch.${n}1. Add dictionaries to the workflow file ${workflow_path:+" ($b$workflow_path$b)"} on that branch.${n}1. Test them by pushing that branch.${n}1. Do not remove entries from ${b}expect${b} files on that branch because the workflow changes that will eventually provide the dictionary coverage won't be applicable to the workflow in the corresponding pull request (they are only available after they're merged to the branch).${n}1. Once that branch is merged, you can remove the entries that are no longer needed in another branch.$N---$N"
@@ -2912,7 +2912,7 @@ spelling_body() {
 
       Consider$creating_a_workflow_and adding them$workflow_path_hint$job_id_hint$action_ref_hint$inline_with_hint$extra_dictionaries_hint:
       $B yml$with_hint$n$(
-        perl -pe 's/\s.*//;s/^/                /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
+        perl -pe 's/\s.*//;s/^/                  /;s{\[(.*)\]\(.*}{$1}' "$extra_dictionaries_cover_entries_limited"
       )
       $B
       ${warn_about_pull_request_target:+"$warn_about_pull_request_target"}
