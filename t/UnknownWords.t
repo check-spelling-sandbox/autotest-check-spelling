@@ -14,7 +14,6 @@ use JSON::PP;
 use Capture::Tiny ':all';
 
 plan tests => 22;
-
 my $working_directory = getcwd();
 $ENV{'spellchecker'} = $working_directory;
 my $sandbox = $working_directory;
