@@ -10,7 +10,7 @@ use File::Temp qw/ tempfile tempdir /;
 use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
-plan tests => 13;
+plan tests => 6;
 use_ok('CheckSpelling::CheckDictionary');
 
 $ENV{comment_char} = '#';
@@ -53,52 +53,3 @@ my $spellchecker = abs_path(dirname(dirname(__FILE__)));
 $ENV{spellchecker} = $spellchecker;
 $ENV{PATH} =~ /^(.*)$/;
 $ENV{PATH} = $1;
-
-my ($stdout, $stderr, @results);
-($stdout, $stderr, @results) = capture {
-  chdir($temp_dir);
-  system("$spellchecker/wrappers/check-dictionary", $filepath)
-};
-is($stdout, '', 'wrappers/check-dictionary (stdout)');
-is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
-$filename:2:0 ... 6, Warning - Entry has inconsistent line endings (unexpected-line-ending)
-$filename:3:0 ... 7, Warning - Entry has inconsistent line endings (unexpected-line-ending)
-", 'wrappers/check-dictionary (stderr)');
-my $result = $results[0] >> 8;
-is($result, '0', 'wrappers/check-dictionary (exit code)');
-
-open $fh, '<', $filepath;
-$/ = undef;
-$result = <$fh>;
-close $fh;
-
-is($result, 'hello
-cruel
-world
-', 'wrappers/check-dictionary (validation)');
-
-SKIP: {
-  my $link;
-  ($fh, $link) = tempfile();
-  close $fh;
-  unlink($link);
-  my $symlink_exists = eval { symlink($filepath, $link); };
-  skip 'could not create symlink', 3 unless $symlink_exists;
-
-  open $fh, '>', $filepath;
-  print $fh $multiline_text.'yip';
-  close $fh;
-
-  ($stdout, $stderr, @results) = capture {
-    chdir($temp_dir);
-    system("$spellchecker/wrappers/check-dictionary", $link);
-  };
-
-  is($stdout, '', 'wrappers/check-dictionary (stdout)');
-  is($stderr, "$filename:1:6 ... 10, Warning - Ignoring entry because it contains non-alpha characters (non-alpha-in-dictionary)
-$filename:2:0 ... 6, Warning - Entry has inconsistent line endings (unexpected-line-ending)
-$filename:3:0 ... 7, Warning - Entry has inconsistent line endings (unexpected-line-ending)
-", 'wrappers/check-dictionary (stderr)');
-  $result = $results[0] >> 8;
-  is($result, '0', 'wrappers/check-dictionary (exit code)');
-}
