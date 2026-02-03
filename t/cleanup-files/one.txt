@@ -1,0 +1,8 @@
+# comment
+this-that
+
+# broken
+a[something)else
+
+# repeated
+not-allowed

@@ -81,6 +81,7 @@ sub file_to_lists {
         next;
       }
       $hint = '' unless $_ ne '';
+      next if $_ eq '$^';
       my $pattern = $_;
       next unless s/^(.+)/(?:$1)/;
       my $quoted = quote_re($1);
