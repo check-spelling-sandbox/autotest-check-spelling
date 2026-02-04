@@ -11,7 +11,7 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 36;
+plan tests => 39;
 
 {
   open(my $apply_pl, '<', 'apply.pl') || die "oops";
@@ -92,6 +92,13 @@ is($stdout, '', 'apply.pl (stdout) check_current_script');
 is($stderr, '', 'apply.pl (stderr) check_current_script');
 is($result, 0, 'apply.pl (exit code) check_current_script');
 
+$ENV{'APPLY_SKIP_UPDATE_CHECK'} = 1;
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
+
+is($stdout, '', 'apply.pl (stdout) check_current_script');
+is($stderr, '', 'apply.pl (stderr) check_current_script');
+is($result, 0, 'apply.pl (exit code) check_current_script');
+
 is(CheckSpelling::Apply::compare_files("$spellchecker/t/Util.t", "$spellchecker/t/Yaml.t"), 1, 'compare_files (different)');
 
 sub run_sub_and_parse_outputs {
@@ -109,7 +116,6 @@ sub parse_outputs {
   our $spellchecker;
   $stdout =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
   $stderr =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
-  $stdout =~ s!Current apply script differs from '.*?/apply\.pl' \(locally downloaded to \`.*`\)\. You may wish to upgrade\.\n!!;
   my $tear_code;
   if ($stderr =~ s#\n<<<TEAR HERE<<<exit: (\d+).*\n*##sm) {
     $tear_code = $1;
