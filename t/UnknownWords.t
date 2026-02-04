@@ -15,6 +15,7 @@ use Capture::Tiny ':all';
 
 plan tests => 22;
 my $working_directory = getcwd();
+$ENV{'APPLY_SKIP_UPDATE_CHECK'} = 1;
 $ENV{'spellchecker'} = $working_directory;
 my $sandbox = $working_directory;
 
