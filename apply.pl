@@ -54,8 +54,9 @@ sub needs_command_because {
 sub check_basic_tools {
     needs_command_because('git', 'interact with git repositories');
     needs_command_because('curl', 'download other tools');
+    $ENV{GH_NO_UPDATE_NOTIFIER}=1;
+    $ENV{GH_NO_EXTENSION_UPDATE_NOTIFIER}=1;
     needs_command_because('gh', 'interact with github');
-    #needs_command_because('magic-magic', 'debugging');
 }
 
 sub get_token {
