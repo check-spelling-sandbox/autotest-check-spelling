@@ -11,7 +11,7 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 42;
+plan tests => 45;
 
 my @apply_script;
 {
@@ -102,6 +102,7 @@ git -C test.git checkout wrong 2>&1;
   sub call_main {
     CheckSpelling::Apply::main($CheckSpelling::Apply::program, $full_script, 'nonexistent');
   }
+  $ENV{'APPLY_SKIP_UPDATE_CHECK'} = 1;
   my ($stdout, $stderr, @results) = ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_main);
   is($stdout, '', 'main out (bad args)');
   like($stderr, qr{\Q<RUN_URL | OWNER/REPO RUN | ARTIFACT.zip>\E}, 'main err (bad args)');
@@ -120,6 +121,13 @@ er
 ', 'add exclude (file)');
 }
 
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
+
+is($stdout, '', 'apply.pl (stdout) check_current_script');
+is($stderr, '', 'apply.pl (stderr) check_current_script');
+is($result, 0, 'apply.pl (exit code) check_current_script');
+
+$ENV{'APPLY_SKIP_UPDATE_CHECK'} = 1;
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
 
 is($stdout, '', 'apply.pl (stdout) check_current_script');
@@ -150,7 +158,6 @@ sub parse_outputs {
   our $spellchecker;
   $stdout =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
   $stderr =~ s!$spellchecker/wrappers/apply\.pl!SPELLCHECKER/apply.pl!g;
-  $stdout =~ s!Current apply script differs from '.*?/apply\.pl' \(locally downloaded to \`.*`\)\. You may wish to upgrade\.\n!!;
   my $tear_code;
   if ($stderr =~ s#\n<<<TEAR HERE<<<exit: (\d+).*\n*##sm) {
     $tear_code = $1;
