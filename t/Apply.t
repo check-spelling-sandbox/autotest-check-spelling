@@ -11,7 +11,7 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 32;
+plan tests => 35;
 
 {
   open(my $apply_pl, '<', 'apply.pl') || die "oops";
@@ -67,6 +67,13 @@ sub call_check_current_script {
   return 0;
 }
 
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
+
+is($stdout, '', 'apply.pl (stdout) check_current_script');
+is($stderr, '', 'apply.pl (stderr) check_current_script');
+is($result, 0, 'apply.pl (exit code) check_current_script');
+
+$ENV{'APPLY_SKIP_UPDATE_CHECK'} = 1;
 ($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&call_check_current_script);
 
 is($stdout, '', 'apply.pl (stdout) check_current_script');

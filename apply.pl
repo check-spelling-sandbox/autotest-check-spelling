@@ -159,6 +159,7 @@ exit
 };
 
 sub check_current_script {
+    return if defined $ENV{'APPLY_SKIP_UPDATE_CHECK'};
     if ("$0" eq '-') {
         my ($bash_script) = @_;
         my $fh;
