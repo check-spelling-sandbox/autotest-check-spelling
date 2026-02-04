@@ -1100,6 +1100,7 @@ handle_comment() {
     apply_output=$(mktemp)
     apply_err=$(mktemp)
 
+    APPLY_SKIP_UPDATE_CHECK=1 \
     GH_TOKEN="$GITHUB_TOKEN" \
       "$spellchecker/apply.pl" "$summary_url" > "$apply_output" 2> "$apply_err" ||
     confused_comment "$trigger_comment_url" "Apply failed.${N}$(cat "$apply_output")${N}${N}$(cat "$apply_err")"
