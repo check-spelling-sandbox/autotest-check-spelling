@@ -160,6 +160,9 @@ fi
 exit
 };
 
+my $repo = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
+my $ref = $ENV{GITHUB_REF_NAME} || 'prerelease';
+
 sub check_current_script {
     return if defined $ENV{'APPLY_SKIP_UPDATE_CHECK'};
     if ("$0" eq '-') {
@@ -172,7 +175,7 @@ sub check_current_script {
         return;
     }
     my $filename = tempfile_name();
-    my $source = 'https://raw.githubusercontent.com/check-spelling/check-spelling/prerelease/apply.pl';
+    my $source = "https://raw.githubusercontent.com/$repo/$ref/apply.pl";
     download_with_curl($source, $filename);
     if ($? == 0) {
         if (compare_files($filename, $0)) {
