@@ -619,8 +619,8 @@ sub get_artifacts {
 
 sub update_repository {
     my ($artifact) = @_;
-    die if $artifact =~ /'/;
     our $program;
+    die "$program: artifact argument contains quote characters" if $artifact =~ /'/;
     my $apply = unzip_pipe($artifact, 'apply.json');
     unless ($apply =~ /\{.*\}/s) {
         print STDERR "$program: Could not retrieve valid apply.json from artifact\n";
