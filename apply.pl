@@ -28,7 +28,7 @@ my $ua = 'check-spelling-agent/0.0.4';
 $ENV{'PATH'} = join ':', @safe_path unless defined $ENV{SYSTEMROOT};
 
 sub check_exists_command {
-    my ($program) = @_;
+    my ($command) = @_;
 
     my @path = path;
     my @pathext = ('');
@@ -39,16 +39,16 @@ sub check_exists_command {
 
     for my $dir (@path) {
         for my $suffix (@pathext) {
-            my $f = catfile $dir, "$program$suffix";
+            my $f = catfile $dir, "$command$suffix";
             return $f if -x $f;
         }
     }
 }
 
 sub needs_command_because {
-    my ($program, $reason) = @_;
-    return if check_exists_command($program);
-    die 'Please install `'.$program.'` - it is needed to '.$reason;
+    my ($command, $reason) = @_;
+    return if check_exists_command($command);
+    die 'Please install `'.$command.'` - it is needed to '.$reason;
 }
 
 sub check_basic_tools {
