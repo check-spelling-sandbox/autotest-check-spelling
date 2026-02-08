@@ -252,6 +252,10 @@ dispatcher() {
             'As the workflow is not present on the branch, it does not make sense to complain about the state of the world there.'
           fi
         fi
+        if [ $(jq -r '.pull_request.state // empty' "$GITHUB_EVENT_PATH") == 'closed' ]; then
+          workflow_skipped 'It does not make sense to use check-spelling for closed pull requests.'"$N" \
+          "You can add an ${b}github.event.pull_request.state == 'open'${b} condition to the ${b}if:${b} for the ${b}job:${b} containing this action to suppress this message."
+        fi
       fi
       ;;
     issue_comment)
