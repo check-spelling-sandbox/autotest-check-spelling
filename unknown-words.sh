@@ -71,7 +71,6 @@ dispatcher() {
       if ! to_boolean "$INPUT_POST_COMMENT"; then
         INPUT_POST_COMMENT=1
       fi
-      report_cached_warning_output
       comment_task
     ;;
     pr_head_sha)
@@ -452,6 +451,14 @@ get_comment_url_from_id() {
 }
 
 comment_task() {
+  if [ -s "$data_dir"/drafted-comment.md ]; then
+    PAYLOAD="$data_dir"/drafted-comment.md
+    get_comment_url
+    post_commit_comment
+    quit_without_error=1
+    maybe_collapse_previous_comment_and_quit
+  fi
+  report_cached_warning_output
   set_up_files
   if [ -s "$severity_list" ]; then
     q="$q" perl -pi -e '$_ = "" unless /^INPUT_[A-Z]+=$ENV{q}(?:\$\^|[-|a-z]+)$ENV{q}$/' "$severity_list"
@@ -2899,7 +2906,7 @@ spelling_warning() {
   if [ -n "$OUTPUT" ]; then
     post_summary
   fi
-  post_commit_comment
+  prepare_and_post_commit_comment
 }
 spelling_info() {
   if [ -z "$2" ]; then
@@ -2914,7 +2921,7 @@ $2"
     post_summary
   fi
   if [ -n "$VERBOSE" ]; then
-    post_commit_comment
+    prepare_and_post_commit_comment
   else
     echo "$OUTPUT"
   fi
@@ -3700,71 +3707,80 @@ post_summary() {
   cat "$step_summary_draft" >> "$GITHUB_STEP_SUMMARY"
 }
 
-post_commit_comment() {
+get_comment_url() {
+  echo "Preparing a comment for $GITHUB_EVENT_NAME"
+  set_comments_url "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_PATH" "$GITHUB_SHA"
+}
+
+prepare_and_post_commit_comment() {
   if [ -z "$OUTPUT" ]; then
     return
   fi
-  if to_boolean "$INPUT_POST_COMMENT"; then
-    echo "Preparing a comment for $GITHUB_EVENT_NAME"
-    set_comments_url "$GITHUB_EVENT_NAME" "$GITHUB_EVENT_PATH" "$GITHUB_SHA"
-    if [ -n "$COMMENTS_URL" ] && [ -z "${COMMENTS_URL##*:*}" ]; then
-      if [ ! -s "$BODY" ]; then
-        echo "$OUTPUT" > "$BODY"
-        add_talk_to_bot_message "$BODY"
-        body_to_payload
-        payload_size="$("$file_size" "$PAYLOAD")"
-        github_comment_size_limit=65000
-        minimize_comment_body
-      else
-        body_to_payload
-      fi
+  get_comment_url
+  if [ -n "$COMMENTS_URL" ] && [ -z "${COMMENTS_URL##*:*}" ]; then
+    if [ ! -s "$BODY" ]; then
+      echo "$OUTPUT" > "$BODY"
+      add_talk_to_bot_message "$BODY"
+      body_to_payload
+      payload_size="$("$file_size" "$PAYLOAD")"
+      github_comment_size_limit=65000
+      minimize_comment_body
+    else
+      body_to_payload
+    fi
 
-      response="$(mktemp_json)"
-
-      res=0
-      unlock_pr
-      keep_headers=1 comment "$COMMENTS_URL" "$PAYLOAD" > "$response" || res=$?
-      lock_pr
-      if [ ${response_code:-400} -ge 400 ] 2> /dev/null; then
-        if ! to_boolean "$DEBUG"; then
-          echo "::error ::Failed to post to $COMMENTS_URL"
-          cat "$PAYLOAD"
-          echo " -- response -- "
-          echo "Response code: $response_code"
-          echo "Headers:"
-          cat "$response_headers"
-          rm -f "$response_headers"
-          echo "Body:"
-          cat "$response"
-          echo " //// "
-          if [ $response_code -eq 403 ]; then
-            if grep -q '#create-a-commit-comment' "$response"; then
-              echo "Consider adding:"
-              echo
-              echo "permissions:"
-              echo "  contents: write"
-            elif grep -q '#create-an-issue-comment' "$response"; then
-              echo "Consider adding:"
-              echo
-              echo "permissions:"
-              echo "  pull-requests: write"
-            fi
-            if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-              echo
-              echo 'Consider switching to `on: pull_request_target`'
-            fi
-          fi
-        fi
-      else
-        if to_boolean "$DEBUG"; then
-          cat "$response"
-        fi
-        track_comment "$response"
-      fi
+    if to_boolean "$INPUT_POST_COMMENT"; then
+      post_commit_comment
       return
     fi
+    cp "$PAYLOAD" "$data_dir"/drafted-comment.md
   fi
   echo "$OUTPUT"
+}
+
+post_commit_comment() {
+  response="$(mktemp_json)"
+
+  res=0
+  unlock_pr
+  keep_headers=1 comment "$COMMENTS_URL" "$PAYLOAD" > "$response" || res=$?
+  lock_pr
+  if [ ${response_code:-400} -ge 400 ] 2> /dev/null; then
+    if ! to_boolean "$DEBUG"; then
+      echo "::error ::Failed to post to $COMMENTS_URL"
+      cat "$PAYLOAD"
+      echo " -- response -- "
+      echo "Response code: $response_code"
+      echo "Headers:"
+      cat "$response_headers"
+      rm -f "$response_headers"
+      echo "Body:"
+      cat "$response"
+      echo " //// "
+      if [ $response_code -eq 403 ]; then
+        if grep -q '#create-a-commit-comment' "$response"; then
+          echo "Consider adding:"
+          echo
+          echo "permissions:"
+          echo "  contents: write"
+        elif grep -q '#create-an-issue-comment' "$response"; then
+          echo "Consider adding:"
+          echo
+          echo "permissions:"
+          echo "  pull-requests: write"
+        fi
+        if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+          echo
+          echo 'Consider switching to `on: pull_request_target`'
+        fi
+      fi
+    fi
+  else
+    if to_boolean "$DEBUG"; then
+      cat "$response"
+    fi
+    track_comment "$response"
+  fi
 }
 
 strip_lines() {
@@ -3930,6 +3946,16 @@ make_instructions() {
   fi
 }
 
+maybe_collapse_previous_comment_and_quit() {
+  if [ -n "$comment_author_id" ]; then
+    previous_comment_node_id="$(get_previous_comment)"
+    if [ -n "$previous_comment_node_id" ]; then
+      reason=OUTDATED collapse_comment "$previous_comment_node_id" > /dev/null
+    fi
+  fi
+  quit 1
+}
+
 check_spelling_report() {
   if [ -s "$extra_dictionaries_json" ]; then
     "$output_covers" "$extra_dictionaries_json" > "$extra_dictionaries_cover_entries"
@@ -4024,14 +4050,7 @@ $B
   fi
   end_group
   echo "$title"
-  if [ -n "$comment_author_id" ]; then
-    previous_comment_node_id="$(get_previous_comment)"
-    if [ -n "$previous_comment_node_id" ]; then
-      reason=OUTDATED collapse_comment "$previous_comment_node_id" > /dev/null
-    fi
-  fi
-
-  quit 1
+  maybe_collapse_previous_comment_and_quit
 }
 
 hash_dictionaries() {
