@@ -8,7 +8,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 49;
+plan tests => 52;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -383,3 +383,37 @@ is(CheckSpelling::SpellingCollator::stem_word('zies'), 'zies', 'shortish stem li
 is(CheckSpelling::SpellingCollator::stem_word('zy'), 'zy', 'shortest stem limit');
 is(CheckSpelling::SpellingCollator::stem_word('ked'), 'ked', 'past tense');
 $CheckSpelling::SpellingCollator::shortest_word = 4;
+
+my ($collated, $notes);
+($fh, $collated) = tempfile;
+print $fh '
+apple (Apple, apple)
+banana
+Cherry
+DATE
+';
+close $fh;
+($fh, $notes) = tempfile;
+print $fh '
+Something `apple` (hello-world)
+not a recognized word `Apple` (hello-world)
+not a recognized word `Apple` (unrecognized-spelling)
+is a recognized word `Apple` (unrecognized-spelling)
+is a recognized word `Apple` (odd-spelling)
+not a recognized word `Cherry` (unrecognized-spelling)
+Something `APPLE`
+Something `banana`
+';
+close $fh;
+
+my ($stdout, $stderr, @result) = capture {
+  CheckSpelling::SpellingCollator::collate_expect($collated, $notes);
+};
+is($stdout, 'Something `apple` (hello-world)
+ignored by check-spelling because another more general variant is also in expect `Apple` (hello-world)
+ignored by check-spelling because another more general variant is also in expect `Apple` (ignored-expect-variant)
+is a recognized word `Apple` (ignored-expect-variant)
+', 'collate_expect out');
+is($stderr, '', 'collate_expect err');
+is($result[0], 0, 'collate_expect result');
+1;
