@@ -1284,7 +1284,7 @@ define_variables() {
   advice_path_txt="$temp_sandbox/advice.txt"
   word_splitter="$spellchecker/wrappers/spelling-unknown-word-splitter"
   word_collator="$spellchecker/wrappers/spelling-collator"
-  expect_collator="$spellchecker/expect-collator.pl"
+  expect_collator="$spellchecker/wrappers/expect-collator"
   if to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
     sort_words_unique() {
       perl -ne 'next unless /./; print'|sort -u|sort -f
