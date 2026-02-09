@@ -1,0 +1,27 @@
+#!/bin/sh
+if [ "$1" = "config" ]; then
+  /home/$USER/.check-spelling-git-logs/git "$@" 2> /dev/null
+  exit $?
+fi
+
+sha=$(echo "${repo_path:-$(pwd)}"|shasum|perl -pe 's/\s.*//')
+git_logs=/home/$USER/.check-spelling-git-logs/${sha%* -}
+
+mkdir -p "$git_logs"
+out="$git_logs/out"
+err="$git_logs/err"
+(
+  echo "err=$err"
+  echo "out=$out"
+) >> "$GITHUB_OUTPUT"
+touch "$err"
+
+(
+  log="$(mktemp)"
+  /home/$USER/.check-spelling-git-logs/git "$@" 2> "$log"
+  result=$?
+  if [ $result -ne 0 ]; then
+    cat "$log" | tee -a "$err" >&2
+  fi
+  exit $result
+) | tee -a "$out"
