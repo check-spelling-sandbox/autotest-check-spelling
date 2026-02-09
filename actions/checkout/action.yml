@@ -67,6 +67,12 @@ outputs:
   outcome:
     description:
     value: ${{ steps.action.outcome }}
+  error-file:
+    description: Git checkout errors
+    value: ${{ steps.shim-git.outputs.err }}
+  output-file:
+    description: Git checkout output
+    value: ${{ steps.shim-git.outputs.out }}
 runs:
   using: "composite"
   steps:
@@ -80,6 +86,21 @@ runs:
       fi
       git config --global init.defaultBranch silence_warning_about_default_branch
       echo 'cleanup=1' >> "$GITHUB_OUTPUT"
+  - name: Shim git
+    shell: bash
+    id: shim-git
+    env:
+      repo_path: ${{ inputs.path || github.workspace }}
+    run: |
+      : Shim git
+      if [ ! -e ~/.check-spelling-git-logs ]; then
+        mkdir ~/.check-spelling-git-logs
+        real_git=$(command -v git)
+        ln -s "$real_git.real" ~/.check-spelling-git-logs/git &&
+        sudo mv "$real_git" "$real_git.real" &&
+        sudo ln -s "$GITHUB_ACTION_PATH"/git "$real_git" ||
+        true
+      fi
   - name: Checkout
     id: action
     continue-on-error: true
