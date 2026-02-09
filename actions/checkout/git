@@ -1,5 +1,11 @@
 #!/bin/sh
-if [ "$1" = "config" ]; then
+echo "debug: USER: $USER" >&2
+if [ -z "$USER" ]; then
+  set -x
+  USER=runner
+fi
+
+if [ "$1" = 'config' ] || [ "$1" = 'version' ]; then
   /home/$USER/.check-spelling-git-logs/git "$@" 2> /dev/null
   exit $?
 fi
