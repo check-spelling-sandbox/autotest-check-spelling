@@ -1,0 +1,3 @@
+#!/bin/sh
+: Restore silly git message
+git config --global --unset init.defaultBranch
