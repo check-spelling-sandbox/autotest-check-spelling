@@ -67,19 +67,38 @@ outputs:
   outcome:
     description:
     value: ${{ steps.action.outcome }}
+  error-file:
+    description: Git checkout errors
+    value: ${{ steps.action.outputs.err }}
+  output-file:
+    description: Git checkout output
+    value: ${{ steps.action.outputs.out }}
 runs:
   using: "composite"
   steps:
   - name: Suppress git default branch message
     id: quiet
     shell: bash
+    env:
+      ACTION_PATH: ${{ github.action_path }}
     run: |
       : Suppress git default branch message
-      if git config --global init.defaultBranch|grep -q .; then
-        exit 0
+      "$ACTION_PATH"/git-pre
+  - name: Shim git
+    shell: bash
+    id: shim-git
+    env:
+      repo_path: ${{ inputs.path || github.workspace }}
+    run: |
+      : Shim git
+      if [ ! -e /tmp/.check-spelling-git-logs ]; then
+        mkdir /tmp/.check-spelling-git-logs
+        real_git=$(command -v git)
+        ln -s "$real_git.real" /tmp/.check-spelling-git-logs/git &&
+        sudo mv "$real_git" "$real_git.real" &&
+        sudo ln -s "$GITHUB_ACTION_PATH"/git "$real_git" ||
+        true
       fi
-      git config --global init.defaultBranch silence_warning_about_default_branch
-      echo 'cleanup=1' >> "$GITHUB_OUTPUT"
   - name: Checkout
     id: action
     continue-on-error: true
@@ -112,6 +131,8 @@ runs:
   - name: Restore silly message
     if: steps.quiet.outputs.cleanup
     shell: bash
+    env:
+      ACTION_PATH: ${{ github.action_path }}
     run: |
       : Restore silly git message
-      git config --global --unset init.defaultBranch
+      "$ACTION_PATH"/git-post
