@@ -309,9 +309,9 @@ SKIP: {
 
   my $sandbox_name = basename $sandbox;
   my $temp_name = basename $temp;
-  is($stdout, "Apply.t: GitHub Run Artifact expired. You will need to trigger a new run.\n", 'apply.pl (stdout) expired');
-  is($stderr, '', 'apply.pl (stderr) expired');
-  is($result, 1, 'apply.pl (exit code) expired');
+  is($stdout, "Apply.t: GitHub Run Artifact expired. You will need to trigger a new run.\n", "apply.pl (stdout) $expired_artifact_repo: expired $expired_artifact");
+  is($stderr, '', "apply.pl (stderr) $expired_artifact_repo: expired $expired_artifact");
+  is($result, 1, "apply.pl (exit code) $expired_artifact_repo: expired $expired_artifact");
 }
 
 $repository = "check-spelling/imaginary-repository";
