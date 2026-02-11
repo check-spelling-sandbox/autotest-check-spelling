@@ -8,7 +8,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 52;
+plan tests => 54;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -103,6 +103,12 @@ CheckSpelling::SpellingCollator::count_warning('hi');
 is($CheckSpelling::SpellingCollator::counters{'hi'}, 1, 'counters hi counted');
 CheckSpelling::SpellingCollator::count_warning('hello (hi)');
 is($CheckSpelling::SpellingCollator::counters{'hi'}, 2, 'counters hi counted in parentheses again');
+my $ignored_event = 'ignored-event';
+$CheckSpelling::SpellingCollator::ignored_event_map{$ignored_event} = 0;
+$CheckSpelling::SpellingCollator::ignored_event_map{$ignored_event} = 1;
+is($CheckSpelling::SpellingCollator::counters{$ignored_event}, undef, 'counters ignored-event before counting');
+CheckSpelling::SpellingCollator::count_warning("hello ($ignored_event)");
+is($CheckSpelling::SpellingCollator::counters{$ignored_event}, undef, 'counters ignored-event not counted');
 
 $directory = stage_test("hello.txt", '', "blah (skipped)\n", '', '');
 my $directories = "$directory

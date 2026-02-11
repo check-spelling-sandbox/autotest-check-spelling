@@ -212,7 +212,7 @@ sub count_warning {
   our %ignored_event_map;
   if ($warning =~ /\(([-\w]+)\)$/) {
     my ($code) = ($1);
-    next if defined $ignored_event_map{$code};
+    return if defined $ignored_event_map{$code};
     ++$counters{$code};
   }
 }
