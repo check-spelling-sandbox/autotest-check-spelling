@@ -8,7 +8,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
-plan tests => 54;
+plan tests => 57;
 
 sub fill_file {
   my ($file, $content) = @_;
@@ -109,6 +109,10 @@ $CheckSpelling::SpellingCollator::ignored_event_map{$ignored_event} = 1;
 is($CheckSpelling::SpellingCollator::counters{$ignored_event}, undef, 'counters ignored-event before counting');
 CheckSpelling::SpellingCollator::count_warning("hello ($ignored_event)");
 is($CheckSpelling::SpellingCollator::counters{$ignored_event}, undef, 'counters ignored-event not counted');
+is(CheckSpelling::SpellingCollator::should_skip_warning_while_counting("hello ($ignored_event)"), 1, 'should_skip_warning_while_counting ignored');
+my $countable_event = 'countable-event';
+is(CheckSpelling::SpellingCollator::should_skip_warning_while_counting("hello ($countable_event)"), 0, 'should_skip_warning_while_counting not ignored');
+is($CheckSpelling::SpellingCollator::counters{$countable_event}, 1, 'counted $countable_event');
 
 $directory = stage_test("hello.txt", '', "blah (skipped)\n", '', '');
 my $directories = "$directory
