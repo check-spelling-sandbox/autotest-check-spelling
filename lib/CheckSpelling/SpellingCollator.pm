@@ -308,8 +308,8 @@ sub main {
   my $more_warnings = CheckSpelling::Util::get_file_from_env('more_warnings', '/dev/stderr');
   my $counter_summary = CheckSpelling::Util::get_file_from_env('counter_summary', '/dev/stderr');
   my $ignored_events = CheckSpelling::Util::get_file_from_env('ignored_events', '');
+  our %ignored_event_map = ();
   if ($ignored_events) {
-    our %ignored_event_map;
     for my $event (split /,/, $ignored_events) {
       $ignored_event_map{$event} = 1;
     }
