@@ -11,7 +11,6 @@ use File::Path qw(remove_tree);
 use CheckSpelling::Util;
 
 my %letter_map;
-my %ignored_event_map;
 my $disable_word_collating;
 my $shortest_word;
 
@@ -89,8 +88,7 @@ sub should_skip_warning {
   my ($warning) = @_;
   if ($warning =~ /\(([-\w]+)\)$/) {
     my ($code) = ($1);
-    our %ignored_event_map;
-    return 1 if $ignored_event_map{$code};
+    return 1 if CheckSpelling::Util::is_ignoring_event($code);
   }
   return 0;
 }
@@ -99,8 +97,7 @@ sub should_skip_warning_while_counting {
   my ($warning) = @_;
   return 0 unless ($warning =~ /\(([-\w]+)\)$/);
   my ($code) = ($1);
-  our %ignored_event_map;
-  return 1 if $ignored_event_map{$code};
+  return 1 if CheckSpelling::Util::is_ignoring_event($code);
 
   our %counters;
   ++$counters{$code};
@@ -221,10 +218,9 @@ sub group_related_words {
 sub count_warning {
   my ($warning) = @_;
   our %counters;
-  our %ignored_event_map;
   if ($warning =~ /\(([-\w]+)\)$/) {
     my ($code) = ($1);
-    return if defined $ignored_event_map{$code};
+    return if CheckSpelling::Util::is_ignoring_event($code);
     ++$counters{$code};
     return $code;
   }
@@ -316,17 +312,11 @@ sub main {
   my @cleanup_directories;
   my @check_file_paths;
 
+  CheckSpelling::Util::build_ignored_event_map();
   my $early_warnings = CheckSpelling::Util::get_file_from_env('early_warnings', '/dev/null');
   my $warning_output = CheckSpelling::Util::get_file_from_env('warning_output', '/dev/stderr');
   my $more_warnings = CheckSpelling::Util::get_file_from_env('more_warnings', '/dev/stderr');
   my $counter_summary = CheckSpelling::Util::get_file_from_env('counter_summary', '/dev/stderr');
-  my $ignored_events = CheckSpelling::Util::get_file_from_env('ignored_events', '');
-  our %ignored_event_map = ();
-  if ($ignored_events) {
-    for my $event (split /,/, $ignored_events) {
-      $ignored_event_map{$event} = 1;
-    }
-  }
   my $should_exclude_file = CheckSpelling::Util::get_file_from_env('should_exclude_file', '/dev/null');
   my $unknown_word_limit = CheckSpelling::Util::get_val_from_env('unknown_word_limit', undef);
   my $unknown_file_word_limit = CheckSpelling::Util::get_val_from_env('unknown_file_word_limit', undef);
