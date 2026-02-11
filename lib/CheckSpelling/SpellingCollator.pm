@@ -95,6 +95,18 @@ sub should_skip_warning {
   return 0;
 }
 
+sub should_skip_warning_while_counting {
+  my ($warning) = @_;
+  return 0 unless ($warning =~ /\(([-\w]+)\)$/);
+  my ($code) = ($1);
+  our %ignored_event_map;
+  return 1 if $ignored_event_map{$code};
+
+  our %counters;
+  ++$counters{$code};
+  return 0;
+}
+
 sub log_skip_item {
   my ($item, $file, $warning, $unknown_word_limit) = @_;
   return 1 if should_skip_warning $warning;
@@ -214,6 +226,7 @@ sub count_warning {
     my ($code) = ($1);
     return if defined $ignored_event_map{$code};
     ++$counters{$code};
+    return $code;
   }
 }
 
@@ -545,8 +558,7 @@ sub main {
     open WARNINGS, '<:utf8', $early_warnings;
     for my $warning (<WARNINGS>) {
       chomp $warning;
-      count_warning $warning;
-      next if should_skip_warning $warning;
+      next if should_skip_warning_while_counting $warning;
       print WARNING_OUTPUT "$warning\n";
     }
     close WARNINGS;
@@ -563,6 +575,7 @@ sub main {
     open WARNINGS, '<:utf8', "$directory/warnings";
     if ($kind ne 'file-list') {
       for my $warning (<WARNINGS>) {
+        my $code;
         chomp $warning;
         if ($warning =~ m/:(\d+):(\d+ \.\.\. \d+): `(.*)`/) {
           my ($line, $range, $item) = ($1, $2, $3);
@@ -572,13 +585,14 @@ sub main {
           $warning =~ s/:\d+:\d+ \.\.\. \d+: `.*`/:$line:$range, Warning - $wrapped is not a recognized word ($reason)/;
           next if log_skip_item($item, $file, $warning, $unknown_word_limit);
           count_warning $warning if $kind ne 'file';
+          $code = $reason;
         } else {
           if ($warning =~ /\`(.*?)\` in line \(token-is-substring\)/) {
             next if skip_item($1);
           }
-          count_warning $warning;
+          $code = count_warning $warning;
         }
-        next if should_skip_warning $warning;
+        next if should_skip_warning $warning, $code;
         print WARNING_OUTPUT "$file$warning\n";
       }
     } else {
@@ -595,9 +609,8 @@ sub main {
             next if ++$unknown_file_word_count{$item} > $unknown_file_word_limit;
           }
         }
-        next if should_skip_warning $warning;
+        next if should_skip_warning_while_counting $warning;
         print WARNING_OUTPUT "$file$warning\n";
-        count_warning $warning;
       }
     }
     close WARNINGS;
@@ -605,8 +618,7 @@ sub main {
   close MORE_WARNINGS;
 
   for my $warning (@delayed_warnings) {
-    next if should_skip_warning $warning;
-    count_warning $warning;
+    next if should_skip_warning_while_counting $warning;
     print WARNING_OUTPUT $warning;
   }
   if (defined $unknown_word_limit) {
@@ -615,9 +627,8 @@ sub main {
       next unless $warning_count >= $unknown_word_limit;
       my $warning = $last_seen{$warned_word};
       $warning =~ s/\Q (unrecognized-spelling)\E/ -- found $warning_count times (limited-references)\n/;
-      next if should_skip_warning $warning;
+      next if should_skip_warning_while_counting $warning;
       print WARNING_OUTPUT $warning;
-      count_warning $warning;
     }
   }
   close WARNING_OUTPUT;
