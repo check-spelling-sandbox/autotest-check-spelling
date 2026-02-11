@@ -125,6 +125,21 @@ sub insert_into_summary {
   close BASE;
 }
 
+sub build_ignored_event_map {
+  my $ignored_events = get_file_from_env('ignored_events', '');
+  our %ignored_event_map = ();
+  for my $event (split /,/, $ignored_events) {
+    $ignored_event_map{$event} = 1;
+  }
+}
+
+sub is_ignoring_event {
+  our %ignored_event_map;
+  my ($code) = @_;
+  return 1 if $ignored_event_map{$code};
+  return 0;
+}
+
 sub calculate_delay {
   my (@lines) = @_;
   my $now_stamp = time;
