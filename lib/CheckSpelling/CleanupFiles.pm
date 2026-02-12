@@ -26,8 +26,14 @@ sub call_check_line {
   print $output_fh $line."\n";
 }
 
+sub maybe_log_event {
+  my ($handle, $message, $code) = @_;
+  print $handle "$message ($code)\n" unless CheckSpelling::Util::is_ignoring_event($code);
+}
+
 sub clean_files {
   my @files = @_;
+  CheckSpelling::Util::build_ignored_event_map();
   CheckSpelling::CheckPattern::reset_seen();
   my $type=CheckSpelling::Util::get_file_from_env('type');
   my $output=CheckSpelling::Util::get_file_from_env('output', '/dev/null');
@@ -70,7 +76,7 @@ sub clean_files {
       seek($fh, 0, 0);
       my $add_nl_at_eof = 0;
       if ($length == 0) {
-        print STDERR "$file:1:1 ... 1, Notice - File is empty (empty-file)\n";
+        maybe_log_event(STDERR, "$file:1:1 ... 1, Notice - File is empty", 'empty-file');
       } else {
         if ($buffer !~ /\R/) {
           $add_nl_at_eof = 1;
@@ -88,7 +94,7 @@ sub clean_files {
             unless (defined $nl) {
               $nl = $end;
             } elsif ($end ne $nl) {
-              print $warnings_fh "$file:$.:$-[0] ... $+[0], Warning - Entry has inconsistent line endings (unexpected-line-ending)\n";
+              maybe_log_event($warnings_fh, "$file:$.:$-[0] ... $+[0], Warning - Entry has inconsistent line endings", 'unexpected-line-ending');
             }
             ++$eol_counts{$end};
             my $warning;
@@ -100,7 +106,7 @@ sub clean_files {
         }
         if ($add_nl_at_eof) {
           my $line_length = length $_;
-          print STDERR "$file:$.:1 ... $length, Warning - Missing newline at end of file (no-newline-at-eof)\n";
+          maybe_log_event(STDERR, "$file:$.:1 ... $length, Warning - Missing newline at end of file", 'no-newline-at-eof');
           print $output_fh "\n";
         }
         my $eol_a = $eol_counts{"\n"} || 0;
@@ -113,7 +119,7 @@ sub clean_files {
         if (scalar @line_endings > 1) {
           my $line_length = length $_;
           my $mixed_endings = CheckSpelling::EnglishList::build(@line_endings);
-          print STDERR "$file:$.:1 ... $length, Warning - Mixed $mixed_endings line endings (mixed-line-endings)\n";
+          maybe_log_event(STDERR, "$file:$.:1 ... $length, Warning - Mixed $mixed_endings line endings", 'mixed-line-endings');
         }
       }
       close($fh);
