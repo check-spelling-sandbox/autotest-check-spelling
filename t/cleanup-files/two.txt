@@ -1,2 +1,8 @@
 # maybe repeated
 not-allowed
+
+# meta
+\Qthis.*that\E
+
+# bad meta
+\Qthis
