@@ -11,7 +11,7 @@ use File::Basename;
 use Test::More;
 use Capture::Tiny ':all';
 
-plan tests => 45;
+plan tests => 51;
 
 my @apply_script;
 {
@@ -93,6 +93,22 @@ git -C test.git checkout -b left 2>&1;
 git -C test.git -c user.name=user -c user.email='$user_email' commit -m version;
 git -C test.git checkout wrong 2>&1;
 `;
+
+sub check_check_current_script {
+  return CheckSpelling::Apply::check_current_script('apply.pl');
+}
+
+$0 = '-';
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_check_current_script);
+is($stdout, '', 'check_current_script (-) out');
+is($stderr, '', 'check_current_script (-) err');
+is($result, undef, 'check_current_script (-) exit code');
+
+$0 = 't/Apply.t';
+($stdout, $stderr, $result) = run_sub_and_parse_outputs(\&check_check_current_script);
+like($stdout,  qr{Current apply script differs from '.*?' \(locally downloaded to `.*`\)\. You may wish to upgrade\.}, 'check_current_script (mismatch) out');
+is($stderr, '', 'check_current_script (mismatch) err');
+is($result, 0, 'check_current_script (mismatch) exit code');
 
 {
   my $script = $0;
