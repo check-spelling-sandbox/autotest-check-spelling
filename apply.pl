@@ -92,7 +92,7 @@ sub tempfile_name {
 sub strip_comments {
     my ($file) = @_;
     my ($fh, $filename) = tempfile();
-    open INPUT, '<', $file;
+    return '/dev/null' unless open INPUT, '<', $file;
     while (<INPUT>) {
         next if /^\s*(?:#.*)/;
         print $fh $_;
