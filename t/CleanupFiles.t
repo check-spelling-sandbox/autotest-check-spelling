@@ -119,10 +119,19 @@ $^
 not-allowed
 # maybe repeated
 $^
+
+# meta
+\Qthis.*that\E
+
+# bad meta
+$^
 ', 'cleanup-files (stdout)');
+
+my $q_bad_reg_ex = 'Warning - Unrecognized escape \Q passed through: `\Q` (bad-regex)';
 is($stderr, "$tests/empty.txt:1:1 ... 1, Notice - File is empty (empty-file)
 $tests/one.txt:5:2 ... 3, Warning - Unmatched `[`: `a[` (bad-regex)
 $tests/two.txt:2:1 ... 11, Warning - Pattern is the same as pattern on `$tests/one.txt:8` (duplicate-pattern)
+$tests/two.txt:8:2 ... 3, $q_bad_reg_ex
 ", 'cleanup-files (stderr)');
 is($result, 0, 'cleanup-files (exit code)');
 

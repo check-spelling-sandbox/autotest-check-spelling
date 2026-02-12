@@ -11,10 +11,14 @@ sub process_line {
     return ($line, '') unless $line =~ /./;
     my $regex_pattern = qr{^(.*?) in regex; marked by <-- HERE in m/(.*) <-- HERE.*$};
     my $warning;
+
+    my $test_line = $line;
+    $test_line =~ s/(\\Q.*?\\E)/ '='x (length $1) /eg;
+
     local $SIG{__WARN__} = sub {
         $warning = $_[0];
     };
-    if (eval {qr/$line/} && ($warning eq '')) {
+    if (eval {qr/$test_line/} && ($warning eq '')) {
         our %seen_patterns;
         my $previous_reference = $seen_patterns{$line};
         if (defined $previous_reference) {
