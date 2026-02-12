@@ -359,3 +359,5 @@ like($stdout, qr{: Proxy is not accepting connections\.}, 'apply.pl (stdout) bad
 like($stdout, qr{https_proxy: 'http://localhost:9123'}, 'apply.pl (stdout) bad_proxy');
 is($stderr, '', 'apply.pl (stderr) bad_proxy');
 is($result, 6, 'apply.pl (exit code) bad_proxy');
+delete $ENV{'https_proxy'};
+$ENV{GH_TOKEN} = $gh_token;
