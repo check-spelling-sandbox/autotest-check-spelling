@@ -395,7 +395,7 @@ sub get_artifacts {
                 'gh', 'api',
                 "/repos/$repo/actions/runs/$run/artifacts",
                 '-q',
-                '.artifacts.[]|select(.name=="'.$artifact_name.'")|.expired'
+                '[.artifacts.[]|select(.name=="'.$artifact_name.'")][-1]|.expired'
             );
             if ($expired_json ne '') {
                 chomp $expired_json;
