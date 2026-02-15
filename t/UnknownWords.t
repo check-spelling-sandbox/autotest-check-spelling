@@ -47,9 +47,6 @@ $ENV{GH_ACTION_REF} = 'dummy';
 system(qw(git config user.email check-spelling-bot@users.noreply.github.com));
 system(qw(git config user.name check-spelling-bot));
 
-`perl -MDevel::Cover -e 1 2>&1`;
-$ENV{PERL5OPT} = '-MDevel::Cover' unless $?;
-
 sub cleanup {
   my ($text, $internal_state_directory, $cleanup_quoted) = @_;
   if (defined $internal_state_directory) {

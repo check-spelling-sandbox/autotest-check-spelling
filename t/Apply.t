@@ -35,8 +35,6 @@ our $spellchecker = dirname(dirname(abs_path(__FILE__)));
 
 my $sandbox = tempdir();
 chdir($sandbox);
-`perl -MDevel::Cover -e 1 2>&1`;
-$ENV{PERL5OPT} = '-MDevel::Cover' unless $?;
 $ENV{GITHUB_WORKSPACE} = $sandbox;
 $ENV{GITHUB_REF_NAME} = $ENV{GITHUB_REF};
 $ENV{spellchecker} = $spellchecker;
