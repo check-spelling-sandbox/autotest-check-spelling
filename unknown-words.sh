@@ -2096,6 +2096,7 @@ set_up_files() {
     ) > "$expect_splitter_configuration/patterns.txt"
     env -i \
     SHELL="$SHELL" \
+    PERL5OPT="$PERL5OPT" \
     PATH="$PATH" \
     LC_ALL="C" \
     HOME="$HOME" \
@@ -2129,6 +2130,7 @@ set_up_files() {
     xargs -0 \
     env -i \
     SHELL="$SHELL" \
+    PERL5OPT="$PERL5OPT" \
     PATH="$PATH" \
     LC_ALL="C" \
     HOME="$HOME" \
@@ -2672,6 +2674,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$file_list" |\
   env -i \
     SHELL="$SHELL" \
+    PERL5OPT="$PERL5OPT" \
     PATH="$PATH" \
     LC_ALL="C" \
     HOME="$HOME" \
