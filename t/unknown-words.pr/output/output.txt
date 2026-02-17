@@ -7,9 +7,11 @@ Retrieving only from WORKSPACE/t/unknown-words.pr/config/only.txt
 Retrieving line_forbidden from WORKSPACE/t/unknown-words.pr/config/line_forbidden.patterns
 Retrieving patterns from WORKSPACE/t/unknown-words.pr/config/patterns.txt
 Checking spelling...
-::group::Spell checking (2) files
+::group::Spell checking (4) files
 TEMP_DIRECTORY/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/paths-of-checked-files.txt
+unknown-words/input/logo.png
 unknown-words/input/sample.file
+unknown-words/input/test.png
 ::endgroup::
 ::group::Spell check
 ::endgroup::
@@ -19,7 +21,7 @@ unknown-words/input/sample.file
 ::endgroup::
 ::group::Check for extra dictionaries
 ::endgroup::
-::group::Unrecognized (8)
+::group::Unrecognized (16)
 ::group::Building summary table
 ::endgroup::
 Preparing a comment for push
@@ -29,22 +31,50 @@ Preparing a comment for push
 ## 🔴 Please review
 ### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-### Unrecognized words (8)
+<details><summary>Unrecognized words (16)</summary>
 
+```
 Aiglos
 Alqua
+bugfix
+bugfixes
+continvoucly
 diid
+featue
 fixx
+hotfix
+hotfixes
 ico
+morged
+png
 thiss
 would've
 youu
+```
+</details>
 
 <details><summary>These words are not needed and should be removed
 </summary>unexpectedlylong=
 </details><p></p>
 
-<details><summary>To accept these unrecognized words as correct and remove the previously acknowledged and now absent words,
+<details><summary>Some files were automatically ignored 🙈</summary>
+
+These sample patterns would exclude them:
+```
+^unknown-words/input/logo\.png$
+```
+
+You should consider adding them to:
+```
+WORKSPACE/t/unknown-words.pr/config/excludes.txt
+```
+
+File matching is via Perl regular expressions.
+
+To check these files, more of their words need to be in the dictionary than not. You can use `patterns.txt` to exclude portions, add items to the dictionary (e.g. by adding them to `allow.txt`), or fix typos.
+</details>
+
+<details><summary>To accept these unrecognized words as correct, update file exclusions, and remove the previously acknowledged and now absent words,
 you could run the following commands</summary>
 
 ... in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository
@@ -63,7 +93,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (1) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
+This includes both **expected items** (1) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (16)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
@@ -94,13 +124,15 @@ These forbidden patterns matched content:
 \bsample\.file\b
 ```
 
-<details><summary>Errors and Warnings ❌ (4)</summary>
+<details><summary>Errors and Warnings ❌ (6)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 [❌ Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
 [⚠️ bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
+[⚠️ binary-file](https://docs.check-spelling.dev/Event-descriptions#binary-file) | 1
+[❌ check-file-path](https://docs.check-spelling.dev/Event-descriptions#check-file-path) | 2
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
