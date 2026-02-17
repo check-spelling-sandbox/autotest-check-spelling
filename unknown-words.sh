@@ -1784,6 +1784,9 @@ set_up_tools() {
   add_app file
   add_app git
   add_app zip
+  if to_boolean "$INPUT_CHECK_IMAGES" && ! command_v tesseract; then
+    add_app tesseract-ocr
+  fi
   if ! command_v gh; then
     if command_v apt-get && ! apt-cache policy gh | grep -q Candidate:; then
       curl -A "$curl_ua" -f -s -S -L https://cli.github.com/packages/githubcli-archive-keyring.gpg |
@@ -2687,6 +2690,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     INPUT_NOT_UPPER_OR_LOWER_PATTERN="$INPUT_NOT_UPPER_OR_LOWER_PATTERN" \
     INPUT_PUNCTUATION_PATTERN="$INPUT_PUNCTUATION_PATTERN" \
     INPUT_IGNORE_NEXT_LINE="$INPUT_IGNORE_NEXT_LINE" \
+    INPUT_CHECK_IMAGES="$INPUT_CHECK_IMAGES" \
     dict="$dict" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
     check_file_names="$check_file_names" \
