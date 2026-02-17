@@ -1,8 +1,4 @@
-# the vowels are used to decide which `d`/`ed` suffix to expect for English words
-aeiou
 fileformat
-# this suffix is grouped to `y` for English words
-ies
 misspellled
 rsqm
 woord

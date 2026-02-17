@@ -4,16 +4,27 @@
 ## 🔴 Please review
 ### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
-### Unrecognized words (8)
+<details><summary>Unrecognized words (16)</summary>
 
+```
 Aiglos
 Alqua
+bugfix
+bugfixes
+continvoucly
 diid
+featue
 fixx
+hotfix
+hotfixes
 ico
+morged
+png
 thiss
 would've
 youu
+```
+</details>
 
 <details><summary>These words are not needed and should be removed
 </summary>unexpectedlylong=
@@ -42,20 +53,28 @@ check-spelling run (push) for some-base
 Signed-off-by: check-spelling-bot <check-spelling-bot@users.noreply.github.com>
 on-behalf-of: @check-spelling <check-spelling-bot@check-spelling.dev>
 ---
- t/unknown-words.pr/config/expect.txt | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ t/unknown-words.pr/config/expect.txt | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/t/unknown-words.pr/config/expect.txt b/t/unknown-words.pr/config/expect.txt
 index GIT_DIFF_CHANGED_FILE
 --- a/t/unknown-words.pr/config/expect.txt
 +++ b/t/unknown-words.pr/config/expect.txt
-@@ -1,3 +1,10 @@
+@@ -1,3 +1,18 @@
 +Aiglos
 +Alqua
++bugfix
++bugfixes
++continvoucly
 +diid
++featue
 +fixx
++hotfix
++hotfixes
 +ico
  invalid+
++morged
++png
 +thiss
  Unexpectedlylong
 -unexpectedlylong
@@ -71,10 +90,24 @@ GIT_VERSION
 And `git push` ...
 </details>
 
-**OR**
+<details><summary>Some files were automatically ignored 🙈</summary>
 
+These sample patterns would exclude them:
+```
+^unknown-words/input/logo\.png$
+```
 
-<details><summary>To accept these unrecognized words as correct and remove the previously acknowledged and now absent words,
+You should consider adding them to:
+```
+WORKSPACE/t/unknown-words.pr/config/excludes.txt
+```
+
+File matching is via Perl regular expressions.
+
+To check these files, more of their words need to be in the dictionary than not. You can use `patterns.txt` to exclude portions, add items to the dictionary (e.g. by adding them to `allow.txt`), or fix typos.
+</details>
+
+<details><summary>To accept these unrecognized words as correct, update file exclusions, and remove the previously acknowledged and now absent words,
 you could run the following commands</summary>
 
 ... in a clone of the [GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME) repository
@@ -93,7 +126,7 @@ git commit -m 'Update check-spelling metadata'
 
 <details><summary>Available 📚 dictionaries could cover words (expected and unrecognized) not in the 📘 dictionary</summary>
 
-This includes both **expected items** (1) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (8)
+This includes both **expected items** (1) from WORKSPACE/t/unknown-words.pr/config/expect.txt and **unrecognized words** (16)
 
 Dictionary | Entries | Covers | Uniquely
 -|-|-|-
@@ -124,13 +157,15 @@ These forbidden patterns matched content:
 \bsample\.file\b
 ```
 
-<details><summary>Errors and Warnings ❌ (4)</summary>
+<details><summary>Errors and Warnings ❌ (6)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 [❌ Errors and Warnings](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
 [⚠️ bad-regex](https://docs.check-spelling.dev/Event-descriptions#bad-regex) | 1
+[⚠️ binary-file](https://docs.check-spelling.dev/Event-descriptions#binary-file) | 1
+[❌ check-file-path](https://docs.check-spelling.dev/Event-descriptions#check-file-path) | 2
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
@@ -145,6 +180,21 @@ See [❌ Event descriptions](https://docs.check-spelling.dev/Event-descriptions)
 note|path
 -|-
 Quantifier follows nothing: `+` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/patterns.txt#L1
+</details>
+
+<details><summary>📂 binary-file</summary>
+
+note|path
+-|-
+Skipping `unknown-words/input/logo.png` because it appears to be a binary file (`image/png`) | unknown-words/input/logo.png:1
+</details>
+
+<details><summary>📂 check-file-path</summary>
+
+note|path
+-|-
+`png` is not a recognized word | unknown-words/input/logo.png:1
+`png` is not a recognized word | unknown-words/input/test.png:1
 </details>
 
 <details><summary>📂 forbidden-pattern</summary>
@@ -175,9 +225,17 @@ note|path
 -|-
 `Aiglos` is not a recognized word | unknown-words/input/sample.file:3
 `Alqua` is not a recognized word | unknown-words/input/sample.file:3
+`bugfix` is not a recognized word | unknown-words/input/test.png:19
+`bugfixes` is not a recognized word | unknown-words/input/test.png:31
+`Bugfixes` is not a recognized word | unknown-words/input/test.png:33
+`continvoucly` is not a recognized word | unknown-words/input/test.png:36
 `diid` is not a recognized word | unknown-words/input/sample.file:2
+`featue` is not a recognized word | unknown-words/input/test.png:14
 `fixx` is not a recognized word | unknown-words/input/sample.file:2
+`hotfix` is not a recognized word | unknown-words/input/test.png:16
+`hotfixes` is not a recognized word | unknown-words/input/test.png:1
 `ico` is not a recognized word | unknown-words/input/sample.file:7
+`morged` is not a recognized word | unknown-words/input/test.png:38
 `Thiss` is not a recognized word | unknown-words/input/sample.file:2
 `thiss` is not a recognized word | unknown-words/input/sample.file:2
 `would’ve` is not a recognized word | unknown-words/input/sample.file:8
