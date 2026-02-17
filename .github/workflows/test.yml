@@ -65,6 +65,7 @@ jobs:
               perl -e "use $module; 1;" > /dev/null 2>/dev/null || echo $module
             done | xargs
           )
+          command -v tesseract >/dev/null 2>/dev/null || APT_PACKAGES="tesseract-ocr $APT_PACKAGES"
           command -v cover >/dev/null 2>/dev/null || APT_PACKAGES="libdevel-cover-perl $APT_PACKAGES"
           if command -v apt-get >/dev/null 2>/dev/null && ! command -v cpanm >/dev/null 2>/dev/null; then
             APT_PACKAGES="cpanminus $APT_PACKAGES"
