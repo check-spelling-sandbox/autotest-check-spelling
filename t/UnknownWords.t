@@ -152,6 +152,7 @@ my $dictionary_source_prefixes = {
 
 my $input = {
   "check_file_names" => 1,
+  "check-images" => 1,
   "config" => $config,
   "dictionary_source_prefixes" => encode_json($dictionary_source_prefixes),
   "check_extra_dictionaries" => " extra:elvish.txt",
@@ -281,12 +282,23 @@ is($stale, $expected_stale_words, "$instance: stale_words");
 
 }
 
+`
+rm -f "$working_directory/t/unknown-words/input/test.png"
+rm -f "$working_directory/t/unknown-words/input/logo.png"
+`;
 test($sandbox, 'unknown-words');
 
 $ENV{GITHUB_HEAD_REF} = 'some-head';
 $ENV{GITHUB_BASE_REF} = 'some-base';
 
+`(
+cd "$working_directory/t/unknown-words/input"
+curl -s -L -o test.png "https://raw.githubusercontent.com/check-spelling-sandbox/check-spelling-test-data/refs/heads/git-flow-image-with-typos/test.png"
+curl -s -L -o logo.png "https://raw.githubusercontent.com/check-spelling/art/refs/heads/main/logo/spell-check-sandbox.png"
+git add *.png
+)`;
 test($sandbox, 'unknown-words.pr');
+`git -C "$working_directory" rm -f t/unknown-words/input/*.png`;
 
 system(qw(git config --unset user.email));
 system(qw(git config --unset user.name));
