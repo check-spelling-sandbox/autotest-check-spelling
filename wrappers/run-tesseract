@@ -1,0 +1,5 @@
+#!/bin/sh
+scratch=$(mktemp -d)
+if tesseract "$input" "$scratch/text" 2>/dev/null; then
+  find "$scratch" -name "text.txt" | head -1
+fi

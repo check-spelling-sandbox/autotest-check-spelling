@@ -1,4 +1,5 @@
 ALRM
 dic
 hunspell
+ocr
 xge

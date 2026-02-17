@@ -13,7 +13,18 @@ use CheckSpelling::Util;
 binmode STDIN;
 binmode STDOUT, ':utf8';
 
-$ENV{PATH} = '/usr/bin:/bin';
+$ENV{PATH} =~ /(.*)/;
+my @paths = qw(/usr/bin /bin);
+{
+  my $path = $1;
+  for my $dir (split /:/, $path) {
+    if (-x "$dir/tesseract") {
+      push @paths, $dir;
+      last;
+    }
+  }
+}
+$ENV{PATH} = join ':', @paths;
 
 exit 0 unless scalar @ARGV;
 
