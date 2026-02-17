@@ -35,6 +35,7 @@ my %unique;
 my %unique_unrecognized;
 my ($last_file, $words, $unrecognized) = ('', 0, 0);
 my ($ignore_next_line_pattern);
+my ($check_images);
 
 my $disable_flags;
 
@@ -267,6 +268,9 @@ sub init {
   our $ignore_next_line_pattern = CheckSpelling::Util::get_file_from_env('INPUT_IGNORE_NEXT_LINE', '');
   $ignore_next_line_pattern =~ s/\s+/|/g;
 
+  our $check_images = CheckSpelling::Util::get_val_from_env('INPUT_CHECK_IMAGES', '');
+  $check_images = $check_images =~ /^(?:1|true)$/i;
+
   our $check_file_names = CheckSpelling::Util::get_file_from_env('check_file_names', '');
 
   our $use_magic_file = CheckSpelling::Util::get_val_from_env('INPUT_USE_MAGIC_FILE', '');
@@ -352,6 +356,28 @@ sub skip_file {
   close SKIPPED;
 }
 
+sub maybe_ocr_file {
+  my ($file) = @_;
+  my $tesseract = dirname(dirname(dirname(__FILE__)))."/wrappers/run-tesseract";
+  $ENV{'input'} = $file;
+  my $text_file = `"$tesseract"`;
+  delete $ENV{'input'};
+  return ($file, 0) unless defined $text_file;
+  my $file_converted = 0;
+  chomp $text_file;
+  if ($text_file =~ /^(.*)$/) {
+    $text_file = $1;
+    my $file_size = -s $text_file;
+    if ($file_size > 20) {
+      $file_converted = 1;
+      $file = $text_file;
+    } else {
+      unlink($text_file);
+    }
+  }
+  return ($file, $file_converted);
+}
+
 sub split_file {
   my ($file) = @_;
   our (
@@ -362,6 +388,7 @@ sub split_file {
     $disable_single_line_file,
     $ignore_next_line_pattern,
     $sandbox,
+    $check_images,
   );
   $ignore_next_line_pattern = '$^' unless $ignore_next_line_pattern =~ /./;
 
@@ -380,15 +407,6 @@ sub split_file {
   open(NAME, '>', "$temp_dir/name");
     print NAME $file;
   close NAME;
-  my $file_size = -s $file;
-  if (defined $largest_file) {
-    unless ($check_file_names eq $file) {
-      if ($file_size > $largest_file) {
-        skip_file($temp_dir, "size `$file_size` exceeds limit `$largest_file` (large-file)\n");
-        return $temp_dir;
-      }
-    }
-  }
   if (defined readlink($file) &&
       rindex(File::Spec->abs2rel(abs_path($file)), '../', 0) == 0) {
     skip_file($temp_dir, "file only has a single line (out-of-bounds-symbolic-link)\n");
@@ -408,8 +426,24 @@ sub split_file {
               $file)) {
       my $file_kind = <$file_fh>;
       close $file_fh;
-      if ($file_kind =~ /^(.*?); charset=binary/) {
+      my $file_converted = 0;
+      if ($check_images && $file_kind =~ m<^image/>) {
+        ($file, $file_converted) = maybe_ocr_file($file);
+      }
+      if ($file_converted == 0 && $file_kind =~ /^(.*?); charset=binary/) {
         skip_file($temp_dir, "it appears to be a binary file (`$1`) (binary-file)\n");
+        return $temp_dir;
+      }
+    }
+  } elsif ($file =~ /\.(?:png|jpe?g|gif)$/) {
+    my $file_converted = 0;
+    ($file, $file_converted) = maybe_ocr_file($file);
+  }
+  my $file_size = -s $file;
+  if (defined $largest_file) {
+    unless ($check_file_names eq $file) {
+      if ($file_size > $largest_file) {
+        skip_file($temp_dir, "size `$file_size` exceeds limit `$largest_file` (large-file)\n");
         return $temp_dir;
       }
     }

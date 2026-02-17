@@ -329,6 +329,10 @@ inputs:
     description: "Per file spell checking time limit"
     required: false
     default: "30"
+  check-images:
+    description: "Use tesseract to OCR pictures and check them"
+    required: false
+    default: "false"
   submodules:
     description: "Check sub-repositories (with `checkout` this will automatically check out subrepositories, without it assumes they're already checked out)"
     required: false

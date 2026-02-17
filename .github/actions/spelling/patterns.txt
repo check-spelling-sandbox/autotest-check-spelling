@@ -1,3 +1,9 @@
+# regular expression
+(?<!s)/[^/]*?\$/
+
+# perl replacement
+\bs/[^/]+/[^/]+/
+
 \b[0-9a-f]{40}\b
 
 # README patterns examples
