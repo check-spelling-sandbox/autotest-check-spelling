@@ -129,7 +129,7 @@ sub list_to_re {
 
 sub not_empty {
   my ($thing) = @_;
-  return defined $thing && $thing ne ''
+  return defined $thing && $thing ne '' && $thing =~ /^\d+$/;
 }
 
 sub valid_word {
@@ -153,7 +153,7 @@ sub valid_word {
     return qr/$word_pattern/;
   }
   $shortest = 3 unless defined $shortest;
-  $longest = '' unless defined $longest;
+  $longest = '' unless not_empty($longest);
   $word_match = "(?:$word_pattern){$shortest,$longest}";
   return qr/\b$word_match\b/;
 }
