@@ -132,7 +132,7 @@
         },
         {
             "owner": "check-spelling-perl-nested-quantifiers-in-regex",
-            "severity":"warning",
+            "severity": "warning",
             "pattern": [
                 {
                     "regexp": "(Nested quantifiers in regex; marked by.*?) at (.*) line (\\d+)",
@@ -144,7 +144,7 @@
         },
         {
             "owner": "check-spelling-perl-syntax-error",
-            "severity":"warning",
+            "severity": "warning",
             "pattern": [
                 {
                     "regexp": "(syntax error) at (.*) line (\\d+), near",
