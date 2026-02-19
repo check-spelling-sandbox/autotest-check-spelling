@@ -1946,24 +1946,20 @@ set_up_reporter() {
     -f ref=refs/tags/check-spelling-sarif-pre-flight-test \
     -f sarif="" \
     "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs" > "$sarif_output" 2> "$sarif_error" || true
-    if grep -q 'Advanced Security must be enabled' "$sarif_error" ||
-       grep -q 'GH_TOKEN environment' "$sarif_error"; then
-      if true || to_boolean "$DEBUG"; then
-        cat "$sarif_error"
-        cat "$sarif_output"
-        echo
-      fi
-      WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY="$INPUT_USE_SARIF"
-    else
-      if grep -Eq 'not authorized|not accessible' "$sarif_output"; then
-        if true || to_boolean "$DEBUG"; then
-          cat "$sarif_error"
-          cat "$sarif_output"
-          echo
-        fi
-        WARN_USE_SARIF_NEED_SECURITY_EVENTS_WRITE="$INPUT_USE_SARIF"
+    if [ "$(jq -r '.status // empty' "$sarif_output")" = 403 ]; then
+      if grep -q 'must be enabled' "$sarif_error" ||
+        grep -q 'GH_TOKEN environment' "$sarif_error"; then
+        WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY="$INPUT_USE_SARIF"
+      elif grep -Eq 'not authorized|not accessible' "$sarif_output"; then
         WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE="$INPUT_USE_SARIF"
+      else
+        echo "::notice ::Unexpected response from GitHub code-scanning (check-for-bug-report)"
+        WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY="$INPUT_USE_SARIF"
       fi
+      cat "$sarif_error"
+      echo
+      cat "$sarif_output"
+      echo
     fi
     if to_boolean "$INPUT_ONLY_CHECK_CHANGED_FILES"; then
       WARN_USE_SARIF_ONLY_CHANGED_FILES="$INPUT_USE_SARIF"
