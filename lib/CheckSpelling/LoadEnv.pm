@@ -254,11 +254,30 @@ sub load_untrusted_config {
     }
 
     return unless %use_pr_base_key_map;
-    open my $github_event_file, '<:encoding(UTF-8)', $ENV{GITHUB_EVENT_PATH};
+
+    my $github_event_path = $ENV{GITHUB_EVENT_PATH};
+    open my $github_event_file, '<:encoding(UTF-8)', $github_event_path;
     local $/ = undef;
     my $github_event_data = <$github_event_file>;
     close $github_event_file;
-    my $github_event = decode_json ($github_event_data || '{}');
+    my $github_event;
+    {
+        local $@;
+        eval {
+            $github_event = decode_json ($github_event_data || '{}');
+        };
+        if ($@) {
+            print STDERR $@;
+            $unpacked = unpack('H*', $github_event_data);
+            print STDERR "cat $github_event_path:\n";
+            print STDERR `cat "$github_event_path"`;
+            print STDERR "\n===TEAR===\n";
+            print STDERR "hexdump:\n";
+            print STDERR `hexdump -C "$github_event_path"`;
+            print STDERR "\n===TEAR===\n";
+            die "decode_json failed on $github_event_path containing $unpacked\n";
+        }
+    }
     my $github_head_sha;
     $github_head_sha = $github_event->{'pull_request'}->{'base'}->{'sha'} if ($github_event->{'pull_request'} && $github_event->{'pull_request'}->{'base'});
 
