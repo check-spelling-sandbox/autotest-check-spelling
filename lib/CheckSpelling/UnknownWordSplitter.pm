@@ -18,7 +18,9 @@ use File::Basename;
 use Cwd 'abs_path';
 use File::Spec;
 use File::Temp qw/ tempfile tempdir /;
+use File::Path qw/ make_path /;
 use CheckSpelling::Util;
+use Digest::SHA;
 our $VERSION='0.1.0';
 
 my ($longest_word, $shortest_word, $word_match, $forbidden_re, $patterns_re, $candidates_re, $disable_word_collating, $check_file_names);
@@ -35,7 +37,7 @@ my %unique;
 my %unique_unrecognized;
 my ($last_file, $words, $unrecognized) = ('', 0, 0);
 my ($ignore_next_line_pattern);
-my ($check_images);
+my ($check_images, $ocr_directory);
 
 my $disable_flags;
 
@@ -270,6 +272,10 @@ sub init {
 
   our $check_images = CheckSpelling::Util::get_val_from_env('INPUT_CHECK_IMAGES', '');
   $check_images = $check_images =~ /^(?:1|true)$/i;
+  if ($check_images) {
+    our $ocr_directory = CheckSpelling::Util::get_file_from_env('ocr_directory', '/tmp/ocr');
+    $ocr_directory = $1 if ($ocr_directory =~ /^(.*)$/);
+  }
 
   our $check_file_names = CheckSpelling::Util::get_file_from_env('check_file_names', '');
 
@@ -358,6 +364,22 @@ sub skip_file {
 
 sub maybe_ocr_file {
   my ($file) = @_;
+  our $ocr_directory;
+  my $ocr_file = "$ocr_directory/$file";
+  $ocr_file =~ /^(.*)$/;
+  $ocr_file = $1;
+  my $ocr_source_sha = "$ocr_file.sha1";
+  $ocr_file = "$ocr_file.txt";
+  my $sha = Digest::SHA->new(1)->addfile($file, 'b')->hexdigest;
+  if (-e $ocr_file &&
+      -e $ocr_source_sha &&
+      open my $source_sha, '<', $ocr_source_sha) {
+    my $last_sha = <$source_sha>;
+    close $source_sha;
+    if ($last_sha =~ /(.*)/) {
+      return ($ocr_file, 1) if ($1 eq $sha);
+    }
+  }
   my $tesseract = dirname(dirname(dirname(__FILE__)))."/wrappers/run-tesseract";
   $ENV{'input'} = $file;
   my $text_file = `"$tesseract"`;
@@ -370,7 +392,12 @@ sub maybe_ocr_file {
     my $file_size = -s $text_file;
     if ($file_size > 20) {
       $file_converted = 1;
-      $file = $text_file;
+      make_path(dirname($ocr_source_sha));
+      open my $source_sha, '>', $ocr_source_sha;
+      print $source_sha $sha;
+      close $source_sha;
+      rename($text_file, $ocr_file);
+      $file = $ocr_file;
     } else {
       unlink($text_file);
     }
