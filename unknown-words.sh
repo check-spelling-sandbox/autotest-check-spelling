@@ -2533,6 +2533,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   set_output_variable internal_state_directory "$data_dir"
 
   synthetic_base="/tmp/check-spelling/$GITHUB_REPOSITORY"
+  ocr_directory="$synthetic_base/ocr"
   echo "^\Q$synthetic_base/\E" >> "$patterns"
   mkdir -p "$synthetic_base"
 
@@ -2689,6 +2690,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     INPUT_CHECK_IMAGES="$INPUT_CHECK_IMAGES" \
     dict="$dict" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
+    ocr_directory="$ocr_directory" \
     check_file_names="$check_file_names" \
     splitter_configuration="$splitter_configuration" \
     splitter_timeout="$INPUT_WORD_SPLITTER_TIMEOUT" \
@@ -2743,7 +2745,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$more_warnings" >> "$warning_output"
   commit_messages="$commit_messages" \
   pr_details_path="$pr_details_path" \
-  synthetic_base="$synthetic_base" \
+  ocr_directory="$ocr_directory" \
   severity_level="$severity_level" \
   severity_list="$severity_list" \
   github_commit_repository="$github_commit_repository" \
@@ -2751,6 +2753,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$warning_output" >&2
   . "$severity_list"
   set_output_variable warnings "$warning_output"
+  if [ -d "$ocr_directory" ]; then
+    set_output_variable ocr_directory "$ocr_directory"
+  fi
   if to_boolean "$INPUT_USE_SARIF"; then
     SARIF_FILE="$(mktemp).sarif.json"
     UPLOAD_SARIF_LIMITED=$(mktemp)
