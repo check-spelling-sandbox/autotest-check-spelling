@@ -600,6 +600,14 @@ runs:
           ${{ case(inputs.report_title_suffix != '', format('{0}-{1}', 'check-spelling-comment', inputs.report_title_suffix), 'check-spelling-comment') }}
         path:
           ${{ steps.spelling.outputs.internal_state_directory }}
+    - name: Store OCR
+      continue-on-error: true
+      if: steps.spelling.outputs.ocr_directory != ''
+      uses: ./../check-spelling-actions/upload-artifact
+      with:
+        name: ocr
+        path:
+          ${{ steps.spelling.outputs.ocr_directory }}
     - name: Publish SARIF artifact
       continue-on-error: true
       id: artifact-sarif

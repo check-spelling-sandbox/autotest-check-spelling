@@ -2525,6 +2525,50 @@ build_file_list() {
       "$scope_files" > "$1"
 }
 
+get_ocr_cache_ref() {
+  ref="$1"
+  event="$2"
+  artifacts_url=$(
+    call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/workflows/${workflow_path##*/}/runs?branch=$ref&event=$event&per_page=1" | jq -r '.workflow_runs[].artifacts_url // empty' 2>/dev/null
+  )
+  if [ -z "$artifacts_url" ]; then
+    false
+    return
+  fi
+  artifacts=$(mktemp)
+  keep_headers=1 call_curl "$artifacts_url" > $artifacts
+  artifact=$(jq -r '.artifacts[] | select(.name|match ("^ocr")).id // empty' "$artifacts" | sort -n | tail -1)
+  if [ -z "$artifact" ]; then
+    false
+    return
+  fi
+  artifact_zip=$(mktemp)
+  call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$artifact_zip"
+  if [ "$(head -c2 "$artifact_zip")" != 'PK' ]; then
+    false
+    return
+  fi
+  unzip -q -o "$artifact_zip" -d "$ocr_directory" && rm "$artifact_zip"
+  # grep -i '^link:' "$response_headers"
+}
+
+get_ocr_cache() {
+  if get_ocr_cache_ref "$GITHUB_REF_NAME" "$GITHUB_EVENT_NAME"; then
+    return
+  fi
+  case "$GITHUB_EVENT_NAME" in
+    push)
+      ;;
+    pull_request|pull_request_target)
+      [ "$default_branch" != "$GITHUB_BASE_REF" ] && get_ocr_cache_ref "$GITHUB_BASE_REF" push ||
+      get_ocr_cache_ref "$default_branch" push
+      ;;
+    *)
+      get_ocr_cache_ref "$GITHUB_REF_NAME" push
+      ;;
+  esac
+}
+
 run_spell_check() {
   if [ "$INPUT_TASK" != 'spelling' ]; then
     report_cached_warning_output
@@ -2537,8 +2581,12 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   set_output_variable internal_state_directory "$data_dir"
 
   synthetic_base="/tmp/check-spelling/$GITHUB_REPOSITORY"
+  ocr_directory="$synthetic_base/ocr"
   echo "^\Q$synthetic_base/\E" >> "$patterns"
   mkdir -p "$synthetic_base"
+  if to_boolean "$INPUT_CHECK_IMAGES"; then
+    get_ocr_cache || true
+  fi
 
   build_file_list "$file_list"
   if to_boolean "$INPUT_CHECK_FILE_NAMES"; then
@@ -2693,6 +2741,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     INPUT_CHECK_IMAGES="$INPUT_CHECK_IMAGES" \
     dict="$dict" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
+    ocr_directory="$ocr_directory" \
     check_file_names="$check_file_names" \
     splitter_configuration="$splitter_configuration" \
     splitter_timeout="$INPUT_WORD_SPLITTER_TIMEOUT" \
@@ -2747,7 +2796,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$more_warnings" >> "$warning_output"
   commit_messages="$commit_messages" \
   pr_details_path="$pr_details_path" \
-  synthetic_base="$synthetic_base" \
+  ocr_directory="$ocr_directory" \
   severity_level="$severity_level" \
   severity_list="$severity_list" \
   github_commit_repository="$github_commit_repository" \
@@ -2755,6 +2804,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$warning_output" >&2
   . "$severity_list"
   set_output_variable warnings "$warning_output"
+  if [ -d "$ocr_directory" ]; then
+    set_output_variable ocr_directory "$ocr_directory"
+  fi
   if to_boolean "$INPUT_USE_SARIF"; then
     SARIF_FILE="$(mktemp).sarif.json"
     UPLOAD_SARIF_LIMITED=$(mktemp)
