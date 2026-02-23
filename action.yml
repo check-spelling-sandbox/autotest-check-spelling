@@ -515,6 +515,9 @@ runs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         : Save SHA
+        if [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then
+          set -x
+        fi
         git log -1 --one'line' HEAD
         PRIVATE_CHECKOUT_REF="refs/pull/$PR_NUMBER/merge"
         if git ls-remote origin "$PRIVATE_CHECKOUT_REF" | grep -q . &&
