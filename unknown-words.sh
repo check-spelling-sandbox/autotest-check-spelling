@@ -3724,7 +3724,8 @@ generate_sample_commit_help() {
     remote_sha="${remote_sha:-$GITHUB_SHA}"
   else
     remote_ref="${GITHUB_BASE_REF:-$GITHUB_REF_NAME}"
-    if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+    if [ "$GITHUB_EVENT_NAME" = 'pull_request' ] ||
+       [ "$GITHUB_EVENT_NAME" = 'pull_request_target' ]; then
       remote_sha="$GITHUB_SHA"'~'
     else
       remote_sha="$GITHUB_SHA"
