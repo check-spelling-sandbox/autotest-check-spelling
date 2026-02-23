@@ -511,13 +511,15 @@ runs:
       if: (contains(github.event_name, 'pull_request')) && (inputs.checkout && fromJSON(inputs.checkout) && !inputs.task) && steps.checkout-merge.outputs.message == ''
       shell: bash
       working-directory: ${{ inputs.experimental_path }}
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         : Save SHA
         git log -1 --one'line' HEAD
-        PRIVATE_CHECKOUT_REF="refs/pull/${{ github.event.pull_request.number }}/merge"
-        echo "PRIVATE_CHECKOUT_REF=$PRIVATE_CHECKOUT_REF" >> "$GITHUB_ENV"
+        PRIVATE_CHECKOUT_REF="refs/pull/$PR_NUMBER/merge"
         if git fetch origin "$PRIVATE_CHECKOUT_REF"; then
           (
+            echo "PRIVATE_CHECKOUT_REF=$PRIVATE_CHECKOUT_REF"
             echo "PRIVATE_SYNTHETIC_SHA=$(git rev-parse HEAD)"
             echo "PRIVATE_MERGE_SHA=$(git rev-parse FETCH_HEAD)"
           ) >> "$GITHUB_ENV"
