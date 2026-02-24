@@ -120,7 +120,7 @@
 }
 ],
 "message": {
-"text": "[a](#security-tab) matches a line_forbidden.patterns rule: Should be 'an' - '\\(?<=\\\\\\s\\)a\\(?= \\(?:a\\(?!nd\\\\\\s|s\\\\\\s\\)|e\\(?!u\\)|i\\(?![ns\\]\\\\\\s\\)|o\\(?!nc?e\\)|u\\(?!biquitous|int|kr|n[ai\\]|r[ael\\]|s[aeiu'…"
+"text": "[a](#security-tab) matches a line_forbidden.patterns rule: Should be 'an' - '\\(?<=\\\\\\s\\)a\\(?= \\(?:a\\(?!nd\\\\\\s|s\\\\\\s\\)|e\\(?!u\\)|i\\(?!\\[ns\\]\\\\\\s\\)|o\\(?!nc?e\\)|u\\(?!biquitous|int|kr|n\\[ai\\]|r\\[ael\\]|s\\[aeiu'…"
 },
 "ruleId": "forbidden-pattern"
 },

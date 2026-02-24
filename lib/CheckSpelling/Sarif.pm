@@ -29,7 +29,7 @@ sub url_encode {
 
 sub double_slash_escape {
     $_ = shift;
-    s/(["()\]\\])/\\\\$1/g;
+    s/(["()\[\]\\])/\\\\$1/g;
     return $_;
 }
 
