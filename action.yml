@@ -490,6 +490,8 @@ runs:
         ssh_account: git@github.com
         GH_TOKEN: ${{ github.token }}
         CHECKOUT_TOKEN: ${{ inputs.checkout-token }}
+        checkout_out: ${{ steps.checkout.outputs.out }}
+        checkout_err: ${{ steps.checkout.outputs.err }}
       run: |
         diagnose-failed-checkout
     - name: checkout-merge

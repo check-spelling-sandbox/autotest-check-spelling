@@ -173,6 +173,45 @@ check_github_outage() {
   fi
 }
 
+check_for_errors_in_logs() {
+  if [ -n "$checkout_err" ] && [ -s "$checkout_err" ]; then
+    evidence=$(mktemp)
+    if grep -q 'ERROR: Repository not found.' "$checkout_err"; then
+      : ssh protocol returned repository not found
+      perl -ne 'next if /(?:debug\d|trace)|: sent |^\s+#\d+ client-session/;print'  "${checkout_err:-/dev/null}" "${checkout_out:-/dev/null}" > "$evidence"
+    elif grep -q 'remote: Repository not found.' "$checkout_err"; then
+      : http protocol returned repository not found
+      perl -e '
+      while (<>) {
+        next unless m{=> Send header: (?:GET|(?:Host|User-Agent):)|<= Recv header: (?:HTTP/|(?:server|x-github-request-id):)|remote: Repository not found|fatal: repository.*not found};
+        s/^.*?(=>|<=)/$1/;
+        print;
+      }
+      ' "${checkout_err:-/dev/null}" "${checkout_out:-/dev/null}" > "$evidence"
+    fi
+    if [ -s "$evidence" ]; then
+      (
+        echo '# Repository not found'
+        echo
+        if perl -e 'while (<>) { exit 0 if /\bgithub\.com\b/; } exit 1' "${checkout_err:-/dev/null}" "${checkout_out:-/dev/null}"; then
+          echo "It's possible that GitHub is misbehaving, but when git tried to retrieve the repository, it failed."
+        else
+          echo "When git tried to retrieve the repository, it failed."
+        fi
+        echo
+        echo '<details><summary>actions/checkout git logs</summary>'
+        echo
+        echo '```'
+        cat "$evidence"
+        echo
+        echo '```'
+        echo
+        echo '</details>'
+      ) >> "$GITHUB_STEP_SUMMARY"
+    fi
+  fi
+}
+
 bad_ssh_key() {
   (
     echo "## Checkout Failed: Bad SSH Key$1"
@@ -265,6 +304,7 @@ check_wiki() {
     fi
   fi
 }
+
 check_repository_existence() {
   if call_gh_api 'properties/values'; then
     repo_is_public_and_token_is_probably_bad=1
@@ -361,6 +401,7 @@ check_for_submodules() {
   fi
 }
 
+check_for_errors_in_logs
 check_ssh_key
 check_for_empty_github_token
 check_wiki
