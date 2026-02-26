@@ -173,6 +173,47 @@ check_github_outage() {
   fi
 }
 
+check_for_errors_in_logs() {
+  checkout_err="${checkout_err:-/dev/null}"
+  checkout_out="${checkout_out:-/dev/null}"
+  if [ -s "$checkout_err" ] || [ -s "$checkout_out" ]; then
+    evidence=$(mktemp)
+    if grep -q 'ERROR: Repository not found.' "$checkout_err" "$checkout_out"; then
+      : ssh protocol returned repository not found
+      perl -ne 'next if /(?:debug\d|trace)|: sent |^\s+#\d+ client-session/;print' "$checkout_err" "$checkout_out" > "$evidence"
+    elif grep -q 'remote: Repository not found.' "$checkout_err" "$checkout_out"; then
+      : http protocol returned repository not found
+      perl -ne '
+      next unless m{=> Send header: (?:GET|(?:Host|User-Agent):)|<= Recv header: (?:HTTP/|(?:server|x-github-request-id):)|remote: Repository not found|fatal: repository.*not found};
+      s/^.*?(=>|<=)/$1/;
+      print;
+      ' "$checkout_err" "$checkout_out" > "$evidence"
+    fi
+    if [ -s "$evidence" ]; then
+      (
+        echo '## Checkout Failed: Repository not found'
+        echo
+        if grep -q '\bgithub\.com\b' "$checkout_err" "$checkout_out"; then
+          echo "It's possible that GitHub is misbehaving, but when git tried to retrieve the repository, it failed. The server reported the repository does not exist:"
+        else
+          echo "When git tried to retrieve the repository, it failed. The server reported the repository does not exist:"
+        fi
+        echo
+        echo '### actions/checkout git logs'
+        echo
+        echo '```'
+        cat "$evidence"
+        echo '```'
+        echo
+        echo '### Resolution'
+        echo '* If the repository exists, try rerunning the workflow.'
+        echo '* File a bug to [support.github.com](https://support.github.com/) with the logs.'
+      ) >> "$GITHUB_STEP_SUMMARY"
+      exit 1
+    fi
+  fi
+}
+
 bad_ssh_key() {
   (
     echo "## Checkout Failed: Bad SSH Key$1"
@@ -265,6 +306,7 @@ check_wiki() {
     fi
   fi
 }
+
 check_repository_existence() {
   if call_gh_api 'properties/values'; then
     repo_is_public_and_token_is_probably_bad=1
@@ -369,6 +411,7 @@ check_repository_read_permission
 check_for_not_our_ref "$GITHUB_SHA"
 check_for_submodules
 check_github_outage
+check_for_errors_in_logs
 
 (
   echo '## Checkout Failed'
