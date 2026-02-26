@@ -8,8 +8,8 @@ sha=$(echo "${repo_path:-$(pwd)}"|shasum|perl -pe 's/\s.*//')
 git_logs=/tmp/.check-spelling-git-logs/${sha%* -}
 
 mkdir -p "$git_logs"
-out="$git_logs/out"
-err="$git_logs/err"
+out="${checkout_git_out:-$git_logs/out}"
+err="${checkout_git_err:-$git_logs/err}"
 (
   echo "err=$err"
   echo "out=$out"
