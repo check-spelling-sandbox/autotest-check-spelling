@@ -99,6 +99,12 @@ runs:
         sudo ln -s "$GITHUB_ACTION_PATH"/git "$real_git" ||
         true
       fi
+      err=$(mktemp)
+      out=$(mktemp)
+      (
+        echo "err=$err"
+        echo "out=$out"
+      ) >> "$GITHUB_OUTPUT"
   - name: Checkout
     id: action
     continue-on-error: true
@@ -128,6 +134,8 @@ runs:
       GIT_CURL_VERBOSE: True
       GIT_TRACE: True
       GIT_SSH_COMMAND: ssh -v -v -v
+      checkout_git_err: ${{ steps.shim-git.outputs.err }}
+      checkout_git_out: ${{ steps.shim-git.outputs.out }}
   - name: Restore silly message
     if: steps.quiet.outputs.cleanup
     shell: bash
