@@ -19,7 +19,7 @@ while (<>) {
     $mode = 0;
   } elsif ($mode == 1 && /^(\s*)-/) {
     my $indent = $1;
-    print qq<$indent- uses: actions/checkout\@v4\n$1  with:\n$1    repository: $repo>;
+    print qq<$indent- uses: actions/checkout\@v6\n$1  with:\n$1    repository: $repo>;
     my $ignore_non_comment_lines = '$_ = "#\n" unless /^$|^# /';
     my $action_dir = q<$(find .github/actions/ -mindepth 1 -maxdepth 1 -type d -name 'spell*')>;
     if ($is_spell_check_this) {
