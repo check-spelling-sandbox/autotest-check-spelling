@@ -15,7 +15,7 @@ thiss
 youu
 
 <details><summary>These words are not needed and should be removed
-</summary>unexpectedlylong=
+</summary>unexpectedlylong
 </details><p></p>
 
 <details><summary>To accept these unrecognized words as correct, you could apply this commit</summary>

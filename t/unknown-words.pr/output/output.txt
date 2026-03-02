@@ -54,7 +54,7 @@ youu
 </details>
 
 <details><summary>These words are not needed and should be removed
-</summary>unexpectedlylong=
+</summary>unexpectedlylong
 </details><p></p>
 
 <details><summary>Some files were automatically ignored 🙈</summary>
