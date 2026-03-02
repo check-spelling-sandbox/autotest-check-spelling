@@ -209,6 +209,16 @@
                     "line": 2
                 }
             ]
+        },
+        {
+            "owner": "check-spelling-xargs",
+            "pattern": [
+                {
+                    "regexp": "^(xargs: .*)",
+                    "message": 1
+                }
+            ],
+            "severity": "error"
         }
     ]
 }
