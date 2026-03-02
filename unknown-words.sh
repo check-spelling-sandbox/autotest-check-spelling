@@ -1032,38 +1032,14 @@ handle_comment() {
       confused_comment "$trigger_comment_url" "$(comment_url_to_html_url "$comment_url") does not appear to be a @check-spelling-bot report"
 
     report_if_bot_comment_is_minimized
-    skip_wrapping=1
 
-    instructions_head=$(mktemp)
-    (
-      patch_add=1
-      patch_remove=1
-      should_exclude_patterns=$(mktemp)
-      patch_variables "$comment_body" > "$instructions_head"
-    )
-    git restore -- "$bucket/$project" 2> /dev/null || true
-
-    res=0
-    . "$instructions_head" || res=$?
-    if [ $res -gt 0 ]; then
-      echo "instructions_head failed ($res)"
-      cat "$instructions_head"
-      confused_comment "$trigger_comment_url" "Failed to set up environment to apply changes for $(comment_url_to_html_url "$comment_url")."
-    fi
-    rm "$comment_body" "$instructions_head"
-    instructions=$(generate_instructions)
-
-    react_prefix="${react_prefix}[Instructions]($(comment_url_to_html_url "$comment_url")) "
-    . "$instructions" || res=$?
-    if [ $res -gt 0 ]; then
-      echo "instructions failed ($res)"
-      cat "$instructions"
-      res=0
-      confused_comment "$trigger_comment_url" "Failed to apply changes."
-    fi
-    rm "$instructions"
-    update_note="per $(comment_url_to_html_url "$comment_url")"
-  elif [ -n "$summary_url" ]; then
+    summary_url=$(perl -ne '
+      next unless m{\(($ENV{GITHUB_SERVER_URL}/[^/]+/[^/]+/actions/runs/\d+(?:/attempts/\d+|)(?:#\S+|))\)};
+      print $1;
+    ' "$comment_body")
+    update_note="per $(comment_url_to_html_url "$comment_url") for $summary_url"
+  fi
+  if [ -n "$summary_url" ]; then
     summary_url_repo=$(echo "$summary_url" | perl -ne '
       next unless m{$ENV{GITHUB_SERVER_URL}/([^/]+/[^/]+)/actions/runs/\d+(?:/attempts/\d+|)(?:#\S+|)};
       print $1;
@@ -1080,13 +1056,16 @@ handle_comment() {
     if [ -n "$INPUT_REPORT_TITLE_SUFFIX" ]; then
       title_suffix_re='.*'"$("$quote_meta" "$INPUT_REPORT_TITLE_SUFFIX")"
     fi
-    comment_search_re='@check-spelling-bot(?:[\t ]+|:[\t ]*)apply.*'"$("$quote_meta" "${summary_url%%#*}")$title_suffix_re"
-    COMMENTS_URL=$(jq -r '.issue.comments_url' "$GITHUB_EVENT_PATH")
-    bot_comment_node_id_and_status=$(get_a_comment "$comment_search_re")
-    if [ -n "$bot_comment_node_id_and_status" ]; then
-      bot_comment_node_id="$(echo "$bot_comment_node_id_and_status" | head -1)"
-      comment_url=$(get_comment_url_from_id "$bot_comment_node_id")
-      report_if_bot_comment_is_minimized
+    if [ -z "$bot_comment_node_id" ]; then
+      comment_search_re='@check-spelling-bot(?:[\t ]+|:[\t ]*)apply.*'"$("$quote_meta" "${summary_url%%#*}")$title_suffix_re"
+      COMMENTS_URL=$(jq -r '.issue.comments_url' "$GITHUB_EVENT_PATH")
+      bot_comment_node_id_and_status=$(get_a_comment "$comment_search_re")
+      if [ -n "$bot_comment_node_id_and_status" ]; then
+        bot_comment_node_id="$(echo "$bot_comment_node_id_and_status" | head -1)"
+        comment_url=$(get_comment_url_from_id "$bot_comment_node_id")
+        report_if_bot_comment_is_minimized
+      fi
+      update_note="for $summary_url"
     fi
 
     summary_url_api=$(
@@ -1131,7 +1110,6 @@ handle_comment() {
     GH_TOKEN="$GITHUB_TOKEN" \
       "$spellchecker/apply.pl" "$summary_url" > "$apply_output" 2> "$apply_err" ||
     confused_comment "$trigger_comment_url" "Apply failed.${N}$(cat "$apply_output")${N}${N}$(cat "$apply_err")"
-    update_note="for $summary_url"
   else
     confused_comment "$trigger_comment_url" "Unexpected state."
   fi
