@@ -106,7 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: ${{ !contains(env.workflow_check_commit_messages, 'commits') && '1' || '0' }}
+          fetch-depth: ${{ !contains(env.workflow_check_commit_messages, 'commits') && '1' || '2147483647' }}
           filter: ${{ contains(env.workflow_check_commit_messages, 'commits') && 'tree:0' || '' }}
         env:
           GIT_CURL_VERBOSE: True
