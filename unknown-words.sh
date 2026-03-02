@@ -2872,10 +2872,13 @@ remove_items() {
       perl -ne 'next unless s/^-([^-])/$1/; print' "$diff_output" > "$remove_words"
     fi
     if [ -s "$remove_words" ]; then
-      echo "
+      (
+        echo -n "
         <details><summary>These words are not needed and should be removed
-        </summary>$(perl -e 'my $i = 0; while (<>) { s/\n//; if ($i == 0) { $i = 1; } else { print " " }; print }' "$remove_words")$N</details><p></p>
-      " | strip_lead_and_blanks
+        </summary>"
+        perl -e 'my $i = 0; while (<>) { s/\n//; if ($i == 0) { $i = 1; } else { print " " }; print }' "$remove_words"
+        echo "$N</details><p></p>$n"
+      ) | strip_lead_and_blanks
       set_output_variable stale_words "$remove_words"
     else
       rm "$fewer_misspellings_canary"
@@ -3579,7 +3582,7 @@ set_comments_url() {
 
 trim_commit_comment() {
   stripped="$(mktemp)"
-  (perl -p -i.raw -e '$/=undef; s{'"$2"'}{$1'"$3"'_Truncated, please see the job summary, log, or artifact if available._\n}s; my $capture=$2; my $overview=q<'"$(get_action_log_overview)"'>; s{\n(See the) (\[action log\])}{\n$1 [overview]($overview) or $2}s unless m{\Q$overview\E}; print STDERR "$capture\n"' "$BODY") 2> "$stripped"
+  (perl -p -i.raw -e '$/=undef; s{'"$2"'}{$1'"$3"'_Truncated, please see the job summary, log, or artifact if available._\n}s; my $capture=$2; $capture=~s/((?:\S+\s+){14})(\S+)\s+/$1$2\n/g;my $overview=q<'"$(get_action_log_overview)"'>; s{\n(See the) (\[action log\])}{\n$1 [overview]($overview) or $2}s unless m{\Q$overview\E}; print STDERR "$capture\n"' "$BODY") 2> "$stripped"
   body_to_payload
   previous_payload_size="$payload_size"
   payload_size="$("$file_size" "$PAYLOAD")"
