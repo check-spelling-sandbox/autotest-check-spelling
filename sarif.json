@@ -362,7 +362,7 @@
               }
             },
             {
-              "id": "duplicate-pattern",
+              "id": "duplicate-pattern-beta",
               "name": "DuplicatePattern",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#duplicate-pattern",
               "shortDescription": {
