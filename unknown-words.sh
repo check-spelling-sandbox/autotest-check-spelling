@@ -503,11 +503,11 @@ comment_task() {
   fi
   touch "$diff_output"
 
-  if [ -f "$NEW_TOKENS" ]; then
-    patch_add="$(cat "$NEW_TOKENS")"
+  if [ -s "$NEW_TOKENS" ]; then
+    patch_add="$NEW_TOKENS"
   fi
-  if [ -f "$STALE_TOKENS" ]; then
-    patch_remove="$(cat "$STALE_TOKENS")"
+  if [ -s "$STALE_TOKENS" ]; then
+    patch_remove="$STALE_TOKENS"
   fi
   if [ -f "$NEW_EXCLUDES" ]; then
     cat "$NEW_EXCLUDES" > "$should_exclude_file"
@@ -2867,12 +2867,12 @@ remove_items() {
     echo "<!-- Because only_check_changed_files is active, checking for obsolete items cannot be performed-->"
   else
     if [ ! -s "$remove_words" ]; then
-      perl -ne 'next unless s/^-([^-])/$1/; s/\n/ /; print' "$diff_output" > "$remove_words"
+      perl -ne 'next unless s/^-([^-])/$1/; print' "$diff_output" > "$remove_words"
     fi
     if [ -s "$remove_words" ]; then
       echo "
         <details><summary>These words are not needed and should be removed
-        </summary>$(perl -pe 's/((?:\S+\s+){14})(\S+)\s+/$1$2\n/g' "$remove_words")$N</details><p></p>
+        </summary>$(perl -e 'my $i = 0; while (<>) { s/\n/ / unless (++$i % 15 == 0); print }' "$remove_words")$N</details><p></p>
       " | strip_lead_and_blanks
       set_output_variable stale_words "$remove_words"
     else
@@ -4011,9 +4011,17 @@ no_misspellings() {
 }
 
 set_patch_remove_add() {
-  patch_remove="$(perl -ne 'next unless s/^-([^-])/$1/; s/\n/ /; print' "$diff_output")"
+  patch_remove=$(mktemp)
+  perl -ne 'next unless s/^-([^-])/$1/; print' "$diff_output" > "$patch_remove"
+  if [ ! -s "$patch_remove" ]; then
+    patch_remove=
+  fi
   begin_group 'New output'
-    patch_add="$(perl -ne 'next unless s/^\+([^+])/$1/; s/\n/ /; print' "$diff_output")"
+    patch_add=$(mktemp)
+    perl -ne 'next unless s/^\+([^+])/$1/; print' "$diff_output" > "$patch_add"
+    if [ ! -s "$patch_add" ]; then
+      patch_add=
+    fi
 
     get_has_errors
     if [ -z "$has_errors" ] && [ -z "$patch_add" ]; then
@@ -4085,11 +4093,12 @@ check_spelling_report() {
   instructions=$(
     make_instructions
   )
-  if echo unrecognized-spelling | grep -E -q "$(echo "$INPUT_IGNORED,$INPUT_NOTICES,$INPUT_WARNINGS" | events_to_regular_expression)"; then
+  if [ -z "$patch_add" ] ||
+    echo unrecognized-spelling | grep -E -q "$(echo "$INPUT_IGNORED,$INPUT_NOTICES,$INPUT_WARNINGS" | events_to_regular_expression)"; then
     patch_add=''
     unknown_count=0
   else
-    (echo "$patch_add" | tr " " "\n" | grep . || true) > "$tokens_file"
+    cat "$patch_add" > "$tokens_file"
     unknown_count="$(line_count < "$tokens_file")"
   fi
   get_has_errors
