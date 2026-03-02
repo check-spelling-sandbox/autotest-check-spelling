@@ -469,7 +469,7 @@ runs:
         show-progress: false
         path: ${{ inputs.experimental_path }}
         ssh-key: ${{ inputs.ssh_key }}
-        fetch-depth: ${{ case(contains(inputs.check_commit_messages, 'commits'), '0', '1') }}
+        fetch-depth: ${{ case(contains(inputs.check_commit_messages, 'commits'), '2147483647', '1') }}
         filter: ${{ case(contains(inputs.check_commit_messages, 'commits'), 'tree:0', '') }}
         token: ${{ inputs.checkout-token || inputs.GITHUB_TOKEN }}
         submodules: ${{ inputs.submodules }}
