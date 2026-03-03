@@ -275,7 +275,7 @@ check_ssh_key() {
   fi
 }
 
-check_for_empty_github_token() {
+check_for_broken_github_environment() {
   if [ -z "$GH_TOKEN" ]; then
     (
       if [ -n "$ACT" ]; then
@@ -289,6 +289,18 @@ check_for_empty_github_token() {
     ) >> "$GITHUB_STEP_SUMMARY"
     exit 1
   fi
+  if [ -z "$GITHUB_REPOSITORY" ]; then
+    (
+      echo '## Checkout Failed: GITHUB_REPOSITORY is not set'
+      if [ -z "$CI" ]; then
+        echo 'This probably means you are running this script locally instead of as part of an action. You need to set more enviroment variables.'
+      else
+        echo 'This should never happen, please file a bug (empty-github-repository)'
+      fi
+    ) >> "$GITHUB_STEP_SUMMARY"
+    exit 1
+  fi
+
 }
 
 check_wiki() {
@@ -404,7 +416,7 @@ check_for_submodules() {
 }
 
 check_ssh_key
-check_for_empty_github_token
+check_for_broken_github_environment
 check_wiki
 check_repository_existence
 check_repository_read_permission
