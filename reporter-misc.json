@@ -62,6 +62,16 @@
             ]
         },
         {
+            "owner": "check-spelling-git-remote",
+            "severity": "warning",
+            "pattern": [
+                {
+                    "regexp": "^\\s*remote: (.*)$",
+                    "message": 1
+                }
+            ]
+        },
+        {
             "owner": "check-spelling-perl-not-enough-arguments",
             "pattern": [
                 {
