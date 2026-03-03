@@ -79,13 +79,11 @@ runs:
   - name: Suppress git default branch message
     id: quiet
     shell: bash
+    env:
+      ACTION_PATH: ${{ github.action_path }}
     run: |
       : Suppress git default branch message
-      if git config --global init.defaultBranch|grep -q .; then
-        exit 0
-      fi
-      git config --global init.defaultBranch silence_warning_about_default_branch
-      echo 'cleanup=1' >> "$GITHUB_OUTPUT"
+      "$ACTION_PATH"/git-pre
   - name: Shim git
     shell: bash
     id: shim-git
@@ -141,6 +139,8 @@ runs:
   - name: Restore silly message
     if: steps.quiet.outputs.cleanup
     shell: bash
+    env:
+      ACTION_PATH: ${{ github.action_path }}
     run: |
       : Restore silly git message
-      git config --global --unset init.defaultBranch
+      "$ACTION_PATH"/git-post
