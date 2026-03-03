@@ -275,7 +275,7 @@ check_ssh_key() {
   fi
 }
 
-check_for_empty_github_token() {
+check_for_broken_github_environment() {
   if [ -z "$GH_TOKEN" ]; then
     (
       if [ -n "$ACT" ]; then
@@ -289,6 +289,18 @@ check_for_empty_github_token() {
     ) >> "$GITHUB_STEP_SUMMARY"
     exit 1
   fi
+  if [ -z "$GITHUB_REPOSITORY" ]; then
+    (
+      echo '## Checkout Failed: GITHUB_REPOSITORY is not set'
+      if [ -z "$CI" ]; then
+        echo 'This probably means you are running this script locally instead of as part of an action. You need to set more enviroment variables.'
+      else
+        echo 'This should never happen, please [review the list of known 🐛 bugs](https://github.com/check-spelling/check-spelling/issues?q=is%3Aissue%20%22empty-github-repository%22) and if you cannot find one that matches this case, please [file a 🐛 bug (empty-github-repository)](https://github.com/check-spelling/check-spelling/issues/new?title=%5Bempty-github-repository%5D%20scenario&body=Please%20provide%20details+preferably%20including%20a%20link%20to%20a%20workflow%20run,%20the%20configuration%20of%20the%20repository,%20and%20anything%20else%20you%20may%20know%20about%20the%20problem%2e)'
+      fi
+    ) >> "$GITHUB_STEP_SUMMARY"
+    exit 1
+  fi
+
 }
 
 check_wiki() {
@@ -404,7 +416,7 @@ check_for_submodules() {
 }
 
 check_ssh_key
-check_for_empty_github_token
+check_for_broken_github_environment
 check_wiki
 check_repository_existence
 check_repository_read_permission
