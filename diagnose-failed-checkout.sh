@@ -178,26 +178,55 @@ check_for_errors_in_logs() {
   checkout_out="${checkout_out:-/dev/null}"
   if [ -s "$checkout_err" ] || [ -s "$checkout_out" ]; then
     evidence=$(mktemp)
+    repo_stat=$(mktemp -d)
+    http_error=$(grep -E 'HTTP/\S+ [45]\d\d' "$checkout_err" "$checkout_out" | head -1)
     if grep -q 'ERROR: Repository not found.' "$checkout_err" "$checkout_out"; then
       : ssh protocol returned repository not found
       perl -ne 'next if /(?:debug\d|trace)|: sent |^\s+#\d+ client-session/;print' "$checkout_err" "$checkout_out" > "$evidence"
-    elif grep -q 'remote: Repository not found.' "$checkout_err" "$checkout_out"; then
-      : http protocol returned repository not found
-      perl -ne '
-      next unless m{=> Send header: (?:GET|(?:Host|User-Agent):)|<= Recv header: (?:HTTP/|(?:server|x-github-request-id):)|remote: Repository not found|fatal: repository.*not found};
-      s/^.*?(=>|<=)/$1/;
-      print;
-      ' "$checkout_err" "$checkout_out" > "$evidence"
+      error_title='Repository not found'
+      error_reason='repository does not exist'
+      touch "$repo_stat"/404
+    elif [ -n "$http_error" ]; then
+      record_http_evidence() {
+        perl -ne '
+        next unless m{=> Send header: (?:GET|(?:Host|User-Agent):)|<= Recv header: (?:HTTP/|(?:server|x-github-request-id):)|(?:fatal|remote): };
+        s/^.*?(=>|<=)/$1/;
+        print;
+        ' "$checkout_err" "$checkout_out" > "$evidence"
+      }
+      http_error_code="${http_error##* }"
+      touch "$repo_stat/$http_error_code"
+      case "$http_error_code" in
+      5*)
+        : http protocol returned server error
+        error_title='Server Error'
+        error_reason='server was broken'
+        record_http_evidence
+        ;;
+      404)
+        : http protocol returned repository not found
+        error_title='Repository not found'
+        error_reason='repository does not exist'
+        record_http_evidence
+        ;;
+      4*)
+        : http protocol returned application error
+        error_title='Server did not like client requests'
+        error_reason='server did not like the request'
+        record_http_evidence
+        ;;
+      esac
     fi
     if [ -s "$evidence" ]; then
       (
-        echo '## Checkout Failed: Repository not found'
+        echo "## Checkout Failed: $error_title"
         echo
         if grep -q '\bgithub\.com\b' "$checkout_err" "$checkout_out"; then
-          echo "It's possible that GitHub is misbehaving, but when git tried to retrieve the repository, it failed. The server reported the repository does not exist:"
+          echo -n "It's possible that GitHub is misbehaving, but when "
         else
-          echo "When git tried to retrieve the repository, it failed. The server reported the repository does not exist:"
+          echo -n "When "
         fi
+        echo "git tried to retrieve the repository, it failed. The server reported the $error_reason:"
         echo
         echo '### actions/checkout git logs'
         echo
