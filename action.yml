@@ -588,6 +588,7 @@ runs:
       run: |
         unknown-words
     - name: store-comment
+      continue-on-error: true
       if: env.MERGE_FAILED != '1' &&
         inputs.task != 'comment' &&
         steps.retrieve-comment.conclusion == 'skipped' &&
@@ -600,6 +601,7 @@ runs:
         path:
           ${{ steps.spelling.outputs.internal_state_directory }}
     - name: artifact-sarif
+      continue-on-error: true
       id: artifact-sarif
       if: (success() || (failure() && env.MERGE_FAILED != '1')) && env.UPLOAD_SARIF != ''
       uses: ./../check-spelling-actions/upload-artifact
