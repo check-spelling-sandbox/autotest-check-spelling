@@ -580,6 +580,7 @@ sub get_artifacts {
             exit 8;
         }
         if ($gh_err_text =~ /API rate limit exceeded for .*?./ && $gh_err_text =~ /HTTP 403|"status":\s*"403"/) {
+        } elsif ($gh_err_text =~ /HTTP 502:/ || $gh_err_text =~ /"status":\s*"502"/) {
         } elsif ($gh_err_text =~ m{dial tcp \S+:\d+: i/o timeout$}) {
             if ($retries_remaining <= 0) {
                 print "$program: Timeout connecting to GitHub. This is probably caused by an outage of sorts.\nCheck https://www.githubstatus.com/history\nTry again later.";
@@ -614,7 +615,7 @@ sub get_artifacts {
                 } else {
                     print STDERR "Couldn't find x-ratelimit-remaining, will sleep for $delay\n";
                 }
-            } elsif ($curl_stdout =~ m{^HTTP/\S+\s+403}) {
+            } elsif ($curl_stdout =~ m{^HTTP/\S+\s+(?:403|502)}) {
                 if ($curl_stdout =~ /^retry-after:\s+(\d+)/m) {
                     $delay = $1;
                     print STDERR "Sleeping for $delay seconds (presumably due to API rate limit)\n";
