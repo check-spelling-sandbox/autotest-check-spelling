@@ -10,9 +10,12 @@ use Test::More;
 use JSON::PP;
 use Capture::Tiny ':all';
 
-plan tests => 5;
+plan tests => 7;
 use_ok('CheckSpelling::Sarif');
 is(CheckSpelling::Sarif::encode_low_ascii("\x05"), '\u0005');
+
+is(CheckSpelling::Sarif::encode_message('this `is` something \\slash'), 'this [is](#security-tab) something \\\\\\\\\\\\slash');
+is(CheckSpelling::Sarif::encode_message('this `is` some ``thing``'), q<this 'is' some [thing](#security-tab)>);
 
 my $tests = dirname(__FILE__);
 my $base = dirname($tests);
