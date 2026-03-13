@@ -131,6 +131,10 @@ sub encode_message {
 
     # replace '`' with `\`+`'` because GitHub's SARIF parser doesn't like them
     $message =~ s/\`/'/g;
+    # escape '*'/`_` for markdown
+    my $slash = '\\';
+    $message =~ s/([*])(.*?)([*])/$slash$1$2$slash$3/g;
+    $message =~ s/([_])(.*?)([_])/$slash$1$2$slash$3/g;
     return $message;
 }
 
