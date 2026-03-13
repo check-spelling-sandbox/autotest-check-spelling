@@ -114,10 +114,14 @@ sub encode_message {
 
     # slash escape `"` and `\`
     $message =~ s/(["\\])/\\$1/g;
+    # escape '*'/`_` for markdown
     # encode `message` to protect against low ascii`
     $message = encode_low_ascii $message;
     # double-slash-escape `"`, `(`, `)`, `]`
     $message = double_slash_escape $message;
+    my $doubled_slash = '\\\\';
+    $message =~ s/([*])(.*?)([*])/$doubled_slash$1$2$doubled_slash$3/g;
+    $message =~ s/([_])(.*?)([_])/$doubled_slash$1$2$doubled_slash$3/g;
     # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's SARIF view
     if ($message =~ /(`{2,})/) {
         my $backticks = $1;
