@@ -109,6 +109,31 @@ sub addToHashesNeededForFiles {
     $hashes_needed_for_files_ref->{$file}{$line}{$hashed_message}{$column} = '1';
 }
 
+sub encode_message {
+    my ($message) = @_;
+
+    # slash escape `"` and `\`
+    $message =~ s/(["\\])/\\$1/g;
+    # encode `message` to protect against low ascii`
+    $message = encode_low_ascii $message;
+    # double-slash-escape `"`, `(`, `)`, `]`
+    $message = double_slash_escape $message;
+    # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's SARIF view
+    if ($message =~ /(`{2,})/) {
+        my $backticks = $1;
+        while ($message =~ /($backticks`+)(?=[`].*?\g{-1})/gs) {
+            $backticks = $1 if length($1) > length($backticks);
+        }
+        $message =~ s/(^|[^\\])$backticks(.+?)$backticks/${1}[${2}](#security-tab)/;
+    } else {
+        $message =~ s/(^|[^\\])\`((?:[^`\\]|\\(?!`))+)\`/${1}[${2}](#security-tab)/;
+    }
+
+    # replace '`' with `\`+`'` because GitHub's SARIF parser doesn't like them
+    $message =~ s/\`/'/g;
+    return $message;
+}
+
 sub parse_warnings {
     my ($warnings) = @_;
     our $flatten;
@@ -141,26 +166,12 @@ sub parse_warnings {
                 }
             }
         }
-        # single-slash-escape `"` and `\`
-        $message =~ s/(["\\])/\\$1/g;
-        $message = encode_low_ascii $message;
-        # double-slash-escape `"`, `(`, `)`, `]`
-        $message = double_slash_escape $message;
-        # encode `message` and `file` to protect against low ascii`
+        # encode `file` to protect against low ascii`
         my $encoded_file = url_encode $file;
         $encoded_files{$encoded_file} = $file;
-        # hack to make the first `...` identifier a link (that goes nowhere, but is probably blue and underlined) in GitHub's SARIF view
-        if ($message =~ /(`{2,})/) {
-            my $backticks = $1;
-            while ($message =~ /($backticks`+)(?=[`].*?\g{-1})/gs) {
-                $backticks = $1 if length($1) > length($backticks);
-            }
-            $message =~ s/(^|[^\\])$backticks(.+?)$backticks/${1}[${2}](#security-tab)/;
-        } else {
-            $message =~ s/(^|[^\\])\`((?:[^`\\]|\\(?!`))+)\`/${1}[${2}](#security-tab)/;
-        }
-        # replace '`' with `\`+`'` because GitHub's SARIF parser doesn't like them
-        $message =~ s/\`/'/g;
+
+        $message = encode_message($message);
+
         unless (defined $rules->{$code}) {
             $rules->{$code} = {};
         }
