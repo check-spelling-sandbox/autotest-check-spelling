@@ -227,8 +227,15 @@ sub parse_warnings {
                     }
                     $message =~ s/\s\\\\\([^()]+?\\\)$//g;
                     my $result_json = qq<{"ruleId": "$code", $partialFingerprints "message": { "text": "$message" }, "locations": [ $locations_json_flat ] }>;
-                    my $result = decode_json $result_json;
-                    push @results, $result;
+                    my $result = eval {
+                        decode_json $result_json;
+                    };
+                    if ($@) {
+                        print STDERR "$@";
+                        print STDERR "$result_json\n";
+                    } else {
+                        push @results, $result;
+                    }
                 }
             }
         }
