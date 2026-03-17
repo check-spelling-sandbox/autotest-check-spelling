@@ -189,6 +189,18 @@
             ]
         },
         {
+            "owner": "check-spelling-perl-illegal-backslash-escape",
+            "severity": "warning",
+            "pattern": [
+                {
+                    "regexp": "(illegal backslash escape sequence in string.*) at (?:/home/runner/work/(?:_actions/[^/]+|)/[^/]+/[^/]+/|.*/check-spelling/)(\\S+) line (\\d+)(?:[,.]|$)",
+                    "message": 1,
+                    "file": 2,
+                    "line": 3
+                }
+            ]
+        },
+        {
             "owner": "github-internal-server-error",
             "pattern": [
                 {
