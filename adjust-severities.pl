@@ -78,7 +78,7 @@ while (<$warnings_in>) {
   if (defined $commit_messages) {
     s<^$commit_messages/([0-9a-f]+)\.message><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$1#>;
   }
-  if (defined $pr_details_path) {
+  if (defined $synthetic_base) {
     s<^$synthetic_base/pull-request/(\d+)/(?:description|summary).txt><$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$1#>;
   }
   if (/\((?:$ignored_pattern)\)$/) {
