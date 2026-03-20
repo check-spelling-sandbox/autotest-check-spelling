@@ -24,6 +24,7 @@ use Digest::SHA;
 our $VERSION='0.1.0';
 
 my ($longest_word, $shortest_word, $word_match, $forbidden_re, $patterns_re, $candidates_re, $disable_word_collating, $check_file_names);
+my $homoglyph_re;
 my ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
 my ($shortest, $longest) = (255, 0);
 my @forbidden_re_list;
@@ -165,7 +166,7 @@ sub load_dictionary {
   my ($dict) = @_;
   our ($word_match, $longest, $shortest, $longest_word, $shortest_word, %dictionary);
   $longest_word = CheckSpelling::Util::get_val_from_env('INPUT_LONGEST_WORD', undef);
-  $shortest_word = CheckSpelling::Util::get_val_from_env('INPUT_SHORTEST_WORD', undef);
+  $shortest_word = CheckSpelling::Util::get_val_from_env('INPUT_SHORTEST_WORD', 0);
   our ($ignore_pattern, $upper_pattern, $lower_pattern, $not_lower_pattern, $not_upper_or_lower_pattern, $punctuation_pattern);
   $ignore_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_IGNORE_PATTERN', q<[^a-zA-Z']>);
   $upper_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_UPPER_PATTERN', '[A-Z]');
@@ -173,6 +174,24 @@ sub load_dictionary {
   $not_lower_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_NOT_LOWER_PATTERN', '[^a-z]');
   $not_upper_or_lower_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_NOT_UPPER_OR_LOWER_PATTERN', '[^A-Za-z]');
   $punctuation_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_PUNCTUATION_PATTERN', q<'>);
+  my $homoglyph_list_path = CheckSpelling::Util::get_file_from_env_utf8('homoglyph_list_path', '/dev/null');
+  if (-s $homoglyph_list_path) {
+    use CheckSpelling::Homoglyph;
+    CheckSpelling::Homoglyph::init($homoglyph_list_path);
+    my $homoglyphs = $CheckSpelling::Homoglyph::homoglyphs;
+    # problematic characters: `\\`, `-`, `]`
+    $homoglyphs =~ s/([-\\\]])/\\$1/g;
+    $homoglyphs = "[$homoglyphs]";
+    qr/$homoglyphs/;
+    my $any_char = "(?:$upper_pattern|$lower_pattern)";
+    qr/$any_char/;
+    my $any_char_or_punctuation = "(?:$upper_pattern|$lower_pattern|$punctuation_pattern)";
+    my $homoglyphs_or_any_char_or_punctuation = "$homoglyphs|$any_char_or_punctuation";
+    my $longest_word_string = defined $longest_word ? $longest_word : '';
+    my $homoglyphs_or_any_char_or_punctuation_short_to_long = "(?:$homoglyphs_or_any_char_or_punctuation){$shortest_word,$longest_word_string}";
+    my $not_upper_or_lower_pattern_or_end = "(?:$not_upper_or_lower_pattern|$))";
+    our $homoglyph_re = "(?=$homoglyphs_or_any_char_or_punctuation_short_to_long$not_upper_or_lower_pattern_or_end)($any_char+$homoglyphs(?:$any_char_or_punctuation|$homoglyphs)*|$homoglyphs+$any_char(?:$any_char_or_punctuation|$homoglyphs)*)";
+  }
   %dictionary = ();
 
   open(my $dict_fh, '<:utf8', $dict);
@@ -584,7 +603,22 @@ sub split_file {
       # This is to make it easier to deal w/ rules:
       s/^/ /;
       my %unrecognized_line_items = ();
-      my ($new_words, $new_unrecognized) = split_line($_, \%unique, \%unique_unrecognized, \%unrecognized_line_items, $warnings_fh);
+      our $homoglyph_re;
+      if (defined $homoglyph_re) {
+        my $check_line_for_homoglyphs = $_;
+        my $homoglyphs = $CheckSpelling::Homoglyph::homoglyphs;
+        while ($check_line_for_homoglyphs =~ /($homoglyph_re)/g) {
+          my ($token, $token_raw, $begin, $end) = ($1, $1, $-[0] + 1, $+[0] + 1);
+          $token =~ s/([$homoglyphs])/$CheckSpelling::Homoglyph::homoglyph_to_glyph{$1}/g;
+          if (defined $dictionary{$token}) {
+            my $token_raw = CheckSpelling::Util::wrap_in_backticks($token_raw);
+            my $token = CheckSpelling::Util::wrap_in_backticks($token);
+            my $wrapped = "check $token_raw should probably be $token (homoglyph-word)";
+            print $warnings_fh ":$.:$begin ... $end: $wrapped\n";
+          }
+        }
+      }
+      my ($new_words, $new_unrecognized) = split_line($_, \%unique, \%unique_unrecognized, \%unrecognized_line_items);
       $words += $new_words;
       $unrecognized += $new_unrecognized;
       my $line_length = length($raw_line);
