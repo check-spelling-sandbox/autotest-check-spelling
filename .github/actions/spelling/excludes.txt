@@ -6,4 +6,5 @@ ignore$
 ^LICENSE\.txt$
 ^t/.*/
 ^\.github/actions/spelling/expect/
+^homoglyph\.list$
 ^version$

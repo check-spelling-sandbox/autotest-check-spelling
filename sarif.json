@@ -804,6 +804,32 @@
               }
             },
             {
+              "id": "homoglyph-word",
+              "name": "HomoglyphWord",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#homoglyph-word",
+              "shortDescription": {
+                "text": "Homoglyph Word"
+              },
+              "fullDescription": {
+                "text": "Word would be in dictionary if the homoglyph(s) was/were replaced."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Replace the homoglyph characters with the appropriate characters.\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "medium",
+                "problem.severity": "warning",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "binary-file",
               "name": "BinaryFile",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#binary-file",
