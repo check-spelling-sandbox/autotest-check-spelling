@@ -136,13 +136,14 @@ These forbidden patterns matched content:
 
 </details>
 
-<details><summary>Errors, Warnings, and Notices ❌ (4)</summary>
+<details><summary>Errors, Warnings, and Notices ❌ (5)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
 [❌ Errors, Warnings, and Notices](https://docs.check-spelling.dev/Event-descriptions) | Count
 -|-
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 5
+[⚠️ homoglyph-word](https://docs.check-spelling.dev/Event-descriptions#homoglyph-word) | 1
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
 [ℹ️ unused-config-file](https://docs.check-spelling.dev/Event-descriptions#unused-config-file) | 1
@@ -161,6 +162,13 @@ note|path
 `documentation.file` matches a line_forbidden.patterns rule: Should be `documentation.pdf` - `\bdocumentation\.file\b` | unknown-words/input/sample.file:5
 `logo.ico` matches a line_forbidden.patterns rule: Should be `logo.png` - `\blogo\.ico\b` | unknown-words/input/sample.file:7
 `sample.file` matches a line_forbidden.patterns rule: Should be `sample-file.txt` - `\bsample\.file\b` | unknown-words/input/sample.file:1
+</details>
+
+<details><summary>📂 homoglyph-word</summary>
+
+note|path
+-|-
+`brandıng` should probably be `branding` | unknown-words/input/sample.file:7
 </details>
 
 <details><summary>📂 ignored-expect-variant</summary>
