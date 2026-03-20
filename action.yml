@@ -299,6 +299,10 @@ inputs:
     description: "Word Splitter Punctuation Pattern"
     required: false
     default: "'"
+  check-homoglyphs:
+    description: "Check for homoglyphs"
+    required: false
+    default: "1"
   report-timing:
     description: "Report processing time for files"
     required: false
