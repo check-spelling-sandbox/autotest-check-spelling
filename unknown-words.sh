@@ -1339,6 +1339,7 @@ define_variables() {
   extra_dictionaries_list="$data_dir/extra_dictionaries.list"
   export sarif_overlay_path="$data_dir/overlay.sarif.json"
   export config_json_path="$data_dir/config.json"
+  homoglyph_list_path="$data_dir/homoglyph.list"
   file_list="$data_dir/checked_files.lst"
   BODY="$data_dir/comment.md"
   delay_step_summary_warnings="$(mktemp)"
@@ -2364,6 +2365,12 @@ set_up_files() {
   get_project_files advice.md "$advice_path"
   get_project_files sarif.json "$sarif_overlay_path"
   get_project_files config.json "$config_json_path"
+  if to_boolean "$INPUT_CHECK_HOMOGLYPHS"; then
+    ignored_events="$INPUT_IGNORED,empty-file" get_project_files homoglyph.list "$homoglyph_list_path"
+    if [ ! -s "$homoglyph_list_path" ]; then
+      homoglyph_list_path="$spellchecker/homoglyph.list"
+    fi
+  fi
 
   if [ -n "$debug" ]; then
     echo "Clean up from previous run"
@@ -2733,7 +2740,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     INPUT_PUNCTUATION_PATTERN="$INPUT_PUNCTUATION_PATTERN" \
     INPUT_IGNORE_NEXT_LINE="$INPUT_IGNORE_NEXT_LINE" \
     INPUT_CHECK_IMAGES="$INPUT_CHECK_IMAGES" \
+    INPUT_CHECK_HOMOGLYPHS="$INPUT_CHECK_HOMOGLYPHS" \
     dict="$dict" \
+    homoglyph_list_path="$homoglyph_list_path" \
     hunspell_dictionary_path="$hunspell_dictionary_path" \
     ocr_directory="$ocr_directory" \
     check_file_names="$check_file_names" \

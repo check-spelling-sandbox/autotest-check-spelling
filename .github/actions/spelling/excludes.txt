@@ -7,4 +7,5 @@ ignore$
 ^LICENSE\.txt$
 ^t/.*/
 ^\.github/
+^homoglyph\.list$
 ^version$
