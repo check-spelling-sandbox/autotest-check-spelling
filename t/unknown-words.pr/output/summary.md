@@ -157,7 +157,7 @@ These forbidden patterns matched content:
 \bsample\.file\b
 ```
 
-<details><summary>Errors and Warnings ❌ (6)</summary>
+<details><summary>Errors and Warnings ❌ (7)</summary>
 
 #### See the [📜action log](GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/actions/runs/GITHUB_RUN_ID) or 📝 job summary for details.
 
@@ -167,6 +167,7 @@ These forbidden patterns matched content:
 [⚠️ binary-file](https://docs.check-spelling.dev/Event-descriptions#binary-file) | 1
 [❌ check-file-path](https://docs.check-spelling.dev/Event-descriptions#check-file-path) | 2
 [❌ forbidden-pattern](https://docs.check-spelling.dev/Event-descriptions#forbidden-pattern) | 2
+[⚠️ homoglyph-word](https://docs.check-spelling.dev/Event-descriptions#homoglyph-word) | 1
 [⚠️ ignored-expect-variant](https://docs.check-spelling.dev/Event-descriptions#ignored-expect-variant) | 1
 [⚠️ non-alpha-in-dictionary](https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary) | 1
 
@@ -203,6 +204,13 @@ note|path
 -|-
 `+` matches a line_forbidden.patterns rule: Expect entries should not include non-word characters - `(?![A-Z]\|[a-z]\|'\|\s\|=).` | GITHUB_SERVER_URL/GITHUB_REPOSITORY_OWNER/GITHUB_REPOSITORY_NAME/blame/GITHUB_SHA/t/unknown-words.pr/config/expect.txt#L1
 `sample.file` matches a line_forbidden.patterns rule: Should be `sample-file.txt` - `\bsample\.file\b` | unknown-words/input/sample.file:1
+</details>
+
+<details><summary>📂 homoglyph-word</summary>
+
+note|path
+-|-
+`brandıng` should probably be `branding` | unknown-words/input/sample.file:7
 </details>
 
 <details><summary>📂 ignored-expect-variant</summary>

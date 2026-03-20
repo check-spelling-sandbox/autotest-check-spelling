@@ -7,4 +7,5 @@ ignore$
 ^t/.*/
 ^\.github/actions/spelling/.*patterns
 ^\.github/actions/spelling/expect/
+^homoglyph\.list$
 ^version$

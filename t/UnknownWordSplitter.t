@@ -5,6 +5,8 @@ use feature 'unicode_strings';
 use strict;
 use warnings;
 use utf8;
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
 
 use Encode qw/decode_utf8 FB_DEFAULT/;
 use Cwd 'abs_path';
@@ -13,6 +15,12 @@ use File::Temp qw/ tempfile tempdir /;
 use Capture::Tiny ':all';
 
 use Test::More;
+
+my $builder = Test::More->builder;
+binmode $builder->output,         ":utf8";
+binmode $builder->failure_output, ":utf8";
+binmode $builder->todo_output,    ":utf8";
+
 plan tests => 63;
 
 use_ok('CheckSpelling::UnknownWordSplitter');
@@ -48,12 +56,12 @@ sub check_output_file_sorted_lines {
 $ENV{splitter_timeout} = 300000;
 my ($fh, $filename) = tempfile();
 print $fh "foo
-Mooprh
+Moprh
 BROADDEPlay
 
 bar";
 close $fh;
-is(CheckSpelling::Exclude::file_to_re($filename), "(?:foo)|(?:Mooprh)|(?:BROADDEPlay)|(?:bar)", 'file_to_re');
+is(CheckSpelling::Exclude::file_to_re($filename), "(?:foo)|(?:Moprh)|(?:BROADDEPlay)|(?:bar)", 'file_to_re');
 $CheckSpelling::UnknownWordSplitter::word_match = CheckSpelling::UnknownWordSplitter::valid_word();
 is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:\w|'){3,}\b)>, 'word_match');
 $CheckSpelling::UnknownWordSplitter::shortest=100;
@@ -65,13 +73,22 @@ is($CheckSpelling::UnknownWordSplitter::longest, 13, 'calculate longest');
 is($CheckSpelling::UnknownWordSplitter::word_match, q<(?^u:\b(?:[A-Z]|[a-z]|'){3,13}\b)>, 'word_match');
 $ENV{'INPUT_LONGEST_WORD'} = 5;
 $ENV{'INPUT_SHORTEST_WORD'} = '';
+$ENV{'INPUT_CHECK_HOMOGLYPHS'} = 1;
+$ENV{'homoglyph_list_path'} = '.github/actions/spelling/homoglyph.list';
 CheckSpelling::UnknownWordSplitter::load_dictionary($filename);
 is(scalar %CheckSpelling::UnknownWordSplitter::dictionary, 4, 'load dictionary with longest=5');
 is($CheckSpelling::UnknownWordSplitter::word_match, '(?^u:\b(?:[A-Z]|[a-z]|\'){3,5}\b)', 'word_match');
+open $fh, ">>:utf8", $filename;
+my $moprh_homoglyph = "Mo\x{3c1}rh";
+print $fh "
+$moprh_homoglyph
+";
+close $fh;
 my $directory = tempdir();
 open $fh, '>:utf8', "$directory/words";
 print $fh 'bar
 foo
+Moprh
 ';
 close $fh;
 my $output_dir;
@@ -102,10 +119,11 @@ ok($output_directory =~ /.*\n/, 'output directory');
 chomp($output_directory);
 ok(-d $output_directory, 'output directory exists');
 check_output_file("$output_directory/name", $filename, 'name');
-check_output_file("$output_directory/stats", '{words: 2, unrecognized: 1, unknown: 1, unique: 2}', 'stats');
+check_output_file("$output_directory/stats", '{words: 3, unrecognized: 1, unknown: 1, unique: 3}', 'stats');
 check_output_file("$output_directory/unknown", 'Play
 ', 'unknown');
 check_output_file("$output_directory/warnings", ":3:8 ... 12: `Play`
+:6:1 ... 6, Error - `$moprh_homoglyph` should probably be `Moprh` (homoglyph-word)
 ", 'warnings');
 open $fh, '>:utf8', $filename;
 print $fh ("bar "x1000)."\n\n";
