@@ -639,15 +639,15 @@ sub split_file {
   close $warnings_fh;
 
   if ($unrecognized || @candidates_re_hits || @forbidden_re_hits) {
-    open(STATS, '>:utf8', "$temp_dir/stats");
-      print STATS "{words: $words, unrecognized: $unrecognized, unknown: ".(keys %unique_unrecognized).
+    open(my $stats_fh, '>:utf8', "$temp_dir/stats");
+      print $stats_fh "{words: $words, unrecognized: $unrecognized, unknown: ".(keys %unique_unrecognized).
       ", unique: ".(keys %unique).
       (@candidates_re_hits ? ", candidates: [".(join ',', @candidates_re_hits)."]" : "").
       (@candidates_re_lines ? ", candidate_lines: [".(join ',', @candidates_re_lines)."]" : "").
       (@forbidden_re_hits ? ", forbidden: [".(join ',', @forbidden_re_hits)."]" : "").
       (@forbidden_re_lines ? ", forbidden_lines: [".(join ',', @forbidden_re_lines)."]" : "").
       "}";
-    close STATS;
+    close $stats_fh;
     open(UNKNOWN, '>:utf8', "$temp_dir/unknown");
       print UNKNOWN map { "$_\n" } sort CheckSpelling::Util::case_biased keys %unique_unrecognized;
     close UNKNOWN;
