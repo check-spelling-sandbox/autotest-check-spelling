@@ -648,9 +648,9 @@ sub split_file {
       (@forbidden_re_lines ? ", forbidden_lines: [".(join ',', @forbidden_re_lines)."]" : "").
       "}";
     close $stats_fh;
-    open(UNKNOWN, '>:utf8', "$temp_dir/unknown");
-      print UNKNOWN map { "$_\n" } sort CheckSpelling::Util::case_biased keys %unique_unrecognized;
-    close UNKNOWN;
+    open(my $unknown_fh, '>:utf8', "$temp_dir/unknown");
+      print $unknown_fh map { "$_\n" } sort CheckSpelling::Util::case_biased keys %unique_unrecognized;
+    close $unknown_fh;
   }
 
   return $temp_dir;
