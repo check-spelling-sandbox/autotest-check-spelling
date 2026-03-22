@@ -478,7 +478,7 @@ sub split_file {
     print STDERR "$message\n";
   };
 
-  open(WARNINGS, '>:utf8', "$temp_dir/warnings");
+  open(my $warnings_fh, '>:utf8', "$temp_dir/warnings");
   our $timeout;
   eval {
     local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
@@ -543,12 +543,12 @@ sub split_file {
             $found_trigger_re =~ s/^\(\?:(.*)\)$/$1/;
             my $quoted_trigger_re = CheckSpelling::Util::truncate_with_ellipsis(CheckSpelling::Util::wrap_in_backticks($found_trigger_re), 99);
             if ($description ne '') {
-              print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns rule: $description - $quoted_trigger_re (forbidden-pattern)\n";
+              print $warnings_fh ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns rule: $description - $quoted_trigger_re (forbidden-pattern)\n";
             } else {
-              print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
+              print $warnings_fh ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry: $quoted_trigger_re (forbidden-pattern)\n";
             }
           } else {
-            print WARNINGS ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry (forbidden-pattern)\n";
+            print $warnings_fh ":$.:$begin ... $end, Warning - $wrapped matches a line_forbidden.patterns entry (forbidden-pattern)\n";
           }
           $previous_line_state = $_;
         }
@@ -557,7 +557,7 @@ sub split_file {
       # This is to make it easier to deal w/ rules:
       s/^/ /;
       my %unrecognized_line_items = ();
-      my ($new_words, $new_unrecognized) = split_line($_, \%unique, \%unique_unrecognized, \%unrecognized_line_items);
+      my ($new_words, $new_unrecognized) = split_line($_, \%unique, \%unique_unrecognized, \%unrecognized_line_items, $warnings_fh);
       $words += $new_words;
       $unrecognized += $new_unrecognized;
       my $line_length = length($raw_line);
@@ -580,17 +580,17 @@ sub split_file {
           my ($begin, $end, $match) = ($-[0] + 1, $+[0] + 1, $1);
           next unless $match =~ /./;
           my $wrapped = CheckSpelling::Util::wrap_in_backticks($match);
-          print WARNINGS ":$.:$begin ... $end: $wrapped\n";
+          print $warnings_fh ":$.:$begin ... $end: $wrapped\n";
         }
         unless ($found_token) {
           if ($raw_line !~ /$token.*$token/ && $raw_line =~ /($token)/) {
             my ($begin, $end, $match) = ($-[0] + 1, $+[0] + 1, $1);
             my $wrapped = CheckSpelling::Util::wrap_in_backticks($raw_token);
-            print WARNINGS ":$.:$begin ... $end: $wrapped\n";
+            print $warnings_fh ":$.:$begin ... $end: $wrapped\n";
           } else {
             my $offset = $line_length + 1;
             my $wrapped = CheckSpelling::Util::wrap_in_backticks($raw_token);
-            print WARNINGS ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line (token-is-substring)\n";
+            print $warnings_fh ":$.:1 ... $offset, Warning - Could not identify whole word $wrapped in line (token-is-substring)\n";
           }
         }
       }
@@ -630,13 +630,13 @@ sub split_file {
   };
   if ($@) {
     die unless $@ eq "alarm\n";
-    print WARNINGS ":$.:1 ... 1, Warning - Could not parse file within time limit (slow-file)\n";
+    print $warnings_fh ":$.:1 ... 1, Warning - Could not parse file within time limit (slow-file)\n";
     skip_file($temp_dir, "it could not be parsed file within time limit (slow-file)\n");
     return $temp_dir;
   }
 
   close FILE;
-  close WARNINGS;
+  close $warnings_fh;
 
   if ($unrecognized || @candidates_re_hits || @forbidden_re_hits) {
     open(STATS, '>:utf8', "$temp_dir/stats");
