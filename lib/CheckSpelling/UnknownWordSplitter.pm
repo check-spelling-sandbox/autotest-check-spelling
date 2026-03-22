@@ -404,9 +404,9 @@ sub split_file {
   my @forbidden_re_lines = (0) x scalar @forbidden_re_list;
   my $temp_dir = tempdir(DIR=>$sandbox);
   print STDERR "checking file: $file\n" if defined $ENV{'DEBUG'};
-  open(NAME, '>', "$temp_dir/name");
-    print NAME $file;
-  close NAME;
+  open(my $name_fh, '>', "$temp_dir/name");
+    print $name_fh $file;
+  close $name_fh;
   if (defined readlink($file) &&
       rindex(File::Spec->abs2rel(abs_path($file)), '../', 0) == 0) {
     skip_file($temp_dir, "symbolic link points outside repository (out-of-bounds-symbolic-link)\n");
