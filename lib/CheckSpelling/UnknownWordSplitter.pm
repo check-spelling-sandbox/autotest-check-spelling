@@ -197,13 +197,13 @@ sub hunspell_dictionary {
   my $aff = $dict;
   my $encoding;
   $aff =~ s/\.dic$/.aff/;
-  if (open AFF, '<', $aff) {
-    while (<AFF>) {
+  if (open my $aff_fh, '<', $aff) {
+    while (<$aff_fh>) {
       next unless /^SET\s+(\S+)/;
       $encoding = $1 if ($1 !~ /utf-8/i);
       last;
     }
-    close AFF;
+    close $aff_fh;
   }
   return {
     name => $name,
