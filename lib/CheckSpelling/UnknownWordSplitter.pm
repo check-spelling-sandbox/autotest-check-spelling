@@ -160,9 +160,9 @@ sub parse_block_list {
   my $true_pairs = $pairs | 0;
   unless ($pairs == $true_pairs) {
     my $early_warnings = CheckSpelling::Util::get_file_from_env('early_warnings', '/dev/null');
-    open EARLY_WARNINGS, ">>:encoding(UTF-8)", $early_warnings;
-    print EARLY_WARNINGS "$re:$last_line:Block delimiters must come in pairs (uneven-block-delimiters)\n";
-    close EARLY_WARNINGS;
+    open my $early_warnings_fh, ">>:encoding(UTF-8)", $early_warnings;
+    print $early_warnings_fh "$re:$last_line:Block delimiters must come in pairs (uneven-block-delimiters)\n";
+    close $early_warnings_fh;
     my $i = 0;
     while ($i < $true_pairs) {
       print STDERR "block-delimiter $i S: $file[$i*2]\n";
