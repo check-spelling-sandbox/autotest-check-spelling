@@ -142,12 +142,12 @@ sub not_empty {
 sub parse_block_list {
   my ($re) = @_;
   my @file;
-  return @file unless (open(FILE, '<:utf8', $re));
+  return @file unless (open(my $file_fh, '<:utf8', $re));
 
   local $/=undef;
-  my $file=<FILE>;
+  my $file=<$file_fh>;
   my $last_line = $.;
-  close FILE;
+  close $file_fh;
   for (split /\R/, $file) {
     next if /^#/;
     chomp;
