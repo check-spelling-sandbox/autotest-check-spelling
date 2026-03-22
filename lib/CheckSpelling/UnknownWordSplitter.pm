@@ -448,10 +448,10 @@ sub split_file {
       }
     }
   }
-  open FILE, '<', $file;
-  binmode FILE;
+  open my $file_fh, '<', $file;
+  binmode $file_fh;
   my $head;
-  read(FILE, $head, 4096);
+  read($file_fh, $head, 4096);
   $head =~ s/(?:\r|\n)+$//;
   my $dos_new_lines = () = $head =~ /\r\n/gi;
   my $unix_new_lines = () = $head =~ /\n/gi;
@@ -466,7 +466,7 @@ sub split_file {
   } else {
     $/ = "\n";
   }
-  seek(FILE, 0, 0);
+  seek($file_fh, 0, 0);
   ($words, $unrecognized) = (0, 0);
   %unique = ();
   %unique_unrecognized = ();
@@ -486,7 +486,7 @@ sub split_file {
 
     my $ignore_next_line = 0;
     my $offset = 0;
-    while (<FILE>) {
+    while (<$file_fh>) {
       if ($. == 1) {
         unless ($disable_minified_file) {
           if ($file_size >= 512 && length($_) == $file_size) {
@@ -635,7 +635,7 @@ sub split_file {
     return $temp_dir;
   }
 
-  close FILE;
+  close $file_fh;
   close $warnings_fh;
 
   if ($unrecognized || @candidates_re_hits || @forbidden_re_hits) {
