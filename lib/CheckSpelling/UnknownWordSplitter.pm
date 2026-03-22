@@ -351,9 +351,9 @@ sub split_line {
 
 sub skip_file {
   my ($temp_dir, $reason) = @_;
-  open(SKIPPED, '>:utf8', "$temp_dir/skipped");
-  print SKIPPED $reason;
-  close SKIPPED;
+  open(my $skipped_fh, '>:utf8', "$temp_dir/skipped");
+  print $skipped_fh $reason;
+  close $skipped_fh;
 }
 
 sub maybe_ocr_file {
