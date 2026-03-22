@@ -773,10 +773,10 @@ sub split_file {
     if ($next_end_marker) {
       if ($start_marker_line) {
         my $wrapped = CheckSpelling::Util::wrap_in_backticks($current_begin_marker);
-        print WARNINGS ":$start_marker_line, Warning - Failed to find matching end marker for $wrapped (unclosed-block-ignore-begin)\n";
+        print $warnings_fh ":$start_marker_line, Warning - Failed to find matching end marker for $wrapped (unclosed-block-ignore-begin)\n";
       }
       my $wrapped = CheckSpelling::Util::wrap_in_backticks($next_end_marker);
-      print WARNINGS ":$.:1 ... 1, Warning - Expected to find end block marker $wrapped (unclosed-block-ignore-end)\n";
+      print $warnings_fh ":$.:1 ... 1, Warning - Expected to find end block marker $wrapped (unclosed-block-ignore-end)\n";
     }
 
     alarm 0;
