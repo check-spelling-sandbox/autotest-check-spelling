@@ -173,9 +173,9 @@ sub load_dictionary {
   $punctuation_pattern = CheckSpelling::Util::get_file_from_env_utf8('INPUT_PUNCTUATION_PATTERN', q<'>);
   %dictionary = ();
 
-  open(DICT, '<:utf8', $dict);
-  while (!eof(DICT)) {
-    my $word = <DICT>;
+  open(my $dict_fh, '<:utf8', $dict);
+  while (!eof($dict_fh)) {
+    my $word = <$dict_fh>;
     chomp $word;
     next unless $word =~ $word_match;
     my $l = length $word;
@@ -184,7 +184,7 @@ sub load_dictionary {
     $shortest = $l if $l < $shortest;
     $dictionary{$word}=1;
   }
-  close DICT;
+  close $dict_fh;
 
   $word_match = valid_word();
 }
