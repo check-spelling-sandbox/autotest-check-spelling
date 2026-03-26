@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event_name, 'pull_request') || github.event_name == 'push'
     steps:
-    - name: checkout-merge
+    - name: Checkout merge
       if: contains(github.event_name, 'pull_request')
       uses: actions/checkout@v6
       with:
@@ -24,14 +24,14 @@ jobs:
         GIT_CURL_VERBOSE: True
         GIT_TRACE: True
         GIT_SSH_COMMAND: ssh -v -v -v
-    - name: checkout
+    - name: Checkout
       if: github.event_name == 'push'
       uses: actions/checkout@v6
       env:
         GIT_CURL_VERBOSE: True
         GIT_TRACE: True
         GIT_SSH_COMMAND: ssh -v -v -v
-    - name: perl configuration
+    - name: Perl configuration
       id: perl-config
       run: |
         : Perl configuration
@@ -150,7 +150,7 @@ jobs:
           fi
         )
 
-    - name: gh-program-downloader
+    - name: Install gh
       if: steps.dependencies.outputs.gh-location
       uses: ./actions/gh-program-downloader
       with:
@@ -163,7 +163,7 @@ jobs:
         GIT_TRACE: True
         GIT_SSH_COMMAND: ssh -v -v -v
 
-    - name: test
+    - name: Test
       id: test
       shell: bash
       env:
@@ -234,7 +234,7 @@ jobs:
         fi
         echo 'ran=1' >> "$GITHUB_OUTPUT"
         exit $failed
-    - name: calculate coverage
+    - name: Calculate coverage
       id: coverage
       if: steps.test.outputs.ran == 1 && (success() || failure())
       run: |
@@ -249,7 +249,7 @@ jobs:
           ) >> "$GITHUB_STEP_SUMMARY"
         fi
         echo 'ran=1' >> "$GITHUB_OUTPUT"
-    - name: publish coverage to pages
+    - name: Publish coverage to pages
       if: (success() || failure()) && (steps.coverage.outputs.ran == 1) && env.has_coverage_repository
       uses: ./actions/publish-coverage
       with:
@@ -258,7 +258,7 @@ jobs:
         pages-base-url: ${{ vars.github_pages_base }}
       env:
         has_coverage_repository: ${{ vars.coverage_repository && secrets.coverage_repository_key && 1 || '' }}
-    - name: store-coverage
+    - name: Store coverage
       if: (success() || failure()) && (steps.coverage.outputs.ran == 1)
       uses: ./actions/upload-artifact
       timeout-minutes: 5
@@ -266,7 +266,7 @@ jobs:
         name: "check-spelling-coverage-${{ github.run_id }}"
         path: |
           cover_db
-    - name: store-run-output
+    - name: Store run output
       if: (success() || failure()) && (steps.test.outputs.run-diff == 1)
       uses: ./actions/upload-artifact
       timeout-minutes: 5
@@ -282,7 +282,7 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event_name, 'pull_request') || github.event_name == 'push'
     steps:
-    - name: checkout-merge
+    - name: Checkout merge
       if: contains(github.event_name, 'pull_request')
       uses: actions/checkout@v6
       with:
@@ -291,14 +291,14 @@ jobs:
         GIT_CURL_VERBOSE: True
         GIT_TRACE: True
         GIT_SSH_COMMAND: ssh -v -v -v
-    - name: checkout
+    - name: Checkout
       if: github.event_name == 'push'
       uses: actions/checkout@v6
       env:
         GIT_CURL_VERBOSE: True
         GIT_TRACE: True
         GIT_SSH_COMMAND: ssh -v -v -v
-    - name: test
+    - name: Test
       id: test
       shell: bash
       run: |
@@ -326,14 +326,14 @@ jobs:
         export APPLY_SKIP_UPDATE_CHECK=1
         ./unknown-words.sh || true
         grep -q '@check-spelling-bot Report' "$GITHUB_STEP_SUMMARY"
-    - name: upload artifact
+    - name: Upload artifact
       id: upload-artifact
       uses: ./actions/upload-artifact
       with:
         name: standalone-artifact
         path: |
           ${{ steps.test.outputs.internal_state_directory }}
-    - name: artifact note
+    - name: Add artifact note to summary
       if: steps.upload-artifact.outcome == 'success'
       run: |
         : Artifact note

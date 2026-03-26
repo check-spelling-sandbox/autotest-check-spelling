@@ -103,7 +103,7 @@ jobs:
           fi
           git config --global init.defaultBranch silence_warning_about_default_branch
           echo 'cleanup=1' >> "$GITHUB_OUTPUT"
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: ${{ !contains(env.workflow_check_commit_messages, 'commits') && '1' || '0' }}
@@ -112,13 +112,13 @@ jobs:
           GIT_CURL_VERBOSE: True
           GIT_TRACE: True
           GIT_SSH_COMMAND: ssh -v -v -v
-      - name: test-clean
+      - name: Test (clean)
         shell: bash
         run: |
           git clone . ../introspected/
           mv ../introspected .
           cp .git/config introspected/.git
-      - name: test-merge
+      - name: Test (merge)
         if: ${{ contains(github.event_name, 'pull_request') }}
         uses: ./actions/checkout-merge
         with:
@@ -127,7 +127,7 @@ jobs:
           GIT_CURL_VERBOSE: True
           GIT_TRACE: True
           GIT_SSH_COMMAND: ssh -v -v -v
-      - name: check-spelling
+      - name: Run check-spelling
         if: env.MERGE_FAILED != '1'
         id: spelling
         uses: ./
@@ -173,9 +173,9 @@ jobs:
       github.event_name == 'push'
       }}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v6
-      - name: comment
+      - name: Comment
         uses: ./
         with:
           checkout: false
@@ -199,9 +199,9 @@ jobs:
       contains(github.event_name, 'pull_request')
       }}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v6
-      - name: comment
+      - name: Comment
         uses: ./
         with:
           checkout: false
@@ -228,9 +228,9 @@ jobs:
       group: spelling-update-${{ github.event.issue.number }}
       cancel-in-progress: false
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v6
-      - name: apply spelling updates
+      - name: Apply spelling updates
         uses: ./
         with:
           experimental_apply_changes_via_bot: 1
