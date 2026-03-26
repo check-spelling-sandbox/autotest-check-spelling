@@ -21,7 +21,7 @@ inputs:
     default: ${{ github.token }}
   matrix:
     description:
-    default: ${{ case(!!matrix, toJson(matrix), '') }}
+    default: ${{ matrix && toJson(matrix) || '' }}
   category:
     description:
     required: false
