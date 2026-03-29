@@ -35,7 +35,7 @@
               },
               "help": {
                 "text": "?",
-                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct spelling\n- Add to [expect](https://docs.check-spelling.dev/Configuration-Files#expect)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Correct spelling\n- Add to [expect](https://docs.check-spelling.dev/Configuration-Files#expect)\n- Add word to the [dictionary](https://docs.check-spelling.dev/Configuration-Files#allow)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
               },
               "defaultConfiguration": {
                 "level": "error"
@@ -425,7 +425,7 @@
               },
               "help": {
                 "text": "?",
-                "markdown": "**Remediation (click \"Show more\" below)**:\n\nNote that this check is against the file path not the displayed line\n- Rename file/directory to correct spelling\n- Add to [expect](https://docs.check-spelling.dev/Configuration-Files#expect)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\nNote that this check is against the file path not the displayed line\n- Rename file/directory to correct spelling\n- Add to [expect](https://docs.check-spelling.dev/Configuration-Files#expect)\n- Add word to the [dictionary](https://docs.check-spelling.dev/Configuration-Files#allow)\n- Mask using [patterns](https://docs.check-spelling.dev/Configuration-Files#patterns)\n\n"
               },
               "defaultConfiguration": {
                 "level": "error"
