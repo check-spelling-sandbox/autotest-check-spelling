@@ -59,7 +59,7 @@ expect_empty_advisory() {
 
 case "$poll_status" in
   *"command not found")
-    echo "::warning ::couldn't perform dns lookup: '$poll_status'" >&2
+    echo "::warning ::Couldn't perform dns lookup: '$poll_status'" >&2
   ;;
   "")
     expect_empty_advisory
