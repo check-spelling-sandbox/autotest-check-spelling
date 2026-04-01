@@ -59,7 +59,7 @@ expect_empty_advisory() {
 
 case "$poll_status" in
   *"command not found")
-    echo "::warning ::Couldn't perform dns lookup: '$poll_status'" >&2
+    echo "::warning title=Security Polling::Couldn't perform dns lookup: '$poll_status'" >&2
   ;;
   "")
     expect_empty_advisory
@@ -80,11 +80,11 @@ case "$poll_status" in
     if [ "$poll_status" != "$INPUT_IGNORE_SECURITY_ADVISORY" ]; then
       die "Found security advisory for version $version: '$poll_status' (ignore_security_advisory did not match)"
     fi
-    echo "::warning ::Ignoring security advisory '$INPUT_IGNORE_SECURITY_ADVISORY' for version $version -- this is not recommended" >&2
+    echo "::warning title=Security Polling::Ignoring security advisory '$INPUT_IGNORE_SECURITY_ADVISORY' for version $version -- this is not recommended" >&2
   ;;
   "2 "*)
     poll_status=${poll_status#2 }
-    echo "::warning ::Found note for version $version: '$poll_status'" >&2
+    echo "::warning title=Security Polling::Found note for version $version: '$poll_status'" >&2
   ;;
 esac
 
