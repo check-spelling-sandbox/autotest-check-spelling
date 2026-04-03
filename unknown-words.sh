@@ -1946,7 +1946,7 @@ set_up_reporter() {
     -f sarif="" \
     "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/code-scanning/sarifs" > "$sarif_output" 2> "$sarif_error" || true
     if [ "$(jq -r '.status // empty' "$sarif_output")" = 403 ]; then
-      if grep -q 'must be enabled' "$sarif_error" ||
+      if grep -q -E 'must be enabled|is not enabled' "$sarif_error" ||
         grep -q 'GH_TOKEN environment' "$sarif_error"; then
         WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY="$INPUT_USE_SARIF"
       elif grep -Eq 'not authorized|not accessible' "$sarif_output"; then
