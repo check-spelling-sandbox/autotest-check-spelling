@@ -103,7 +103,7 @@ sub parse_inputs {
         next unless $key;
         my $val = $raw_inputs{$key};
         my $var = $key;
-        if ($val =~ /^github_pat_/) {
+        if ($val =~ /^github_pat_/ && $key !~ /-token$|^GITHUB_TOKEN/) {
             print STDERR "Censoring `$var` (unexpected-input-value)\n";
             next;
         }
