@@ -233,24 +233,34 @@ dispatcher() {
       fi
       if [ "$INPUT_TASK" = spelling ]; then
         base_branch="${GITHUB_BASE_REF:-$GITHUB_REF_NAME}"
-        if [ "$(are_head_and_base_in_same_repo "$GITHUB_EVENT_PATH" '.pull_request')" != 'true' ]; then
-          api_output=$(mktemp)
-          api_error=$(mktemp)
-          GH_TOKEN="$GITHUB_TOKEN" gh api --method POST -H "Accept: application/vnd.github+json" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/$base_branch/rename" > "$api_output" 2> "$api_error" || true
-          if ! grep -Eq 'not authorized|not accessible' "$api_output"; then
-            if to_boolean "$INPUT_USE_SARIF"; then
-              INPUT_USE_SARIF=
-              set_up_reporter
-            fi
-            echo '::error title=Unsafe Permissions: check-spelling::This workflow configuration is unsafe. Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
-            github_step_summary_likely_fatal \
-              'Unsafe Permissions' \
-              'This workflow configuration is unsafe.' \
-              'ℹ️ Please see https://docs.check-spelling.dev/Feature:-Restricted-Permissions'
-            quit 5
-          fi
-        fi
         if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
+          if [ "$(are_head_and_base_in_same_repo "$GITHUB_EVENT_PATH" '.pull_request')" != 'true' ]; then
+            api_output=$(mktemp)
+            api_error=$(mktemp)
+            description=$(jq -r '.event.repository.description // empty' "$GITHUB_ACTION_PATH" || true)
+            GH_TOKEN="$GITHUB_TOKEN" gh \
+              api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2026-03-10" \
+              -f "description=$description " \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY" > "$api_output" 2> "$api_error" || true
+            if ! grep -Eq 'not authorized|not accessible|"status":"422"' "$api_output"; then
+              GH_TOKEN="$GITHUB_TOKEN" gh \
+                api \
+                --method POST \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2026-03-10" \
+                -f "description=$description" \
+                "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY" || true
+              cat "$api_output"
+              cat "$api_error"
+              if to_boolean "$INPUT_USE_SARIF"; then
+                INPUT_USE_SARIF=
+                set_up_reporter
+              fi
+            fi
+          fi
           expected_workflow_path=$(get_workflow_path)
           if [ -n "$expected_workflow_path" ] &&
             [ ! -e "$expected_workflow_path" ]; then
