@@ -426,6 +426,15 @@ get_a_comment() {
       get_page "$link" "prev"
       return
     fi
+    if [ $response_code -ne 200 ]; then
+      (
+        echo "Unexpected response for $url"
+        cat "$response_headers"
+        echo
+        cat "$pr_comments"
+      ) >&2
+      return
+    fi
     node_id="$(jq -r "$jq_comment_query" "$pr_comments")"
     if [ -n "$node_id" ]; then
       (
