@@ -1430,20 +1430,20 @@ check_inputs() {
   check_input \
     use_sarif \
     "$WARN_USE_SARIF_NEEDS_SECURITY_EVENTS_WRITE" \
-    'Warning - Unsupported configuration: use_sarif needs security-events: write. Alternatively, consider removing use_sarif (unsupported-configuration)'
+    'Warning - Unsupported configuration: `use_sarif` needs `security-events: write`. Alternatively, consider removing `use_sarif` (unsupported-configuration)'
   check_input \
     use_sarif \
     "$WARN_USE_SARIF_NEEDS_ADVANCED_SECURITY" \
-    'Warning - Unsupported configuration: use_sarif needs GitHub Advanced Security to be enabled - see <https://docs.github.com/get-started/learning-about-github/about-github-advanced-security>. Alternatively, consider removing use_sarif (unsupported-configuration)'
+    'Warning - Unsupported configuration: `use_sarif` needs GitHub Advanced Security to be enabled - see <https://docs.github.com/get-started/learning-about-github/about-github-advanced-security>. Alternatively, consider removing `use_sarif` (unsupported-configuration)'
   check_input \
     use_sarif \
     "$WARN_USE_SARIF_ONLY_CHANGED_FILES" \
-    'Warning - Unsupported configuration: use_sarif is incompatible with only_check_changed_files. Alternatively, consider removing use_sarif or only_check_changed_files (unsupported-configuration)'
+    'Warning - Unsupported configuration: `use_sarif` is incompatible with `only_check_changed_files`. Alternatively, consider removing `use_sarif` or `only_check_changed_files` (unsupported-configuration)'
   if [ -n "$ACT" ]; then
     check_input \
       post_comment \
       "$INPUT_POST_COMMENT" \
-      'Warning - Unsupported configuration: post_comment is not compatible with nektos/act. Consider removing post_comment or not running this job from act (unsupported-configuration)'
+      'Warning - Unsupported configuration: `post_comment` is not compatible with nektos/act. Consider removing `post_comment` or not running this job from act (unsupported-configuration)'
     if to_boolean "$INPUT_USE_SARIF" &&
       [ "$GITHUB_REPOSITORY" = '.' ]; then
       INPUT_USE_SARIF=
@@ -1454,7 +1454,7 @@ check_inputs() {
     ! echo "$INPUT_SPELL_CHECK_THIS" | perl -ne 'chomp; exit 1 unless m{^[-_.A-Za-z0-9]+/[-_.A-Za-z0-9]+(?:|\@[-_./A-Za-z0-9]+)$};'; then
     KEY=spell_check_this \
     VALUE="$INPUT_SPELL_CHECK_THIS" \
-    MESSAGE='Warning - Unsupported repository: spell_check_this. Correct value or remove configuration (unsupported-repo-notation)' \
+    MESSAGE='Warning - Unsupported repository: `spell_check_this`. Correct value or remove configuration (unsupported-repo-notation)' \
     file="$workflow_path" \
     check_yaml_key_value "$validate_workflow_path"
     INPUT_SPELL_CHECK_THIS=''
@@ -1464,7 +1464,7 @@ check_inputs() {
     for duplicated_dictionary in $(echo "$INPUT_EXTRA_DICTIONARIES" | uniq -d); do
       KEY=extra_dictionaries \
       VALUE="$duplicated_dictionary" \
-      MESSAGE="Warning - \`$duplicated_dictionary\` appears multiple times in 'extra_dictionaries' (duplicate-extra-dictionary)" \
+      MESSAGE="Warning - $b$duplicated_dictionary$b appears multiple times in ${b}extra_dictionaries${b} (duplicate-extra-dictionary)" \
       file="$workflow_path" \
       check_yaml_key_value "$validate_workflow_path"
     done
