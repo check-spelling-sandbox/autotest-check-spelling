@@ -144,9 +144,11 @@ jobs:
           echo '# Tests'
           echo 'test|result';
           echo '-|-';
-          perl -ne '
+          perl -e '
             $new_state = 0;
-            if (m<t/.*\.t \.+ ok|^---|^\s*Failed test:|^\s*Non-zero exit status:|\(Wstat>) {
+            my $no_such_file = "Could not open file (no-such-file)";
+            while (<>) {
+            if (m<t/.*\.t \.+ ok|^---|^\s*Failed test:|^\s*Non-zero exit status:|\([W]stat>) {
               $new_state = 1;
             }
             next unless ($new_state || $state);
@@ -154,13 +156,14 @@ jobs:
             $state = $new_state;
             next unless /\w/;
             next if $last_line eq $_;
-            next if /\QCould not open file (no-such-file)\E/;
+            next if /\Q$no_such_file\E/;
             $last_line = $_;
             s/ \.+ ok/|:white_check_mark:/ || s/ \.+ /|/;
             s/^\s+(.*):\s*/... $1|/;
             s/\s+(\(Wstat)/|:x: $1/ unless /\|/;
             s/All tests successful\./All tests|:white_check_mark:/;
-            print' "$cover_output"
+            print;
+            }' "$cover_output"
           echo
           echo '<details><summary>Details</summary>'
           echo

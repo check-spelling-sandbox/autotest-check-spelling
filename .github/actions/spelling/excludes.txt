@@ -3,8 +3,8 @@ ignore$
 \.dic$
 \.png$
 \.t$
-^actions/
 ^LICENSE\.txt$
 ^t/.*/
-^\.github/
+^\.github/actions/spelling/.*patterns
+^\.github/actions/spelling/expect/
 ^version$
