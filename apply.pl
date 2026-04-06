@@ -161,7 +161,7 @@ exit
 };
 
 my $repo = $ENV{GITHUB_REPOSITORY} || 'check-spelling/check-spelling';
-my $ref = $ENV{GITHUB_REF_NAME} || 'v0.0.26';
+my $ref = $ENV{GITHUB_REF_NAME} || 'prerelease';
 
 sub check_current_script {
     return if defined $ENV{'APPLY_SKIP_UPDATE_CHECK'};
