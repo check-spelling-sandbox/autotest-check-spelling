@@ -163,7 +163,9 @@ jobs:
             s/^\s+(.*):\s*/... $1|/;
             s/^# (Looks like.*[^.])\.$/... $1|⚠️/;
             s/\s+(\([Ww]stat)/|❌ $1/ unless /\|/;
-            s/All tests successful\./All tests|✅/;
+            s/All tests successful\./&nbsp;|\nAll tests|✅/;
+            s/Result: PASS/Result|✅/;
+            s/Result: FAIL/Result|❌/;
             s/\.($)/|😳$1/ if / at .* line \d+\./ && !/\|/;
             print;
             }' "$cover_output"
