@@ -112,7 +112,8 @@ dispatcher() {
       exit 1
       ;;
     push)
-      if to_boolean "$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" && ! echo "$GITHUB_REPOSITORY" | grep -q '^..*/..*$'; then
+      if to_boolean "$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST"; then
+        if ! echo "$GITHUB_REPOSITORY" | grep -q '^..*/..*$'; then
         (
           echo '$GITHUB_REPOSITORY '"($GITHUB_REPOSITORY) does not appear to be an OWNER/REPOSITORY"
           if [ -n "$ACT" ]; then
@@ -120,7 +121,7 @@ dispatcher() {
           fi
           echo 'Cannot determine if there is an open pull request, proceeding as if there is not.'
         ) >&2
-      elif to_boolean "$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" && ! echo "$GITHUB_API_URL" | grep -q '://'; then
+        elif ! echo "$GITHUB_API_URL" | grep -q '://'; then
         (
           echo '$GITHUB_API_URL '"($GITHUB_API_URL) does not appear to be a url"
           if [ -n "$ACT" ]; then
@@ -128,93 +129,98 @@ dispatcher() {
           fi
           echo 'Cannot determine if there is an open pull request, proceeding as if there is not.'
         ) >&2
-      elif to_boolean "$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST"; then
-        pull_request_json="$(mktemp_json)"
-        pull_request_headers="$(mktemp)"
-        pull_heads_query="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?head=${GITHUB_REPOSITORY%/*}:$GITHUB_REF"
-        keep_headers=1 call_curl \
-          "$pull_heads_query" > "$pull_request_json"
-        mv "$response_headers" "$pull_request_headers"
-        if [ -n "$(jq .documentation_url "$pull_request_json" 2>/dev/null)" ]; then
-          (
-            echo "Request for '$pull_heads_query' appears to have yielded an error, it is probably an authentication error."
-            if [ -n "$ACT" ]; then
-              echo '[act] If you want to use suppress_push_for_open_pull_request, you need to set GITHUB_TOKEN'
-            fi
-            echo "Headers:"
-            cat "$pull_request_headers"
-            echo "Response:"
-            cat "$pull_request_json"
-            echo 'Cannot determine if there is an open pull request, proceeding as if there is not.'
-          ) >&2
-        elif [ $(jq length "$pull_request_json") -gt 0 ]; then
-          if [ -f "$workflow_path" ] && [ -s "$workflow_path" ]; then
-            found_pull_request_file=1
-            pull_request_events=$(
-              yq -M '.on | keys' "$workflow_path" |
-              perl -ne 'next unless s/^-\s+(pull_request)/$1/; print'
-            )
-          else
-            found_pull_request_file=
-            pull_request_events=
-          fi
-          if [ -z "$found_pull_request_file" ] || [ -n "$pull_request_events" ]; then
+        elif [ "$(jq '.repository.has_pull_requests' "$GITHUB_EVENT_PATH")" == 'false' ]; then
+        (
+          echo 'Ignoring `suppress_push_for_open_pull_request` because pull requests are disabled'
+        ) >&2
+        else
+          pull_request_json="$(mktemp_json)"
+          pull_request_headers="$(mktemp)"
+          pull_heads_query="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls?head=${GITHUB_REPOSITORY%/*}:$GITHUB_REF"
+          keep_headers=1 call_curl \
+            "$pull_heads_query" > "$pull_request_json"
+          mv "$response_headers" "$pull_request_headers"
+          if [ -n "$(jq .documentation_url "$pull_request_json" 2>/dev/null)" ]; then
             (
-              open_pr_number="$(jq -r '.[0].number' "$pull_request_json")"
-              echo "Found [open PR #$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number) - check-spelling should run there."
-              echo
-              pull_request_event_name=pull_request_target
-              if [ -n "$workflow_path" ]; then
-                if ! echo "$pull_request_events" | grep -q pull_request_target ; then
-                  pull_request_event_name=pull_request
-                fi
-                workflow="workflow (${b}$workflow_path${b})"
-                markdown_escaped_branch=$(perl -e 'my $branch=$ENV{GITHUB_REF_NAME}; $branch =~ s/([\\)])/\\$1/g; print $branch')
-                workflow_run_link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/workflows/$workflow_path?query=event:$pull_request_event_name+branch:$markdown_escaped_branch"
-                prefix_workflow_link_text='['
-                suffix_workflow_link_text="]($workflow_run_link)"
-              else
-                workflow='workflow'
-                workflow_run_link=''
-                prefix_workflow_link_text=''
-                suffix_workflow_link_text=''
-              fi
-              checks_link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number/checks"
-              if [ -z "$pull_request_event_name" ]; then
-                echo '::warning title=Could not check workflow for pull_request event::Please ensure there is an `on:` / `pull_request` or `on:` / `pull_request_target` in the running workflow (workflow-might-not-have-pull-request-event)'
-                (
-                  echo '# 😕 Workflow might be missing pull_request event handler'
-                  echo 'The `suppress_push_for_open_pull_request` feature relies on the existence of either an `on:`/`pull_request` or `on:`/`pull_request_target`.'
-                  echo '... if neither are defined, then you will need to fix this workflow file.'
-                  echo 'Unfortunately, check-spelling could not identify the workflow file to ensure the presence of this event handler.'
-                  echo 'If you cannot find a corresponding job run for a pull_request or pull_request_target,'
-                  echo 'then you should fix the workflow to include one of these events.'
-                ) >> "$GITHUB_STEP_SUMMARY"
-              fi
-              echo "::notice title=Workflow skipped::See ${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow in PR #$open_pr_number. $workflow_run_link $checks_link"
+              echo "Request for '$pull_heads_query' appears to have yielded an error, it is probably an authentication error."
               if [ -n "$ACT" ]; then
-                matched_yaml_key_value=$(
-                  REPORT_MATCHING_YAML=1 \
-                  KEY=suppress_push_for_open_pull_request \
-                  VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
-                  file="$workflow_path" \
-                  check_yaml_key_value "$validate_workflow_path"
-                )
-                echo
-                echo 'You appear to be running nektos/act, you should probably comment out:'
-                echo
-                echo "${matched_yaml_key_value:-"        suppress_push_for_open_pull_request: $INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST"}"
+                echo '[act] If you want to use suppress_push_for_open_pull_request, you need to set GITHUB_TOKEN'
               fi
-              workflow_skipped "See $prefix_workflow_link_text${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow$suffix_workflow_link_text in PR [#$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number).$n$n$checks_link"
+              echo "Headers:"
+              cat "$pull_request_headers"
+              echo "Response:"
+              cat "$pull_request_json"
+              echo 'Cannot determine if there is an open pull request, proceeding as if there is not.'
             ) >&2
-            exit 0
+          elif [ $(jq length "$pull_request_json") -gt 0 ]; then
+            if [ -f "$workflow_path" ] && [ -s "$workflow_path" ]; then
+              found_pull_request_file=1
+              pull_request_events=$(
+                yq -M '.on | keys' "$workflow_path" |
+                perl -ne 'next unless s/^-\s+(pull_request)/$1/; print'
+              )
+            else
+              found_pull_request_file=
+              pull_request_events=
+            fi
+            if [ -z "$found_pull_request_file" ] || [ -n "$pull_request_events" ]; then
+              (
+                open_pr_number="$(jq -r '.[0].number' "$pull_request_json")"
+                echo "Found [open PR #$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number) - check-spelling should run there."
+                echo
+                pull_request_event_name=pull_request_target
+                if [ -n "$workflow_path" ]; then
+                  if ! echo "$pull_request_events" | grep -q pull_request_target ; then
+                    pull_request_event_name=pull_request
+                  fi
+                  workflow="workflow (${b}$workflow_path${b})"
+                  markdown_escaped_branch=$(perl -e 'my $branch=$ENV{GITHUB_REF_NAME}; $branch =~ s/([\\)])/\\$1/g; print $branch')
+                  workflow_run_link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/workflows/$workflow_path?query=event:$pull_request_event_name+branch:$markdown_escaped_branch"
+                  prefix_workflow_link_text='['
+                  suffix_workflow_link_text="]($workflow_run_link)"
+                else
+                  workflow='workflow'
+                  workflow_run_link=''
+                  prefix_workflow_link_text=''
+                  suffix_workflow_link_text=''
+                fi
+                checks_link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number/checks"
+                if [ -z "$pull_request_event_name" ]; then
+                  echo '::warning title=Could not check workflow for pull_request event::Please ensure there is an `on:` / `pull_request` or `on:` / `pull_request_target` in the running workflow (workflow-might-not-have-pull-request-event)'
+                  (
+                    echo '# 😕 Workflow might be missing pull_request event handler'
+                    echo 'The `suppress_push_for_open_pull_request` feature relies on the existence of either an `on:`/`pull_request` or `on:`/`pull_request_target`.'
+                    echo '... if neither are defined, then you will need to fix this workflow file.'
+                    echo 'Unfortunately, check-spelling could not identify the workflow file to ensure the presence of this event handler.'
+                    echo 'If you cannot find a corresponding job run for a pull_request or pull_request_target,'
+                    echo 'then you should fix the workflow to include one of these events.'
+                  ) >> "$GITHUB_STEP_SUMMARY"
+                fi
+                echo "::notice title=Workflow skipped::See ${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow in PR #$open_pr_number. $workflow_run_link $checks_link"
+                if [ -n "$ACT" ]; then
+                  matched_yaml_key_value=$(
+                    REPORT_MATCHING_YAML=1 \
+                    KEY=suppress_push_for_open_pull_request \
+                    VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
+                    file="$workflow_path" \
+                    check_yaml_key_value "$validate_workflow_path"
+                  )
+                  echo
+                  echo 'You appear to be running nektos/act, you should probably comment out:'
+                  echo
+                  echo "${matched_yaml_key_value:-"        suppress_push_for_open_pull_request: $INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST"}"
+                fi
+                workflow_skipped "See $prefix_workflow_link_text${b}check-spelling${b} ${b}$pull_request_event_name${b} $workflow$suffix_workflow_link_text in PR [#$open_pr_number]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$open_pr_number).$n$n$checks_link"
+              ) >&2
+              exit 0
+            fi
+            KEY=suppress_push_for_open_pull_request \
+            VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
+            MESSAGE='Warning - Misconfigured workflow: missing on:/pull_request(_target) (missing-on-pull-request-event)' \
+            file="$workflow_path" \
+            check_yaml_key_value "$validate_workflow_path"
+            INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST=''
           fi
-          KEY=suppress_push_for_open_pull_request \
-          VALUE="$INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST" \
-          MESSAGE='Warning - Misconfigured workflow: missing on:/pull_request(_target) (missing-on-pull-request-event)' \
-          file="$workflow_path" \
-          check_yaml_key_value "$validate_workflow_path"
-          INPUT_SUPPRESS_PUSH_FOR_OPEN_PULL_REQUEST=''
         fi
       fi
       if [ -z "$INPUT_TASK" ]; then
