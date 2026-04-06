@@ -264,6 +264,6 @@ jobs:
       run: |
         : Artifact note
         cat <<EOF >> "$GITHUB_STEP_SUMMARY"
-        # apply.pl and artifact
-        You should be able to use [\`apply.pl\`](https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/apply.pl) with standalone-artifact.
+        ## apply.pl and artifact
+        You should be able to use [\`apply.pl\`](https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/apply.pl) with \`standalone-artifact\`.
         EOF
