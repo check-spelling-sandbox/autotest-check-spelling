@@ -116,6 +116,18 @@
             ]
         },
         {
+            "owner": "check-spelling-perl-unmatched-in-regex",
+            "severity": "warning",
+            "pattern": [
+                {
+                    "regexp": "(Unmatched .* in regex.*) at (?:/home/runner/work/(?:_actions/[^/]+|)/[^/]+/[^/]+/|.*/check-spelling/)(\\S+) line (\\d+)",
+                    "message": 1,
+                    "file": 2,
+                    "line": 3
+                }
+            ]
+        },
+        {
             "owner": "check-spelling-perl-experimental-regex",
             "severity": "warning",
             "pattern": [
