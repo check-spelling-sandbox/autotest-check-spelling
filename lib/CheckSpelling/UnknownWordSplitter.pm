@@ -354,7 +354,7 @@ sub split_line {
       }
       unless ($disable_word_collating) {
         $key =~ s/''+/'/g;
-        $key =~ s/'[sd]$// unless length $key >= $shortest_threshold;
+        $key =~ s/'[sd]$// if length $key >= $shortest_threshold;
       }
       if (defined $dictionary{$key}) {
         ++$words;
