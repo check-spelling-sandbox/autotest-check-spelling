@@ -47,8 +47,8 @@ $ENV{GH_ACTION_REF} = 'dummy';
 system(qw(git config user.email check-spelling-bot@users.noreply.github.com));
 system(qw(git config user.name check-spelling-bot));
 
-`perl -MDevel::Cover -e 1 2>&1`;
-$ENV{PERL5OPT} = '-MDevel::Cover' unless $?;
+my $cover_warnings = `perl -MDevel::Cover -e 1 2>&1`;
+$ENV{PERL5OPT} = '-MDevel::Cover' unless $? || $cover_warnings =~ /No such file or directory/;
 
 sub cleanup {
   my ($text, $internal_state_directory, $cleanup_quoted) = @_;
