@@ -3886,7 +3886,17 @@ post_commit_comment() {
       echo " //// "
       if [ $response_code -eq 403 ]; then
         if grep -q '#create-a-commit-comment' "$response"; then
-          echo "Consider adding:"
+          echo 'This repository may have disabled commit comments.'
+          case "$THIS_GITHUB_JOB_ID" in
+            *comment-push*)
+              echo 'Consider deleting this job and relying on the GitHub Step Summary instead.'
+              ;;
+            *)
+              echo 'You could turn off comments with `post_comment: 0` or if you really want comments ask the repository administrator to enable them.'
+              ;;
+          esac
+          echo
+          echo "Otherwise, consider adding:"
           echo
           echo "permissions:"
           echo "  contents: write"
