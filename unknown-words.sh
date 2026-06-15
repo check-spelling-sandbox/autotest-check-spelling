@@ -1897,6 +1897,14 @@ get_extra_dictionary() {
       return
     fi
   fi
+  if [ ! -e "$dest" ]; then
+    echo "::error ::Failed to retrieve $extra_dictionary_url -- HTTP $response_code for $url ($dictionary_class-dictionary-not-found)" >> "$early_warnings"
+    (
+      echo "Failed to retrieve $extra_dictionary_url ($url)"
+      cat "$response_headers"
+    ) >&2
+    return
+  fi
   echo "Retrieved $extra_dictionary_url" >&2
   if [ -n "$real_dest" ]; then
     mv "$dest" "$real_dest"
