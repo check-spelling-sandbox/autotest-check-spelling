@@ -622,6 +622,32 @@
               }
             },
             {
+              "id": "utf16-surrogate-file",
+              "name": "Utf16SurrogateFile",
+              "helpUri": "https://docs.check-spelling.dev/Event-descriptions#utf16-surrogate-file",
+              "shortDescription": {
+                "text": "UTF-16 Surrogate File"
+              },
+              "fullDescription": {
+                "text": "The file has UTF-16 surrogate characters."
+              },
+              "help": {
+                "text": "?",
+                "markdown": "**Remediation (click \"Show more\" below)**:\n\n- Ignore the file\n- Remove utf-16 surrogate characters\n\n"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "precision": "high",
+                "problem.severity": "recommendation",
+                "tags": [
+                  "source-code",
+                  "code-reviews"
+                ]
+              }
+            },
+            {
               "id": "non-alpha-in-dictionary",
               "name": "NonAlphaInDictionary",
               "helpUri": "https://docs.check-spelling.dev/Event-descriptions#non-alpha-in-dictionary",
