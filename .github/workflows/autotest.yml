@@ -70,7 +70,7 @@ jobs:
                     shared_rev=$(git merge-base origin-$branch sandbox-$branch)
                     if [ "$origin_rev" != "$shared_rev" ]; then
                         sandbox_rev=$(git rev-parse sandbox-$branch)
-                        echo "* [check-spelling-sandbox/$branch]($sandbox_base/tree/$branch)@[$q$sandbox_rev$q]($sandbox_base/commit/$sandbox_rev) is behind [check-spelling/$branch]($origin_base/tree/$branch)@[$q$origin_rev$q]($origin_base/commit/$origin_rev)"
+                        echo "* [check-spelling-sandbox/$branch]($sandbox_base/tree/$branch)@[$q$sandbox_rev$q]($sandbox_base/commit/$sandbox_rev) is [behind]($origin_base/compare/$origin_rev..$sandbox_rev) [check-spelling/$branch]($origin_base/tree/$branch)@[$q$origin_rev$q]($origin_base/commit/$origin_rev)"
                         echo
                         (
                             echo '```'
