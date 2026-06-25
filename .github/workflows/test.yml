@@ -12,7 +12,7 @@ jobs:
     name: Perl
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-firewall
     if: contains(github.event_name, 'pull_request') || github.event_name == 'push'
     steps:
     - name: Checkout merge
@@ -279,7 +279,7 @@ jobs:
     name: Standalone
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-firewall
     if: contains(github.event_name, 'pull_request') || github.event_name == 'push'
     steps:
     - name: Checkout merge
