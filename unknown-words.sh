@@ -254,13 +254,17 @@ dispatcher() {
         INPUT_TASK=spelling
       fi
       ;;
-    pull_request|pull_request_target)
+    pull_request|pull_request_target|merge_group)
       if [ -z "$INPUT_TASK" ]; then
         INPUT_TASK=spelling
       fi
       if [ "$INPUT_TASK" = spelling ]; then
         base_branch="${GITHUB_BASE_REF:-$GITHUB_REF_NAME}"
-        if [ "$GITHUB_EVENT_NAME" = pull_request_target ]; then
+        case "$GITHUB_EVENT_NAME" in
+        merge_group)
+          INPUT_USE_SARIF=
+          ;;
+        pull_request_target)
           if [ "$(are_head_and_base_in_same_repo "$GITHUB_EVENT_PATH" '.pull_request')" != 'true' ]; then
             api_output=$(mktemp)
             api_error=$(mktemp)
@@ -298,7 +302,8 @@ dispatcher() {
             'See [GitHub docs](https://github.com/github/docs/commit/bcff1fea9a3d7138e0707246e0ace5a3b183e33b) for some information about this feature from 2025-Dec.'"$n" \
             "As the workflow (${b}$workflow_file${b}) is not present on the [branch]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/tree/$base_branch/$workflow_directory), it does not make sense to complain about the state of the world there."
           fi
-        fi
+          ;;
+        esac
         if [ "$(jq -r '.pull_request.state // empty' "$GITHUB_EVENT_PATH")" == 'closed' ]; then
           workflow_skipped 'It does not make sense to use check-spelling for closed pull requests.'"$N" \
           "You can add an ${b}github.event.pull_request.state == 'open'${b} condition to the ${b}if:${b} for the ${b}job:${b} containing this action to suppress this message."
@@ -2635,7 +2640,7 @@ get_ocr_cache() {
   case "$GITHUB_EVENT_NAME" in
     push)
       ;;
-    pull_request|pull_request_target)
+    pull_request|pull_request_target|merge_group)
       [ "$default_branch" != "$GITHUB_BASE_REF" ] && get_ocr_cache_ref "$GITHUB_BASE_REF" push ||
       get_ocr_cache_ref "$default_branch" push
       ;;
@@ -3147,7 +3152,7 @@ spelling_body() {
   fi
 
   case "$GITHUB_EVENT_NAME" in
-    pull_request|pull_request_target)
+    pull_request|pull_request_target|merge_group)
       details_note="See the [📂 files]($(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")/files/) view, $action_log_markdown, $sarif_report or $memo for details.";;
     push)
       if [ -n "$action_log_markdown" ]; then
