@@ -21,6 +21,7 @@ use File::Temp qw/ tempfile tempdir /;
 use File::Path qw/ make_path /;
 use CheckSpelling::Util;
 use Digest::SHA;
+use JSON::PP;
 our $VERSION='0.1.0';
 
 my ($longest_word, $shortest_word, $word_match, $forbidden_re, $patterns_re, $candidates_re, $disable_word_collating, $check_file_names);
@@ -36,6 +37,8 @@ my @candidates_re_list;
 my $hunspell_dictionary_path;
 my @hunspell_dictionaries;
 my %dictionary = ();
+my $cache_dir = '';
+my %file_map = ();
 our @reject_re_list = ();
 our $reject_re = '$^';
 my $base_dict;
@@ -293,6 +296,7 @@ sub init {
   our %forbidden_re_descriptions;
   our @reject_re_list;
   our $reject_re;
+  our %file_map;
   if ($hunspell_dictionary_path) {
     our @hunspell_dictionaries = ();
     if (eval 'use Text::Hunspell; 1') {
@@ -381,6 +385,15 @@ sub init {
   our $base_dict = CheckSpelling::Util::get_file_from_env('dict', "$configuration/words");
   $base_dict = '/usr/share/dict/words' unless -e $base_dict;
   load_dictionary($base_dict);
+
+  our $cache_dir = CheckSpelling::Util::get_file_from_env('work_cache', '');
+  if ($cache_dir) {
+    if (open my $cache_map, '<:utf8', "$cache_dir/files.json") {
+      local $/ = undef;
+      %file_map = %{JSON::PP::decode_json(<$cache_map>)};
+      close $cache_map;
+    }
+  }
 }
 
 sub split_line {
@@ -525,6 +538,12 @@ sub print_word_not_in_dictionary {
 
 sub split_file {
   my ($file) = @_;
+  our %file_map;
+  if (defined $file_map{$file}) {
+    our $cache_dir;
+    print STDERR "using cached result for file: $file\n" if defined $ENV{'DEBUG'};
+    return "$cache_dir/$file_map{$file}";
+  }
   our (
     $unrecognized, $shortest, $largest_file, $words,
     $word_match, %unique, %unique_unrecognized, $forbidden_re,

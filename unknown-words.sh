@@ -2674,31 +2674,44 @@ build_file_list() {
       "$scope_files" > "$1"
 }
 
-get_ocr_cache_ref() {
+get_artifacts_url() {
+  jq -r '.workflow_runs[].artifacts_url // empty' 2>/dev/null
+}
+
+get_cache_ref() {
   ref="$1"
   event="$2"
-  artifacts_url=$(
-    call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/workflows/${workflow_path##*/}/runs?branch=$ref&event=$event&per_page=1" | jq -r '.workflow_runs[].artifacts_url // empty' 2>/dev/null
-  )
+  kind="$3"
+  dest="$4"
+  artifacts_url=$(call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/workflows/${workflow_path##*/}/runs?branch=$ref&event=$event&per_page=1" | get_artifacts_url)
+  if [ -z "$artifacts_url" ]; then
+    previous_run=$(call_curl "$(get_link next "$response_headers")")
+    artifacts_url=$(call_curl "$previous_run" | get_artifacts_url)
+  fi
   if [ -z "$artifacts_url" ]; then
     false
     return
   fi
-  artifacts=$(mktemp)
-  keep_headers=1 call_curl "$artifacts_url" > $artifacts
-  artifact=$(jq -r '.artifacts[] | select(.name|match ("^ocr")).id // empty' "$artifacts" | sort -n | tail -1)
-  if [ -z "$artifact" ]; then
+  cache_artifacts=$(mktemp)
+  keep_headers=1 call_curl "$artifacts_url" | tee "$cache_artifacts" > /dev/null
+  cache_artifact=$(jq -r '.artifacts[] | select(.name|match ("^'"$kind"'")).id // empty' "$cache_artifacts" | sort -n | tail -1)
+  if [ -z "$cache_artifact" ]; then
+    cat "$cache_artifacts" >&2
     false
     return
   fi
   artifact_zip=$(mktemp)
-  call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$artifact_zip"
+  call_curl "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts/$cache_artifact/zip" | tee "$artifact_zip" > /dev/null
   if [ "$(head -c2 "$artifact_zip")" != 'PK' ]; then
     false
     return
   fi
-  unzip -q -o "$artifact_zip" -d "$ocr_directory" && rm "$artifact_zip"
+  unzip -q -o "$artifact_zip" -d "$dest" && rm "$artifact_zip"
   # grep -i '^link:' "$response_headers"
+}
+
+get_ocr_cache_ref() {
+  get_cache_ref "$1" "$2" ocr "$ocr_directory"
 }
 
 get_ocr_cache() {
@@ -2714,6 +2727,29 @@ get_ocr_cache() {
       ;;
     *)
       get_ocr_cache_ref "$GITHUB_REF_NAME" push
+      ;;
+  esac
+}
+
+get_data_cache_ref() {
+  get_cache_ref "$1" "$2" "$artifact" "$work_cache"
+}
+
+get_data_cache() {
+  data_directory=$(mktemp -d)
+  artifact="data${INPUT_REPORT_TITLE_SUFFIX:+-$INPUT_REPORT_TITLE_SUFFIX}"
+  if get_data_cache_ref "$GITHUB_REF_NAME" "$GITHUB_EVENT_NAME"; then
+    return
+  fi
+  case "$GITHUB_EVENT_NAME" in
+    push)
+      ;;
+    pull_request|pull_request_target|merge_group)
+      [ "$default_branch" != "$GITHUB_BASE_REF" ] && get_data_cache_ref "$GITHUB_BASE_REF" push ||
+      get_data_cache_ref "$default_branch" push
+      ;;
+    *)
+      get_data_cache_ref "$GITHUB_REF_NAME" push
       ;;
   esac
 }
@@ -2738,6 +2774,8 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   else
     synthetic_base=$(mktemp -d)
   fi
+  work_cache="$(mktemp -d)"
+  get_data_cache || true
   ocr_directory="$synthetic_base/ocr"
   echo "^\Q$synthetic_base/\E" >> "$patterns"
   mkdir -p "$synthetic_base"
@@ -2911,6 +2949,8 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     splitter_timeout="$INPUT_WORD_SPLITTER_TIMEOUT" \
     early_warnings="$early_warnings" \
     spellchecker="$spellchecker" \
+    work_cache="$work_cache" \
+    DEBUG="$DEBUG" \
   xargs -0 -n$queue_size "-P$job_count" "$word_splitter" |\
     expect="$expect_path" \
     warning_output="$warning_output" \
@@ -2929,6 +2969,8 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     pr_description_file="$pr_description_file" \
     commit_messages="$commit_messages" \
     timing_report="$timing_report" \
+    work_cache="$work_cache" \
+    DEBUG="$DEBUG" \
     "$word_collator" |\
   "$strip_word_collator_suffix" > "$run_output"
   word_splitter_status="${PIPESTATUS[2]} ${PIPESTATUS[3]}"
@@ -2968,6 +3010,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$warning_output" >&2
   . "$severity_list"
   set_output_variable warnings "$warning_output"
+  if [ -d "$work_cache" ]; then
+    set_output_variable work-cache "$work_cache"
+  fi
   if [ -d "$ocr_directory" ]; then
     set_output_variable ocr_directory "$ocr_directory"
   fi
