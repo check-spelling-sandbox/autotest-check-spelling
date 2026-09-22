@@ -2317,6 +2317,12 @@ set_up_files() {
   forbidden_summary="$data_dir/forbidden_summary.txt"
   get_project_files README.md "$(mktemp -d)/README.md"
   if [ "$INPUT_TASK" = 'spelling' ]; then
+    work_cache="$(mktemp -d)"
+    if get_data_cache; then
+      if [ -d "$work_cache/dictionaries" ]; then
+        cp -R "$work_cache/dictionaries/" "$spellchecker/dictionaries/"
+      fi
+    fi
     get_project_files dictionary.words "$dictionary_path"
     get_project_files dictionary.txt "$dictionary_path"
     if [ -s "$dictionary_path" ]; then
@@ -2740,6 +2746,29 @@ get_ocr_cache() {
   esac
 }
 
+get_data_cache_ref() {
+  get_cache_ref "$1" "$2" "$artifact" "$work_cache"
+}
+
+get_data_cache() {
+  data_directory=$(mktemp -d)
+  artifact="data${INPUT_REPORT_TITLE_SUFFIX:+-$INPUT_REPORT_TITLE_SUFFIX}"
+  if get_data_cache_ref "$GITHUB_REF_NAME" "$GITHUB_EVENT_NAME"; then
+    return
+  fi
+  case "$GITHUB_EVENT_NAME" in
+    push)
+      ;;
+    pull_request|pull_request_target|merge_group)
+      [ "$default_branch" != "$GITHUB_BASE_REF" ] && get_data_cache_ref "$GITHUB_BASE_REF" push ||
+      get_data_cache_ref "$default_branch" push
+      ;;
+    *)
+      get_data_cache_ref "$GITHUB_REF_NAME" push
+      ;;
+  esac
+}
+
 run_spell_check() {
   if [ "$INPUT_TASK" != 'spelling' ]; then
     report_cached_warning_output
@@ -2933,6 +2962,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     splitter_timeout="$INPUT_WORD_SPLITTER_TIMEOUT" \
     early_warnings="$early_warnings" \
     spellchecker="$spellchecker" \
+    work_cache="$work_cache" \
     DEBUG="$DEBUG" \
   xargs -0 -n$queue_size "-P$job_count" "$word_splitter" |\
     expect="$expect_path" \
@@ -2952,6 +2982,7 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
     pr_description_file="$pr_description_file" \
     commit_messages="$commit_messages" \
     timing_report="$timing_report" \
+    work_cache="$work_cache" \
     DEBUG="$DEBUG" \
     "$word_collator" |\
   "$strip_word_collator_suffix" > "$run_output"
@@ -2992,6 +3023,9 @@ print strftime(q<%Y-%m-%dT%H:%M:%SZ>, gmtime($now));
   cat "$warning_output" >&2
   . "$severity_list"
   set_output_variable warnings "$warning_output"
+  if [ -d "$work_cache" ]; then
+    set_output_variable work-cache "$work_cache"
+  fi
   if [ -d "$ocr_directory" ]; then
     set_output_variable ocr_directory "$ocr_directory"
   fi
@@ -3646,6 +3680,24 @@ quit() {
     echo "docker_container=$(perl -ne 'next unless m{:/docker/(.*)}; print $1;last' /proc/self/cgroup)" >> "$GITHUB_OUTPUT"
   fi
   set_output_variable workflow-path "$workflow_path"
+  if [ -n "$work_cache" ]; then
+    rm -rf "$work_cache/dictionaries"
+    [ -e "$spellchecker/dictionaries" ] && mv "$spellchecker/dictionaries" "$work_cache/" || true
+    rm -rf "$work_cache/config"
+    mkdir -p "$work_cache/config"
+    stash() {
+      if [ -n "$1" ] && [ -e "$1" ]; then
+        cp "$1" $work_cache/config
+      fi
+    }
+    stash "$allow_path"
+    stash "$block_delimiters_path"
+    stash "$allow_path"
+    stash "$reject_path"
+    stash "$forbidden_path"
+    stash "$patterns_path"
+    stash "$reject_path"
+  fi
   cat "$output_variables" >> "$GITHUB_OUTPUT"
   if [ -n "$GH_OUTPUT_STUB" ]; then
     perl -pe 's/^(\S+)=(.*)/::set-output name=$1::$2/' "$GITHUB_OUTPUT"
