@@ -1,5 +1,6 @@
 # @check-spelling/check-spelling GitHub Action
 
+
 ## Overview
 
 Everyone makes typos. This includes people writing documentation and comments,
