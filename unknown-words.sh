@@ -2688,7 +2688,7 @@ get_cache_ref() {
     fi
     actions_workflows_url="$GITHUB_API_URL/$repo_self/actions/workflows/${workflow_path##*/}"
   fi
-  artifacts_urls=$(call_curl "$actions_workflows_url/runs?branch=$ref&event=$event&per_page=1" | get_artifacts_urls)
+  artifacts_urls=$(call_curl "$actions_workflows_url/runs?branch=$ref&event=$event&per_page=2" | get_artifacts_urls)
   if [ -z "$artifacts_urls" ]; then
     false
     return
