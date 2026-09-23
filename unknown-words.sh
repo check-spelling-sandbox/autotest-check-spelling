@@ -1924,9 +1924,17 @@ expand_dictionary_url() {
   echo "$1" | perl -pe "$dictionary_alias_pattern"
 }
 
+get_etag() {
+  perl -ne 'next unless s/^etag: //;chomp; print' "$1"
+}
+
 get_extra_dictionary() {
   extra_dictionary_url="$1"
   source_link="$dictionaries_dir"/."$2"
+  etag_file="$source_link.etag"
+  if [ -s "$etag_file" ]; then
+    etag_flag='If-None-Match: '"$(perl -pn -e 's/\s+//' "$etag_file")"
+  fi
   url="$(expand_dictionary_url "$extra_dictionary_url")"
   dest="$dictionaries_dir"/"$2"
   if [ "$url" != "${url#"${GITHUB_SERVER_URL}"/*}" ]; then
@@ -1935,6 +1943,7 @@ get_extra_dictionary() {
   keep_headers=$(mktemp)
   keep_headers="$keep_headers" call_curl \
     "$url" \
+    ${etag_flag:+--header} ${etag_flag:+"$etag_flag"} \
     > "$dest"
   if echo "$url"|grep -q -E '^https?://'; then
     if { [ -z "$response_code" ] || [ $response_code -ge 400 ] || [ $response_code -eq 000 ] ; } 2> /dev/null; then
@@ -1953,6 +1962,9 @@ get_extra_dictionary() {
     if [ $response_code -eq 304 ]; then
       rm -f "$keep_headers"
       return
+    fi
+    if [ $response_code -eq 200 ]; then
+      get_etag "$keep_headers" | tee "$etag_file" >&2
     fi
   elif [ $curl_exit_code -gt 0 ]; then
     rm -f "$dest"
