@@ -2709,7 +2709,20 @@ get_cache_ref() {
     fi
     actions_workflows_url="$GITHUB_API_URL/$repo_self/actions/workflows/${workflow_path##*/}"
   fi
-  artifacts_urls=$(call_curl "$actions_workflows_url/runs?branch=$ref&event=$event&per_page=2" | get_artifacts_urls)
+  if [ -z "$two_weeks_ago" ]; then
+    two_weeks_ago=$(perl -e '
+use strict;
+use warnings;
+use Time::Piece;
+use Time::Seconds; # Provides the ONE_WEEK constant
+
+my $two_weeks_ago = localtime() - (2 * ONE_WEEK);
+
+print $two_weeks_ago->strftime(q{%Y-%m-%d}), "\n";
+');
+  fi
+
+  artifacts_urls=$(call_curl "$actions_workflows_url/runs?branch=$ref&event=$event&per_page=2&created=>$two_weeks_ago" | get_artifacts_urls)
   if [ -z "$artifacts_urls" ]; then
     false
     return
