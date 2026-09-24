@@ -2570,6 +2570,42 @@ set_up_files() {
       }
     ' >> "$early_warnings"
   fi
+  if [ -n "$work_cache" ]; then
+    if [ -z "$DEBUG" ]; then
+      set -x
+    fi
+    cache_may_be_valid=1
+    cache_files_checked=0
+    for item in \
+      "$allow_path" \
+      "$block_delimiters_path" \
+      "$forbidden_path" \
+      "$patterns_path" \
+      "$reject_path" \
+    ; do
+      : Check to see if cache is valid
+      if [ -n "$item" ] && [ -s "$item" ]; then
+        if ! diff -q "$item" "$work_cache/config/$(basename "$item")" >/dev/null 2>/dev/null; then
+          cache_may_be_valid=
+          break
+        fi
+        cache_files_checked=$(( cache_files_checked + 1 ))
+      fi
+    done
+    if [ -n "$cache_may_be_valid" ] && [ $(find "$work_cache/config" -type f ! -empty | wc -l) -ne $cache_files_checked ]; then
+      cache_may_be_valid=
+    fi
+    if [ -z "$cache_may_be_valid" ] && [ -e "$work_cache/files.json" ]; then
+      jq -r '.[]' "$work_cache/files.json" |
+      while IFS= read -r work_cache_entry; do
+        rm -rf "$work_cache/$work_cache_entry"
+      done
+      rm -f "$work_cache/files.json"
+    fi
+    if [ -z "$DEBUG" ]; then
+      set +x
+    fi
+  fi
 }
 
 welcome() {
