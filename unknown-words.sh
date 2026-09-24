@@ -2592,7 +2592,7 @@ set_up_files() {
         cache_files_checked=$(( cache_files_checked + 1 ))
       fi
     done
-    if [ -n "$cache_may_be_valid" ] && [ $(find "$work_cache/config" -type f ! -empty | wc -l) -ne $cache_files_checked ]; then
+    if [ -n "$cache_may_be_valid" ] && [ $(find "$work_cache/config" -type f ! -empty | tee /dev/stderr | wc -l) -ne $cache_files_checked ]; then
       cache_may_be_valid=
     fi
     if [ -z "$cache_may_be_valid" ] && [ -e "$work_cache/files.json" ]; then
