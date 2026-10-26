@@ -123,6 +123,7 @@ jobs:
       - name: Run check-spelling
         if: env.MERGE_FAILED != '1'
         id: spelling
+        timeout-minutes: 10
         uses: ./
         with:
           suppress_push_for_open_pull_request: 1
