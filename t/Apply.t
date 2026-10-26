@@ -15,6 +15,10 @@ plan tests => 52;
 
 is(1, 1, 'before use CheckSpelling::Apply');
 
+my $timeout = 50;
+local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+alarm $timeout;
+
 my @apply_script;
 {
   open(my $apply_pl, '<', 'apply.pl') || die "oops";
@@ -247,6 +251,7 @@ while ($state < 4 && $retries <= 3) {
         last if $retries > 3;
       } elsif ($http_state == 403 && m/^x-ratelimit-remaining: 0/) {
         my $sleep_delay=10+(rand(10) | 0);
+        $retries += 2;
         print STDERR "Hit rate limit. Sleeping $sleep_delay seconds\n";
         sleep $sleep_delay;
         last;
