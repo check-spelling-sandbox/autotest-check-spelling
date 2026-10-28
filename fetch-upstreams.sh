@@ -2,7 +2,7 @@
 git_remote=$(git config --get remote.origin.url)
 extra_workflows=$(cd ../workflows; pwd)
 cherry_pick_start=2
-cherry_pick_stop=3
+cherry_pick_stop=4
 for cherry_pick in $(seq $cherry_pick_start $cherry_pick_stop); do
   git fetch origin autodetect-expired-artifact-$cherry_pick:autodetect-expired-artifact-$cherry_pick
 done
