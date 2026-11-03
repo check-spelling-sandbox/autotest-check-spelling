@@ -414,6 +414,29 @@ load_env() {
   fi
   action_yml="$spellchecker/action.yml" workflow_yml="$private_workflow_path" "$spellchecker/wrappers/load-env" > "$input_variables"
   . "$input_variables"
+  splitter_config_path="$temp_sandbox/splitter-config.json"
+  splitter_dependent_config > "$splitter_config_path"
+}
+
+splitter_dependent_config() {
+  echo '{}' |
+  jq -r "$(
+    perl -e '
+      my %v=();
+      while (<>) {
+        next unless /from_env.*?(INPUT.*?,)/;
+        my $i = $1;
+        $i =~ s/.,//;
+        $v{$i} = 1;
+      };
+      print "{";
+      for my $k (sort keys %v) {
+        print qq<"$k":(env.$k),>;
+      }
+      print q<"ignored": null>;
+      print "}"
+    ' "$spellchecker/lib/CheckSpelling/UnknownWordSplitter.pm"
+  ) // {} | with_entries(select(.value != null))"
 }
 
 wrap_in_json() {
@@ -1250,6 +1273,7 @@ define_variables() {
   action_workflow_path_file="$(mktemp)"
   retrieved_default_workflow_file="$(mktemp)"
   workflow_path=$(get_workflow_path)
+  temp_sandbox=$(mktemp -d)
   load_env
   GITHUB_TOKEN="${GITHUB_TOKEN:-"$INPUT_GITHUB_TOKEN"}"
   if [ -n "$GITHUB_TOKEN" ]; then
@@ -1346,7 +1370,6 @@ define_variables() {
   forbidden_path="$splitter_configuration/forbidden.txt"
   candidates_path="$splitter_configuration/candidates.txt"
   excludes=${excludes:-$(mktemp)}
-  temp_sandbox=$(mktemp -d)
   excludes_path="$temp_sandbox/excludes.txt"
   only=${only:-$(mktemp)}
   only_path="$temp_sandbox/only.txt"
@@ -2586,6 +2609,7 @@ set_up_files() {
       "$homoglyph_list_path" \
       "$patterns_path" \
       "$reject_path" \
+      "$splitter_config_path" \
     ; do
       if [ -n "$item" ] && [ -s "$item" ]; then
         if ! diff -q "$item" "$work_cache/config/$(basename "$item")" >/dev/null 2>/dev/null; then
@@ -3774,6 +3798,7 @@ quit() {
     stash "$homoglyph_list_path"
     stash "$patterns_path"
     stash "$reject_path"
+    stash "$splitter_config_path"
   fi
   cat "$output_variables" >> "$GITHUB_OUTPUT"
   if [ -n "$GH_OUTPUT_STUB" ]; then
